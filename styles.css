@@ -43,16 +43,7 @@ a {
   max-width: 100%;
   min-height: 100vh;
   overflow: hidden;
-  background: url("assets/brand/retail-network.webp") center / cover no-repeat;
-}
-
-.site-shell::before {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  content: "";
-  pointer-events: none;
-  background: rgba(6, 30, 59, 0.78);
+  background: linear-gradient(90deg, #020b18 0%, #06182f 48%, #0d3767 100%);
 }
 
 .site-shell::after {
@@ -156,7 +147,7 @@ a {
   width: min(1180px, calc(100% - 40px));
   min-height: calc(100vh - 86px);
   margin: 0 auto;
-  padding: 72px 0 28px;
+  padding: 44px 0 28px;
 }
 
 .hero-content {
@@ -165,15 +156,6 @@ a {
   width: min(760px, 100%);
   min-width: 0;
   max-width: 100%;
-}
-
-.primary-logo {
-  display: block;
-  width: clamp(250px, 38vw, 450px);
-  max-height: 145px;
-  margin: 0 0 36px -18px;
-  object-fit: contain;
-  mix-blend-mode: screen;
 }
 
 .eyebrow {
@@ -216,7 +198,7 @@ h1 {
 .development-status {
   width: min(660px, 100%);
   max-width: 100%;
-  margin-top: 46px;
+  margin-top: 34px;
 }
 
 .status-copy {
@@ -516,12 +498,6 @@ footer {
     padding: 38px 0 22px;
   }
 
-  .primary-logo {
-    width: min(260px, calc(100vw - 28px));
-    max-width: calc(100vw - 28px);
-    margin: 0 0 26px -12px;
-  }
-
   .hero-content,
   .development-status {
     width: min(340px, calc(100vw - 28px));
@@ -543,7 +519,7 @@ footer {
   }
 
   .development-status {
-    margin-top: 36px;
+    margin-top: 28px;
   }
 
   .tube {
