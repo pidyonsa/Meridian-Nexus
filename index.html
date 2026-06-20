@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Meridian Nexus is building the future of retail technology. Available soon."
+    />
+    <meta name="theme-color" content="#0a2d56" />
+    <title>Meridian Nexus | Available Soon</title>
+    <link rel="icon" type="image/png" href="assets/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Meridian Nexus home">
+          <img src="assets/brand/app-logo.jpg" alt="" />
+          <span><strong>Meridian</strong> Nexus</span>
+        </a>
+        <button class="install-button" id="installButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14" />
+          </svg>
+          <span>Install on desktop</span>
+        </button>
+      </header>
+
+      <main id="top" class="hero">
+        <div class="circuit-field" aria-hidden="true">
+          <span class="node node-one"></span>
+          <span class="node node-two"></span>
+          <span class="node node-three"></span>
+          <span class="trace trace-one"></span>
+          <span class="trace trace-two"></span>
+        </div>
+
+        <section class="hero-content" aria-labelledby="hero-title">
+          <img
+            class="primary-logo"
+            src="assets/brand/primary-logo.jpg"
+            alt="Meridian Nexus - Connect. Insight. Grow."
+          />
+          <p class="eyebrow">Retail intelligence, connected</p>
+          <h1 id="hero-title">Welcome to Meridian Nexus</h1>
+          <p class="hero-copy">
+            The future of retail technology is here and available soon.
+          </p>
+
+          <div class="development-status" aria-live="polite">
+            <div class="status-copy">
+              <span class="status-dot"></span>
+              <span>Under development</span>
+            </div>
+            <div class="tube" role="progressbar" aria-label="Development in progress">
+              <div class="tube-inner">
+                <div class="liquid">
+                  <span class="bubble bubble-one"></span>
+                  <span class="bubble bubble-two"></span>
+                  <span class="bubble bubble-three"></span>
+                  <span class="bubble bubble-four"></span>
+                </div>
+                <span class="open-space"></span>
+              </div>
+              <span class="tube-shine"></span>
+            </div>
+          </div>
+        </section>
+
+        <footer>
+          <span>Connect.</span>
+          <span>Insight.</span>
+          <span>Grow.</span>
+        </footer>
+      </main>
+    </div>
+
+    <div class="install-toast" id="installToast" role="status" aria-live="polite"></div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
