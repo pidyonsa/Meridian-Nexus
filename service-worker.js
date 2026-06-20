@@ -1,4 +1,4 @@
-const CACHE_NAME = "meridian-nexus-v1";
+const CACHE_NAME = "meridian-nexus-v2";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -7,7 +7,7 @@ const APP_SHELL = [
   "/manifest.webmanifest",
   "/assets/brand/app-logo.jpg",
   "/assets/brand/primary-logo.jpg",
-  "/assets/brand/brand-guide.png",
+  "/assets/brand/retail-network.webp",
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png",
   "/assets/icons/apple-touch-icon.png",

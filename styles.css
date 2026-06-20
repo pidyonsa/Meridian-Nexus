@@ -43,9 +43,16 @@ a {
   max-width: 100%;
   min-height: 100vh;
   overflow: hidden;
-  background:
-    linear-gradient(112deg, rgba(6, 30, 59, 0.98), rgba(10, 45, 86, 0.94)),
-    url("assets/brand/brand-guide.png") center / cover no-repeat;
+  background: url("assets/brand/retail-network.webp") center / cover no-repeat;
+}
+
+.site-shell::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+  background: rgba(6, 30, 59, 0.78);
 }
 
 .site-shell::after {
