@@ -4,6 +4,7 @@
     "ignore": [
       "firebase.json",
       ".firebaserc",
+      ".gitignore",
       ".git/**",
       "README.md"
     ],
