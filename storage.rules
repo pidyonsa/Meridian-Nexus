@@ -1,0 +1,24 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function temporaryAccessIsActive() {
+      return request.time < timestamp.date(2026, 7, 20);
+    }
+
+    match /uploads/{fileId}/{fileName} {
+      // Deliberately no file-size or content-type restriction: the Files page
+      // accepts every file supported by Firebase Storage.
+      allow read: if temporaryAccessIsActive();
+      allow create: if temporaryAccessIsActive()
+        && request.resource != null
+        && request.resource.size >= 0;
+      allow delete: if temporaryAccessIsActive();
+      allow update: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

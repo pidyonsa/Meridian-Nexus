@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Meridian Nexus retail intelligence and shared files." />
+    <meta name="theme-color" content="#061e3b" />
+    <title>Meridian Nexus</title>
+    <link rel="icon" type="image/png" href="assets/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="/__/firebase/12.15.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/12.15.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/12.15.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/init.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="#home" aria-label="Meridian Nexus home">
+          <img src="assets/brand/app-logo.jpg" alt="" />
+          <span><strong>Meridian</strong> Nexus</span>
+        </a>
+        <div class="topbar-actions">
+          <a class="nav-link" id="filesNav" href="#files">Files</a>
+          <button class="install-button" id="installButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
+            <span>Install on desktop</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="homeView" class="hero view">
+        <div class="circuit-field" aria-hidden="true">
+          <span class="node node-one"></span><span class="node node-two"></span><span class="node node-three"></span>
+          <span class="trace trace-one"></span><span class="trace trace-two"></span>
+        </div>
+        <section class="hero-content" aria-labelledby="heroTitle">
+          <p class="eyebrow">Retail intelligence, connected</p>
+          <h1 id="heroTitle">Welcome to Meridian Nexus</h1>
+          <p class="hero-copy">The future of retail technology is here and available soon.</p>
+          <div class="development-status" aria-live="polite">
+            <div class="status-copy"><span class="status-dot"></span><span>Under development</span></div>
+            <div class="tube" role="progressbar" aria-label="Development in progress">
+              <div class="tube-inner"><div class="liquid"><span class="bubble bubble-one"></span><span class="bubble bubble-two"></span><span class="bubble bubble-three"></span><span class="bubble bubble-four"></span></div><span class="open-space"></span></div>
+              <span class="tube-shine"></span>
+            </div>
+          </div>
+        </section>
+        <footer><span>Connect.</span><span>Insight.</span><span>Grow.</span></footer>
+      </main>
+
+      <main id="filesView" class="files-view view" hidden>
+        <section class="files-heading">
+          <div>
+            <p class="eyebrow">Document workspace</p>
+            <h1>Files</h1>
+            <p>Upload, organise, download and remove shared documents.</p>
+          </div>
+          <label class="upload-button" for="fileInput">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 20h14" /></svg>
+            <span>Upload files</span>
+          </label>
+          <input id="fileInput" type="file" multiple />
+        </section>
+
+        <section class="upload-queue" id="uploadQueue" aria-live="polite" hidden></section>
+
+        <section class="files-panel" aria-labelledby="fileListTitle">
+          <div class="files-toolbar">
+            <div>
+              <h2 id="fileListTitle">Uploaded documents</h2>
+              <p id="fileSummary">Loading files…</p>
+            </div>
+            <div class="bulk-actions">
+              <button class="secondary-button" id="downloadSelected" type="button" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
+                <span>Download selected</span>
+              </button>
+              <button class="danger-button" id="deleteSelected" type="button" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" /></svg>
+                <span>Delete selected</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="list-header" id="listHeader" hidden>
+            <label class="checkbox-wrap"><input type="checkbox" id="selectAll" /><span class="checkmark"></span><span class="sr-only">Select all files</span></label>
+            <span>Name</span><span>Size</span><span>Uploaded</span><span class="sr-only">Actions</span>
+          </div>
+          <div class="file-list" id="fileList"></div>
+          <div class="empty-state" id="emptyState" hidden>
+            <span class="empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v10H3V7Z" /></svg></span>
+            <h3>No files uploaded yet</h3>
+            <p>Choose Upload files to add your first document.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="confirm-dialog" id="deleteDialog">
+      <form method="dialog">
+        <span class="dialog-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7" /></svg></span>
+        <h2>Delete selected files?</h2>
+        <p id="deleteDialogCopy">This action cannot be undone.</p>
+        <div><button class="dialog-cancel" value="cancel">Cancel</button><button class="dialog-delete" id="confirmDelete" value="default">Delete</button></div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

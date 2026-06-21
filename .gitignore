@@ -1,7 +1,6 @@
 .firebase/
 firebase-debug.log
+firebase-debug.*.log
 node_modules/
+.env
 .DS_Store
-.chrome-headless/
-desktop.png
-mobile.png

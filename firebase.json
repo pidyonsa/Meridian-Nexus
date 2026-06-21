@@ -1,12 +1,16 @@
 {
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
   "hosting": {
-    "public": ".",
+    "public": "public",
     "ignore": [
       "firebase.json",
-      ".firebaserc",
-      ".gitignore",
-      ".git/**",
-      "README.md"
+      "**/.*",
+      "**/node_modules/**"
     ],
     "headers": [
       {
@@ -25,5 +29,8 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }
