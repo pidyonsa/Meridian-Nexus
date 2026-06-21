@@ -1,5 +1,5 @@
-const CACHE = "meridian-nexus-v4";
-const SHELL = ["/", "/styles.css?v=20260621-2", "/app.js?v=20260621-2", "/manifest.webmanifest", "/assets/brand/app-logo.jpg"];
+const CACHE = "meridian-nexus-v5";
+const SHELL = ["/", "/styles.css?v=20260621-3", "/app.js?v=20260621-3", "/manifest.webmanifest", "/assets/brand/app-logo.jpg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

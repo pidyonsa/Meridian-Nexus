@@ -6,6 +6,8 @@ const elements = {
   closeFilesDialog: document.querySelector("#closeFilesDialog"),
   installButton: document.querySelector("#installButton"),
   fileInput: document.querySelector("#fileInput"),
+  dropZone: document.querySelector("#dropZone"),
+  dropZoneTitle: document.querySelector("#dropZoneTitle"),
   uploadQueue: document.querySelector("#uploadQueue"),
   fileList: document.querySelector("#fileList"),
   fileSummary: document.querySelector("#fileSummary"),
@@ -30,6 +32,7 @@ let deferredInstallPrompt = null;
 let toastTimer = null;
 let database = null;
 let storage = null;
+let dragDepth = 0;
 
 function showToast(message, isError = false) {
   elements.toast.textContent = message;
@@ -224,6 +227,19 @@ async function uploadFiles(files) {
   if (completed) showToast(completed === 1 ? "File uploaded." : `${completed} files uploaded.`);
 }
 
+function containsFiles(event) {
+  return [...(event.dataTransfer?.types || [])].includes("Files");
+}
+
+function setDropZoneActive(active) {
+  elements.dropZone.classList.toggle("is-dragging", active);
+  elements.dropZoneTitle.textContent = active ? "Release to upload files" : "Drag and drop files here";
+}
+
+function openFilePicker() {
+  if (!elements.fileInput.disabled) elements.fileInput.click();
+}
+
 function friendlyError(error) {
   const code = error?.code || "";
   if (code.includes("unauthorized") || code.includes("permission-denied")) return "access is not permitted";
@@ -312,6 +328,44 @@ function initialiseFirebase() {
 }
 
 elements.fileInput.addEventListener("change", () => uploadFiles([...elements.fileInput.files]));
+elements.dropZone.addEventListener("click", openFilePicker);
+elements.dropZone.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  openFilePicker();
+});
+elements.dropZone.addEventListener("dragenter", (event) => {
+  if (!containsFiles(event)) return;
+  event.preventDefault();
+  dragDepth += 1;
+  setDropZoneActive(true);
+});
+elements.dropZone.addEventListener("dragover", (event) => {
+  if (!containsFiles(event)) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "copy";
+});
+elements.dropZone.addEventListener("dragleave", (event) => {
+  if (!containsFiles(event)) return;
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0) setDropZoneActive(false);
+});
+elements.dropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  dragDepth = 0;
+  setDropZoneActive(false);
+  const files = [...(event.dataTransfer?.files || [])];
+  if (files.length) uploadFiles(files);
+});
+document.addEventListener("dragover", (event) => {
+  if (elements.filesDialog.open && containsFiles(event)) event.preventDefault();
+});
+document.addEventListener("drop", (event) => {
+  if (elements.filesDialog.open && containsFiles(event) && !event.target.closest("#dropZone")) {
+    event.preventDefault();
+    showToast("Drop files inside the highlighted upload area.");
+  }
+});
 elements.filesNav.addEventListener("click", openFilesWorkspace);
 elements.closeFilesDialog.addEventListener("click", closeFilesWorkspace);
 elements.filesDialog.addEventListener("close", () => {
