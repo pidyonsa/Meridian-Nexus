@@ -12,7 +12,7 @@ service firebase.storage {
       allow read: if temporaryAccessIsActive();
       allow create: if temporaryAccessIsActive()
         && request.resource != null
-        && request.resource.size >= 0;
+        && request.resource.size > 0;
       allow delete: if temporaryAccessIsActive();
       allow update: if false;
     }

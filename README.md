@@ -6,7 +6,8 @@ Meridian Nexus landing page and temporary shared file workspace, hosted on Fireb
 
 - Responsive Meridian Nexus landing page and PWA
 - Temporary `Files` navigation view
-- Resumable, multi-file uploads with no application-level size or type restriction
+- Resumable, multi-file and recursive folder uploads with no application-level size or type restriction
+- Server-confirmed file-size validation before metadata is published
 - Live Firestore-backed file list
 - Single, selected, or select-all downloads
 - Selected or select-all deletion

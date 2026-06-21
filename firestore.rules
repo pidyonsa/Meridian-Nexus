@@ -17,7 +17,7 @@ service cloud.firestore {
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 1024
         && request.resource.data.size is int
-        && request.resource.data.size >= 0
+        && request.resource.data.size > 0
         && request.resource.data.type is string
         && request.resource.data.storagePath is string
         && request.resource.data.storagePath.matches('uploads/' + fileId + '/[^/]+')

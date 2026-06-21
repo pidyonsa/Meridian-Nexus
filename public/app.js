@@ -193,9 +193,13 @@ function uploadFile(file) {
       resolve(false);
     }, async () => {
       try {
+        const uploadedSize = Number(task.snapshot.metadata.size);
+        if (!Number.isFinite(uploadedSize) || uploadedSize !== file.size) {
+          throw new Error(`Upload verification failed: expected ${file.size} bytes, Storage received ${uploadedSize} bytes.`);
+        }
         await database.collection("files").doc(fileId).set({
           name: file.name,
-          size: file.size,
+          size: uploadedSize,
           type: file.type || "application/octet-stream",
           storagePath,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -205,7 +209,7 @@ function uploadFile(file) {
         resolve(true);
       } catch (error) {
         await reference.delete().catch(() => {});
-        finishUploadItem(item, "Could not save file record", true);
+        finishUploadItem(item, "Upload verification failed", true);
         showToast(`${file.name}: ${friendlyError(error)}`, true);
         resolve(false);
       }
@@ -219,8 +223,24 @@ async function uploadFiles(files) {
     return;
   }
   if (!files.length) return;
+  const uploadableFiles = files.filter((file) => file instanceof File && file.size > 0);
+  const skippedCount = files.length - uploadableFiles.length;
+  if (!uploadableFiles.length) {
+    showToast("No file content was found. Drop a folder again to upload the files inside it.", true);
+    return;
+  }
+  if (skippedCount) showToast(`${skippedCount} empty folder placeholder${skippedCount === 1 ? " was" : "s were"} skipped.`);
   elements.fileInput.disabled = true;
-  const results = await Promise.all(files.map(uploadFile));
+  const results = new Array(uploadableFiles.length);
+  let nextFileIndex = 0;
+  const workerCount = Math.min(3, uploadableFiles.length);
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (nextFileIndex < uploadableFiles.length) {
+      const index = nextFileIndex;
+      nextFileIndex += 1;
+      results[index] = await uploadFile(uploadableFiles[index]);
+    }
+  }));
   elements.fileInput.disabled = false;
   elements.fileInput.value = "";
   const completed = results.filter(Boolean).length;
@@ -233,7 +253,39 @@ function containsFiles(event) {
 
 function setDropZoneActive(active) {
   elements.dropZone.classList.toggle("is-dragging", active);
-  elements.dropZoneTitle.textContent = active ? "Release to upload files" : "Drag and drop files here";
+  elements.dropZoneTitle.textContent = active ? "Release to upload files" : "Drag and drop files or folders here";
+}
+
+function fileFromEntry(entry) {
+  return new Promise((resolve, reject) => entry.file(resolve, reject));
+}
+
+function entriesFromReader(reader) {
+  return new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+}
+
+async function filesFromEntry(entry) {
+  if (entry.isFile) return [await fileFromEntry(entry)];
+  if (!entry.isDirectory) return [];
+  const reader = entry.createReader();
+  const entries = [];
+  let batch = [];
+  do {
+    batch = await entriesFromReader(reader);
+    entries.push(...batch);
+  } while (batch.length);
+  const nestedFiles = await Promise.all(entries.map(filesFromEntry));
+  return nestedFiles.flat();
+}
+
+async function filesFromDrop(dataTransfer) {
+  const items = [...(dataTransfer?.items || [])].filter((item) => item.kind === "file");
+  const entries = items.map((item) => item.webkitGetAsEntry?.()).filter(Boolean);
+  if (entries.length) {
+    const nestedFiles = await Promise.all(entries.map(filesFromEntry));
+    return nestedFiles.flat();
+  }
+  return [...(dataTransfer?.files || [])];
 }
 
 function openFilePicker() {
@@ -350,12 +402,17 @@ elements.dropZone.addEventListener("dragleave", (event) => {
   dragDepth = Math.max(0, dragDepth - 1);
   if (dragDepth === 0) setDropZoneActive(false);
 });
-elements.dropZone.addEventListener("drop", (event) => {
+elements.dropZone.addEventListener("drop", async (event) => {
   event.preventDefault();
   dragDepth = 0;
   setDropZoneActive(false);
-  const files = [...(event.dataTransfer?.files || [])];
-  if (files.length) uploadFiles(files);
+  try {
+    const files = await filesFromDrop(event.dataTransfer);
+    if (files.length) await uploadFiles(files);
+    else showToast("The dropped folder does not contain any files.", true);
+  } catch (error) {
+    showToast(`Could not read the dropped folder: ${friendlyError(error)}`, true);
+  }
 });
 document.addEventListener("dragover", (event) => {
   if (elements.filesDialog.open && containsFiles(event)) event.preventDefault();
