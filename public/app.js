@@ -359,6 +359,8 @@ function initialiseFirebase() {
   try {
     database = firebase.firestore();
     storage = firebase.storage();
+    storage.setMaxUploadRetryTime(24 * 60 * 60 * 1000);
+    storage.setMaxOperationRetryTime(10 * 60 * 1000);
     database.collection("files").onSnapshot((snapshot) => {
       state.files = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((left, right) => {
         const leftTime = left.createdAt?.toMillis?.() || 0;
