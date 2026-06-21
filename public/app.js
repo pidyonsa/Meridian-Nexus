@@ -2,6 +2,8 @@ const elements = {
   homeView: document.querySelector("#homeView"),
   filesView: document.querySelector("#filesView"),
   filesNav: document.querySelector("#filesNav"),
+  filesDialog: document.querySelector("#filesDialog"),
+  closeFilesDialog: document.querySelector("#closeFilesDialog"),
   installButton: document.querySelector("#installButton"),
   fileInput: document.querySelector("#fileInput"),
   uploadQueue: document.querySelector("#uploadQueue"),
@@ -68,11 +70,29 @@ function fileType(file) {
 
 function setViewFromHash() {
   const showFiles = window.location.hash === "#files";
-  elements.homeView.hidden = showFiles;
-  elements.filesView.hidden = !showFiles;
+  if (showFiles && !elements.filesDialog.open) elements.filesDialog.showModal();
+  if (!showFiles && elements.filesDialog.open) elements.filesDialog.close();
   elements.filesNav.classList.toggle("active", showFiles);
-  elements.filesNav.setAttribute("aria-current", showFiles ? "page" : "false");
+  elements.filesNav.setAttribute("aria-expanded", String(showFiles));
   document.title = showFiles ? "Files | Meridian Nexus" : "Meridian Nexus";
+}
+
+function openFilesWorkspace() {
+  if (!elements.filesDialog.open) elements.filesDialog.showModal();
+  elements.filesNav.classList.add("active");
+  elements.filesNav.setAttribute("aria-expanded", "true");
+  document.title = "Files | Meridian Nexus";
+  if (window.location.hash !== "#files") window.location.hash = "files";
+}
+
+function closeFilesWorkspace() {
+  if (elements.filesDialog.open) elements.filesDialog.close();
+  if (window.location.hash === "#files") {
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#home`);
+  }
+  elements.filesNav.classList.remove("active");
+  elements.filesNav.setAttribute("aria-expanded", "false");
+  document.title = "Meridian Nexus";
 }
 
 function renderFiles() {
@@ -292,6 +312,11 @@ function initialiseFirebase() {
 }
 
 elements.fileInput.addEventListener("change", () => uploadFiles([...elements.fileInput.files]));
+elements.filesNav.addEventListener("click", openFilesWorkspace);
+elements.closeFilesDialog.addEventListener("click", closeFilesWorkspace);
+elements.filesDialog.addEventListener("close", () => {
+  if (window.location.hash === "#files") closeFilesWorkspace();
+});
 elements.selectAll.addEventListener("change", () => {
   state.selected = elements.selectAll.checked ? new Set(state.files.map((file) => file.id)) : new Set();
   renderFiles();

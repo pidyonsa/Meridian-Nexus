@@ -1,4 +1,4 @@
-const CACHE = "meridian-nexus-v2";
+const CACHE = "meridian-nexus-v3";
 const SHELL = ["/", "/styles.css", "/app.js", "/manifest.webmanifest", "/assets/brand/app-logo.jpg"];
 
 self.addEventListener("install", (event) => {

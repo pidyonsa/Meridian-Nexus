@@ -27,7 +27,13 @@
           <span><strong>Meridian</strong> Nexus</span>
         </a>
         <div class="topbar-actions">
-          <a class="nav-link" id="filesNav" href="#files">Files</a>
+          <button class="files-nav" id="filesNav" type="button" aria-haspopup="dialog" aria-controls="filesDialog">
+            <span class="files-nav-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v10H3V7Z" /></svg>
+            </span>
+            <span class="files-nav-copy"><small>Workspace</small><strong>Files</strong></span>
+            <svg class="files-nav-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+          </button>
           <button class="install-button" id="installButton" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
             <span>Install on desktop</span>
@@ -55,11 +61,23 @@
         <footer><span>Connect.</span><span>Insight.</span><span>Grow.</span></footer>
       </main>
 
-      <main id="filesView" class="files-view view" hidden>
+      <dialog class="files-dialog" id="filesDialog" aria-labelledby="filesModalTitle">
+        <div class="files-dialog-shell">
+          <header class="files-modal-topbar">
+            <div class="files-modal-brand">
+              <span class="files-modal-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v10H3V7Z" /></svg></span>
+              <span><strong>Meridian Nexus</strong><small>Document workspace</small></span>
+            </div>
+            <button class="modal-close" id="closeFilesDialog" type="button" aria-label="Close Files workspace">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+            </button>
+          </header>
+
+          <main id="filesView" class="files-view">
         <section class="files-heading">
           <div>
             <p class="eyebrow">Document workspace</p>
-            <h1>Files</h1>
+            <h1 id="filesModalTitle">Files</h1>
             <p>Upload, organise, download and remove shared documents.</p>
           </div>
           <label class="upload-button" for="fileInput">
@@ -75,7 +93,7 @@
           <div class="files-toolbar">
             <div>
               <h2 id="fileListTitle">Uploaded documents</h2>
-              <p id="fileSummary">Loading files…</p>
+              <p id="fileSummary">Loading files&hellip;</p>
             </div>
             <div class="bulk-actions">
               <button class="secondary-button" id="downloadSelected" type="button" disabled>
@@ -100,7 +118,9 @@
             <p>Choose Upload files to add your first document.</p>
           </div>
         </section>
-      </main>
+          </main>
+        </div>
+      </dialog>
     </div>
 
     <dialog class="confirm-dialog" id="deleteDialog">
