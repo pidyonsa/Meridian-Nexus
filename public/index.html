@@ -58,6 +58,7 @@
           </div>
           <div class="dashboard-filters">
             <label><span>Client</span><select id="clientFilter"><option value="all">All clients</option></select></label>
+            <label><span>Dashboard type</span><select id="dashboardTypeFilter"><option value="all">All dashboards</option><option value="inventory">Inventory</option><option value="sales">Sales</option></select></label>
             <button class="primary-action" id="openAdminAction" type="button">Add source data</button>
           </div>
         </section>
@@ -110,7 +111,7 @@
                 <div class="admin-fields">
                   <label><span>Client</span><select id="adminClient"></select></label>
                   <label id="customClientField" hidden><span>New client name</span><input id="customClient" type="text" maxlength="80" placeholder="Enter client name" /></label>
-                  <label><span>Source type</span><select id="sourceType"><option value="auto">Detect automatically</option><option value="inventory">Inventory / stock</option><option value="sales">Sales</option></select></label>
+                  <label><span>Dashboard type</span><select id="sourceType"><option value="auto">Detect automatically</option><option value="inventory">Inventory / stock</option><option value="sales">Sales</option></select></label>
                 </div>
                 <div class="step-heading second"><span>02</span><div><h2>Upload source data</h2><p>Excel (.xlsx, .xls, .xlsb) and CSV files are processed securely in your browser.</p></div></div>
                 <input id="adminFileInput" type="file" accept=".xlsx,.xls,.xlsb,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />

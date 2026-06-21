@@ -21,7 +21,10 @@ service firebase.storage {
       allow read: if temporaryAccessIsActive();
       allow create: if temporaryAccessIsActive()
         && request.resource != null
-        && request.resource.size > 0;
+        && request.resource.size > 0
+        && request.resource.size <= 250 * 1024 * 1024
+        && request.resource.metadata.clientId == clientId
+        && request.resource.metadata.dashboardType in ['inventory', 'sales'];
       allow delete: if temporaryAccessIsActive();
       allow update: if false;
     }

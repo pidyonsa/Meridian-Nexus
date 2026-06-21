@@ -24,6 +24,7 @@ const elements = {
   deleteDialogCopy: document.querySelector("#deleteDialogCopy"),
   toast: document.querySelector("#toast"),
   clientFilter: document.querySelector("#clientFilter"),
+  dashboardTypeFilter: document.querySelector("#dashboardTypeFilter"),
   dataStatus: document.querySelector("#dataStatus"),
   dataStatusCopy: document.querySelector("#dataStatusCopy"),
   metricStock: document.querySelector("#metricStock"),
@@ -69,6 +70,7 @@ let dragDepth = 0;
 let adminDragDepth = 0;
 
 const CLIENTS = ["Agroserve","Alpen","Anchor","Aquelle","Aspen","Butterfly","Cape Cookies","Davidoff","Duracell","Dynamic Brands","Ethica","Lindt","Magalies","Penflex","PMI","Racefoods","SCJ","Sir Fruit","Sodastream","SOIL","Wilmar"];
+const DASHBOARD_TYPES = { inventory: "Inventory", sales: "Sales" };
 
 function showToast(message, isError = false) {
   elements.toast.textContent = message;
@@ -461,7 +463,7 @@ function periodLabel(value, index) {
   return new Intl.DateTimeFormat(undefined, { month: "short", year: "2-digit" }).format(date);
 }
 
-function buildSnapshot(rows, mapping, clientName, sourceName) {
+function buildSnapshot(rows, mapping, clientName, sourceName, dashboardType = "inventory") {
   const stores = new Set();
   const skus = new Set();
   const periodTotals = new Map();
@@ -500,7 +502,7 @@ function buildSnapshot(rows, mapping, clientName, sourceName) {
   const trend = [...periodTotals.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-12).map(([key, value], index) => ({ label: key.startsWith("row-") ? periodLabel(null, index) : periodLabel(`${key}-01`, index), value: Math.round(value * 100) / 100 }));
   const topRisks = [...risks.values()].sort((a, b) => (a.status === b.status ? a.stock - b.stock : a.status === "out" ? -1 : 1)).slice(0, 20).map((risk) => ({ ...risk, stock: Math.round(risk.stock * 100) / 100 }));
   return {
-    clientId: slugify(clientName), clientName, sourceName, rowCount: rows.length,
+    clientId: slugify(clientName), clientName, dashboardType, sourceName, rowCount: rows.length,
     totalStock: Math.round(totalStock * 100) / 100, totalSales: Math.round(totalSales * 100) / 100,
     stores: stores.size, skus: skus.size, availabilityRate: Math.round(((healthy + low) / observations) * 1000) / 10,
     stockHealth: { healthy, low, out }, trend, topRisks
@@ -528,11 +530,25 @@ function selectedClientName() {
   return elements.adminClient.value === "__new" ? elements.customClient.value.trim() : elements.adminClient.value;
 }
 
+function dashboardTypeFor(dataset) {
+  if (elements.sourceType.value !== "auto") return elements.sourceType.value;
+  return dataset?.mapping.stock ? "inventory" : "sales";
+}
+
+function dashboardTypeOf(snapshot) {
+  return DASHBOARD_TYPES[snapshot.dashboardType] ? snapshot.dashboardType : "inventory";
+}
+
+function dashboardDocumentId(clientId, dashboardType) {
+  return dashboardType === "inventory" ? clientId : `${clientId}--${dashboardType}`;
+}
+
 function renderSourcePreview() {
   const pending = state.pendingDataset;
   if (!pending) { elements.sourcePreview.hidden = true; elements.publishDataset.disabled = true; return; }
   const mappings = Object.entries(pending.mapping).filter(([, value]) => value);
-  elements.sourcePreview.innerHTML = `<div class="preview-title"><strong>${escapeHtml(pending.file.name)}</strong><span>${pending.rows.length.toLocaleString()} rows · ${escapeHtml(pending.sheetName)}</span></div><div class="mapping-grid">${mappings.map(([field, column]) => `<span>${escapeHtml(field)}<strong>${escapeHtml(column)}</strong></span>`).join("")}</div>${!pending.mapping.store || !pending.mapping.sku ? `<p class="preview-warning">Some location or product fields were not detected. The dashboard will group missing values as unknown.</p>` : ""}`;
+  const dashboardType = dashboardTypeFor(pending);
+  elements.sourcePreview.innerHTML = `<div class="preview-title"><strong>${escapeHtml(pending.file.name)}</strong><span>${pending.rows.length.toLocaleString()} rows · ${escapeHtml(pending.sheetName)} · ${DASHBOARD_TYPES[dashboardType]} dashboard</span></div><div class="mapping-grid">${mappings.map(([field, column]) => `<span>${escapeHtml(field)}<strong>${escapeHtml(column)}</strong></span>`).join("")}</div>${!pending.mapping.store || !pending.mapping.sku ? `<p class="preview-warning">Some location or product fields were not detected. The dashboard will group missing values as unknown.</p>` : ""}`;
   elements.sourcePreview.hidden = false;
   elements.publishDataset.disabled = !selectedClientName();
 }
@@ -581,8 +597,12 @@ function renderTrend(points) {
 }
 
 function renderDashboard() {
-  const selected = elements.clientFilter.value || "all";
-  const visible = selected === "all" ? state.dashboardClients : state.dashboardClients.filter((client) => client.clientId === selected);
+  const selectedClient = elements.clientFilter.value || "all";
+  const selectedType = elements.dashboardTypeFilter.value || "all";
+  const visible = state.dashboardClients.filter((dashboard) =>
+    (selectedClient === "all" || dashboard.clientId === selectedClient)
+    && (selectedType === "all" || dashboardTypeOf(dashboard) === selectedType)
+  );
   const data = aggregateSnapshots(visible);
   const hasData = visible.length > 0;
   elements.metricStock.textContent = hasData ? compactNumber(data.totalStock) : "—";
@@ -599,14 +619,15 @@ function renderDashboard() {
   elements.stockDonut.style.background = healthTotal ? `conic-gradient(#37c983 0 ${healthyPercent}%,#ffad26 ${healthyPercent}% ${healthyPercent + lowPercent}%,#f15e55 ${healthyPercent + lowPercent}% 100%)` : "conic-gradient(#284b69 0 100%)";
   elements.healthScore.textContent = healthTotal ? `${Math.round(healthyPercent)}%` : "—";
   elements.healthyCount.textContent = data.stockHealth.healthy.toLocaleString(); elements.lowCount.textContent = data.stockHealth.low.toLocaleString(); elements.outCount.textContent = data.stockHealth.out.toLocaleString();
-  elements.clientBars.innerHTML = state.dashboardClients.length ? state.dashboardClients.slice().sort((a,b) => numberValue(b.availabilityRate) - numberValue(a.availabilityRate)).slice(0,8).map((client) => `<div class="client-bar"><span title="${escapeHtml(client.clientName)}">${escapeHtml(client.clientName)}</span><div class="client-bar-track"><i style="width:${Math.max(2,Math.min(100,numberValue(client.availabilityRate)))}%"></i></div><strong>${numberValue(client.availabilityRate).toFixed(0)}%</strong></div>`).join("") : `<div class="chart-empty">Client comparisons will appear here.</div>`;
+  elements.clientBars.innerHTML = visible.length ? visible.slice().sort((a,b) => numberValue(b.availabilityRate) - numberValue(a.availabilityRate)).slice(0,8).map((client) => `<div class="client-bar"><span title="${escapeHtml(client.clientName)} · ${DASHBOARD_TYPES[dashboardTypeOf(client)]}">${escapeHtml(client.clientName)}</span><div class="client-bar-track"><i style="width:${Math.max(2,Math.min(100,numberValue(client.availabilityRate)))}%"></i></div><strong>${numberValue(client.availabilityRate).toFixed(0)}%</strong></div>`).join("") : `<div class="chart-empty">No client dashboards match these filters.</div>`;
   elements.riskCount.textContent = `${data.topRisks.length} item${data.topRisks.length === 1 ? "" : "s"}`;
   elements.riskTable.innerHTML = data.topRisks.length ? data.topRisks.slice(0,8).map((risk) => `<tr><td>${escapeHtml(risk.store)}</td><td title="${escapeHtml(risk.sku)}">${escapeHtml(risk.sku)}</td><td>${numberValue(risk.stock).toLocaleString()}</td><td><span class="status-pill ${risk.status === "low" ? "low" : ""}">${risk.status === "low" ? "Low stock" : "Out of stock"}</span></td></tr>`).join("") : `<tr><td colspan="4" class="table-empty">${hasData ? "No priority exceptions in this view." : "No source data published."}</td></tr>`;
 }
 
 function renderClientOptions() {
   const current = elements.clientFilter.value;
-  elements.clientFilter.innerHTML = `<option value="all">All clients</option>${state.dashboardClients.map((client) => `<option value="${escapeHtml(client.clientId)}">${escapeHtml(client.clientName)}</option>`).join("")}`;
+  const clients = [...new Map(state.dashboardClients.map((client) => [client.clientId, client.clientName])).entries()];
+  elements.clientFilter.innerHTML = `<option value="all">All clients</option>${clients.map(([clientId, clientName]) => `<option value="${escapeHtml(clientId)}">${escapeHtml(clientName)}</option>`).join("")}`;
   if ([...elements.clientFilter.options].some((option) => option.value === current)) elements.clientFilter.value = current;
   const names = [...new Set([...CLIENTS, ...state.dashboardClients.map((client) => client.clientName)])].sort((a,b) => a.localeCompare(b));
   const adminCurrent = elements.adminClient.value;
@@ -616,7 +637,7 @@ function renderClientOptions() {
 }
 
 function renderAdminHistory() {
-  elements.adminHistory.innerHTML = state.dashboardUploads.length ? state.dashboardUploads.slice(0,12).map((upload) => `<article class="history-item"><strong title="${escapeHtml(upload.sourceName)}">${escapeHtml(upload.sourceName)}</strong><span class="history-client">${escapeHtml(upload.clientName)}</span><span>${numberValue(upload.rowCount).toLocaleString()} rows · ${formatBytes(numberValue(upload.size))} · ${formatDate(upload.createdAt)}</span></article>`).join("") : `<p class="history-empty">No dashboard sources published yet.</p>`;
+  elements.adminHistory.innerHTML = state.dashboardUploads.length ? state.dashboardUploads.slice(0,12).map((upload) => `<article class="history-item"><strong title="${escapeHtml(upload.sourceName)}">${escapeHtml(upload.sourceName)}</strong><span class="history-client">${escapeHtml(upload.clientName)} · ${DASHBOARD_TYPES[upload.dashboardType || upload.sourceType] || "Inventory"}</span><span>${numberValue(upload.rowCount).toLocaleString()} rows · ${formatBytes(numberValue(upload.size))} · ${formatDate(upload.createdAt)}</span></article>`).join("") : `<p class="history-empty">No dashboard sources published yet.</p>`;
 }
 
 async function publishPendingDataset() {
@@ -627,19 +648,21 @@ async function publishPendingDataset() {
   elements.publishDataset.querySelector("span").textContent = "Publishing dashboard...";
   const uploadId = uniqueId();
   const clientId = slugify(clientName);
+  const dashboardType = dashboardTypeFor(pending);
+  const dashboardId = dashboardDocumentId(clientId, dashboardType);
   const storagePath = `dashboard-source/${clientId}/${uploadId}/${safeStorageName(pending.file.name)}`;
   const reference = storage.ref(storagePath);
   try {
-    const snapshot = buildSnapshot(pending.rows, pending.mapping, clientName, pending.file.name);
-    const uploadTask = reference.put(pending.file, { contentType: pending.file.type || "application/octet-stream", customMetadata: { clientId, sourceType: elements.sourceType.value } });
+    const snapshot = buildSnapshot(pending.rows, pending.mapping, clientName, pending.file.name, dashboardType);
+    const uploadTask = reference.put(pending.file, { contentType: pending.file.type || "application/octet-stream", customMetadata: { clientId, dashboardType } });
     await new Promise((resolve, reject) => uploadTask.on("state_changed", (progress) => {
       const percent = progress.totalBytes ? Math.round(progress.bytesTransferred / progress.totalBytes * 100) : 0;
       elements.publishDataset.querySelector("small").textContent = `Uploading source · ${percent}%`;
     }, reject, resolve));
     if (Number(uploadTask.snapshot.metadata.size) !== pending.file.size) throw new Error("The uploaded source size could not be verified.");
     const batch = database.batch();
-    batch.set(database.collection("dashboardClients").doc(clientId), { ...snapshot, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    batch.set(database.collection("dashboardUploads").doc(uploadId), { clientId, clientName, sourceName: pending.file.name, sourceType: elements.sourceType.value, size: pending.file.size, rowCount: pending.rows.length, storagePath, status: "published", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    batch.set(database.collection("dashboardClients").doc(dashboardId), { ...snapshot, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    batch.set(database.collection("dashboardUploads").doc(uploadId), { clientId, clientName, dashboardType, sourceName: pending.file.name, size: pending.file.size, rowCount: pending.rows.length, storagePath, status: "published", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     await batch.commit();
     state.pendingDataset = null; elements.adminFileInput.value = ""; elements.adminDropTitle.textContent = "Drop another source file here"; renderSourcePreview();
     showToast(`${clientName} dashboard published from ${pending.rows.length.toLocaleString()} rows.`);
@@ -697,12 +720,14 @@ elements.openAdminAction.addEventListener("click", openAdminWorkspace);
 elements.closeAdminDialog.addEventListener("click", closeAdminWorkspace);
 elements.adminDialog.addEventListener("close", () => { if (window.location.hash === "#admin") closeAdminWorkspace(); });
 elements.clientFilter.addEventListener("change", renderDashboard);
+elements.dashboardTypeFilter.addEventListener("change", renderDashboard);
 elements.adminClient.addEventListener("change", () => {
   elements.customClientField.hidden = elements.adminClient.value !== "__new";
   renderSourcePreview();
   if (!elements.customClientField.hidden) elements.customClient.focus();
 });
 elements.customClient.addEventListener("input", renderSourcePreview);
+elements.sourceType.addEventListener("change", renderSourcePreview);
 elements.adminFileInput.addEventListener("change", () => chooseAdminFile(elements.adminFileInput.files[0]));
 elements.adminDropZone.addEventListener("click", () => elements.adminFileInput.click());
 elements.adminDropZone.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); elements.adminFileInput.click(); } });

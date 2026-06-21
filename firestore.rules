@@ -26,13 +26,19 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    function validDashboardClient(clientId) {
+    function validDashboardClient(dashboardId) {
       return request.resource.data.keys().hasOnly([
-          'clientId', 'clientName', 'sourceName', 'rowCount', 'totalStock',
+          'clientId', 'clientName', 'dashboardType', 'sourceName', 'rowCount', 'totalStock',
           'totalSales', 'stores', 'skus', 'availabilityRate', 'stockHealth',
           'trend', 'topRisks', 'updatedAt'
         ])
-        && request.resource.data.clientId == clientId
+        && request.resource.data.clientId is string
+        && request.resource.data.clientId.size() > 0
+        && request.resource.data.dashboardType in ['inventory', 'sales']
+        && (
+          (request.resource.data.dashboardType == 'inventory' && dashboardId == request.resource.data.clientId)
+          || (request.resource.data.dashboardType == 'sales' && dashboardId == request.resource.data.clientId + '--sales')
+        )
         && request.resource.data.clientName is string
         && request.resource.data.clientName.size() > 0
         && request.resource.data.clientName.size() <= 80
@@ -64,11 +70,12 @@ service cloud.firestore {
       allow read: if temporaryAccessIsActive();
       allow create: if temporaryAccessIsActive()
         && request.resource.data.keys().hasOnly([
-          'clientId', 'clientName', 'sourceName', 'sourceType', 'size',
+          'clientId', 'clientName', 'dashboardType', 'sourceName', 'size',
           'rowCount', 'storagePath', 'status', 'createdAt'
         ])
         && request.resource.data.clientId is string
         && request.resource.data.clientName is string
+        && request.resource.data.dashboardType in ['inventory', 'sales']
         && request.resource.data.sourceName is string
         && request.resource.data.size is int
         && request.resource.data.size > 0
