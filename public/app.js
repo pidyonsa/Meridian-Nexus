@@ -2,8 +2,12 @@ const elements = {
   homeView: document.querySelector("#homeView"),
   filesView: document.querySelector("#filesView"),
   filesNav: document.querySelector("#filesNav"),
+  adminNav: document.querySelector("#adminNav"),
   filesDialog: document.querySelector("#filesDialog"),
+  adminDialog: document.querySelector("#adminDialog"),
   closeFilesDialog: document.querySelector("#closeFilesDialog"),
+  closeAdminDialog: document.querySelector("#closeAdminDialog"),
+  openAdminAction: document.querySelector("#openAdminAction"),
   installButton: document.querySelector("#installButton"),
   fileInput: document.querySelector("#fileInput"),
   dropZone: document.querySelector("#dropZone"),
@@ -18,14 +22,43 @@ const elements = {
   deleteSelected: document.querySelector("#deleteSelected"),
   deleteDialog: document.querySelector("#deleteDialog"),
   deleteDialogCopy: document.querySelector("#deleteDialogCopy"),
-  toast: document.querySelector("#toast")
+  toast: document.querySelector("#toast"),
+  clientFilter: document.querySelector("#clientFilter"),
+  dataStatus: document.querySelector("#dataStatus"),
+  dataStatusCopy: document.querySelector("#dataStatusCopy"),
+  metricStock: document.querySelector("#metricStock"),
+  metricStores: document.querySelector("#metricStores"),
+  metricSkus: document.querySelector("#metricSkus"),
+  metricAvailability: document.querySelector("#metricAvailability"),
+  trendChart: document.querySelector("#trendChart"),
+  stockDonut: document.querySelector("#stockDonut"),
+  healthScore: document.querySelector("#healthScore"),
+  healthyCount: document.querySelector("#healthyCount"),
+  lowCount: document.querySelector("#lowCount"),
+  outCount: document.querySelector("#outCount"),
+  clientBars: document.querySelector("#clientBars"),
+  riskTable: document.querySelector("#riskTable"),
+  riskCount: document.querySelector("#riskCount"),
+  adminClient: document.querySelector("#adminClient"),
+  customClientField: document.querySelector("#customClientField"),
+  customClient: document.querySelector("#customClient"),
+  sourceType: document.querySelector("#sourceType"),
+  adminFileInput: document.querySelector("#adminFileInput"),
+  adminDropZone: document.querySelector("#adminDropZone"),
+  adminDropTitle: document.querySelector("#adminDropTitle"),
+  sourcePreview: document.querySelector("#sourcePreview"),
+  publishDataset: document.querySelector("#publishDataset"),
+  adminHistory: document.querySelector("#adminHistory")
 };
 
 const state = {
   files: [],
   selected: new Set(),
   busy: false,
-  uploadCount: 0
+  uploadCount: 0,
+  dashboardClients: [],
+  dashboardUploads: [],
+  pendingDataset: null
 };
 
 let deferredInstallPrompt = null;
@@ -33,6 +66,9 @@ let toastTimer = null;
 let database = null;
 let storage = null;
 let dragDepth = 0;
+let adminDragDepth = 0;
+
+const CLIENTS = ["Agroserve","Alpen","Anchor","Aquelle","Aspen","Butterfly","Cape Cookies","Davidoff","Duracell","Dynamic Brands","Ethica","Lindt","Magalies","Penflex","PMI","Racefoods","SCJ","Sir Fruit","Sodastream","SOIL","Wilmar"];
 
 function showToast(message, isError = false) {
   elements.toast.textContent = message;
@@ -73,11 +109,16 @@ function fileType(file) {
 
 function setViewFromHash() {
   const showFiles = window.location.hash === "#files";
+  const showAdmin = window.location.hash === "#admin";
   if (showFiles && !elements.filesDialog.open) elements.filesDialog.showModal();
   if (!showFiles && elements.filesDialog.open) elements.filesDialog.close();
+  if (showAdmin && !elements.adminDialog.open) elements.adminDialog.showModal();
+  if (!showAdmin && elements.adminDialog.open) elements.adminDialog.close();
   elements.filesNav.classList.toggle("active", showFiles);
   elements.filesNav.setAttribute("aria-expanded", String(showFiles));
-  document.title = showFiles ? "Files | Meridian Nexus" : "Meridian Nexus";
+  elements.adminNav.classList.toggle("active", showAdmin);
+  elements.adminNav.setAttribute("aria-expanded", String(showAdmin));
+  document.title = showFiles ? "Files | Meridian Nexus" : showAdmin ? "Admin | Meridian Nexus" : "Meridian Nexus";
 }
 
 function openFilesWorkspace() {
@@ -95,6 +136,19 @@ function closeFilesWorkspace() {
   }
   elements.filesNav.classList.remove("active");
   elements.filesNav.setAttribute("aria-expanded", "false");
+  document.title = "Meridian Nexus";
+}
+
+function openAdminWorkspace() {
+  if (!elements.adminDialog.open) elements.adminDialog.showModal();
+  if (window.location.hash !== "#admin") window.location.hash = "admin";
+}
+
+function closeAdminWorkspace() {
+  if (elements.adminDialog.open) elements.adminDialog.close();
+  if (window.location.hash === "#admin") window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#home`);
+  elements.adminNav.classList.remove("active");
+  elements.adminNav.setAttribute("aria-expanded", "false");
   document.title = "Meridian Nexus";
 }
 
@@ -355,6 +409,250 @@ function selectedFiles() {
   return state.files.filter((file) => state.selected.has(file.id));
 }
 
+function slugify(value) {
+  return String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 64) || "client";
+}
+
+function numberValue(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  const parsed = Number(String(value ?? "").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function compactNumber(value) {
+  return new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(Number(value) || 0);
+}
+
+function normalHeader(value) {
+  return String(value).toLowerCase().replace(/[_\-/]+/g, " ").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+}
+
+const FIELD_ALIASES = {
+  date: ["date","week","period","report date","inventory date","sales date","week ending","month"],
+  store: ["store","store name","site","outlet","branch","customer name","location"],
+  sku: ["sku","product","product code","item","item code","barcode","material","description","product name"],
+  stock: ["stock","inventory","soh","stock on hand","quantity","qty","units","closing stock","current stock"],
+  sales: ["sales","sales value","revenue","turnover","net sales","sales units","units sold"],
+  cover: ["days cover","weeks cover","cover","woc","stock cover"]
+};
+
+function detectColumns(headers) {
+  const normalized = headers.map((header) => ({ original: header, value: normalHeader(header) }));
+  return Object.fromEntries(Object.entries(FIELD_ALIASES).map(([field, aliases]) => {
+    const exact = normalized.find((header) => aliases.includes(header.value));
+    const partial = normalized.find((header) => aliases.some((alias) => header.value.includes(alias) || alias.includes(header.value)));
+    return [field, (exact || partial)?.original || null];
+  }));
+}
+
+function parseDateValue(value) {
+  if (value instanceof Date && !Number.isNaN(value.valueOf())) return value;
+  if (typeof value === "number" && window.XLSX?.SSF) {
+    const parts = XLSX.SSF.parse_date_code(value);
+    if (parts) return new Date(parts.y, parts.m - 1, parts.d);
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.valueOf()) ? null : parsed;
+}
+
+function periodLabel(value, index) {
+  const date = parseDateValue(value);
+  if (!date) return `Period ${index + 1}`;
+  return new Intl.DateTimeFormat(undefined, { month: "short", year: "2-digit" }).format(date);
+}
+
+function buildSnapshot(rows, mapping, clientName, sourceName) {
+  const stores = new Set();
+  const skus = new Set();
+  const periodTotals = new Map();
+  const risks = new Map();
+  let totalStock = 0;
+  let totalSales = 0;
+  let healthy = 0;
+  let low = 0;
+  let out = 0;
+  rows.forEach((row, index) => {
+    const store = (String(row[mapping.store] ?? "Unknown store").trim() || "Unknown store").slice(0, 160);
+    const sku = (String(row[mapping.sku] ?? "Unknown product").trim() || "Unknown product").slice(0, 200);
+    const stock = mapping.stock ? numberValue(row[mapping.stock]) : 0;
+    const sales = mapping.sales ? numberValue(row[mapping.sales]) : 0;
+    const cover = mapping.cover ? numberValue(row[mapping.cover]) : null;
+    const date = mapping.date ? parseDateValue(row[mapping.date]) : null;
+    const periodKey = date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` : `row-${Math.floor(index / Math.max(1, Math.ceil(rows.length / 8)))}`;
+    stores.add(store);
+    skus.add(sku);
+    totalStock += stock;
+    totalSales += sales;
+    periodTotals.set(periodKey, (periodTotals.get(periodKey) || 0) + (mapping.stock ? stock : sales));
+    let status = "healthy";
+    if (stock <= 0 && mapping.stock) { out += 1; status = "out"; }
+    else if (mapping.stock && ((cover !== null && cover > 0 && cover <= 2) || stock <= 10)) { low += 1; status = "low"; }
+    else healthy += 1;
+    if (status !== "healthy") {
+      const key = `${store}||${sku}`;
+      const existing = risks.get(key) || { store, sku, stock: 0, status };
+      existing.stock += stock;
+      if (status === "out") existing.status = "out";
+      risks.set(key, existing);
+    }
+  });
+  const observations = Math.max(1, healthy + low + out);
+  const trend = [...periodTotals.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-12).map(([key, value], index) => ({ label: key.startsWith("row-") ? periodLabel(null, index) : periodLabel(`${key}-01`, index), value: Math.round(value * 100) / 100 }));
+  const topRisks = [...risks.values()].sort((a, b) => (a.status === b.status ? a.stock - b.stock : a.status === "out" ? -1 : 1)).slice(0, 20).map((risk) => ({ ...risk, stock: Math.round(risk.stock * 100) / 100 }));
+  return {
+    clientId: slugify(clientName), clientName, sourceName, rowCount: rows.length,
+    totalStock: Math.round(totalStock * 100) / 100, totalSales: Math.round(totalSales * 100) / 100,
+    stores: stores.size, skus: skus.size, availabilityRate: Math.round(((healthy + low) / observations) * 1000) / 10,
+    stockHealth: { healthy, low, out }, trend, topRisks
+  };
+}
+
+async function parseSourceFile(file) {
+  if (!window.XLSX) throw new Error("Spreadsheet reader did not load. Check the connection and refresh.");
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  if (!["xlsx","xls","xlsb","csv"].includes(extension)) throw new Error("Admin accepts Excel or CSV source files.");
+  if (file.size > 250 * 1024 * 1024) throw new Error("This browser-based dashboard source is limited to 250 MB. Split larger datasets into client periods.");
+  elements.adminDropTitle.textContent = "Reading and validating source...";
+  const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: true });
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) throw new Error("The workbook has no worksheets.");
+  const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: null, raw: true });
+  if (!rows.length) throw new Error("The first worksheet contains no data rows.");
+  const headers = Object.keys(rows[0]);
+  const mapping = detectColumns(headers);
+  if (!mapping.stock && !mapping.sales) throw new Error("No stock, quantity, sales or revenue column could be identified.");
+  return { file, rows, mapping, sheetName };
+}
+
+function selectedClientName() {
+  return elements.adminClient.value === "__new" ? elements.customClient.value.trim() : elements.adminClient.value;
+}
+
+function renderSourcePreview() {
+  const pending = state.pendingDataset;
+  if (!pending) { elements.sourcePreview.hidden = true; elements.publishDataset.disabled = true; return; }
+  const mappings = Object.entries(pending.mapping).filter(([, value]) => value);
+  elements.sourcePreview.innerHTML = `<div class="preview-title"><strong>${escapeHtml(pending.file.name)}</strong><span>${pending.rows.length.toLocaleString()} rows · ${escapeHtml(pending.sheetName)}</span></div><div class="mapping-grid">${mappings.map(([field, column]) => `<span>${escapeHtml(field)}<strong>${escapeHtml(column)}</strong></span>`).join("")}</div>${!pending.mapping.store || !pending.mapping.sku ? `<p class="preview-warning">Some location or product fields were not detected. The dashboard will group missing values as unknown.</p>` : ""}`;
+  elements.sourcePreview.hidden = false;
+  elements.publishDataset.disabled = !selectedClientName();
+}
+
+async function chooseAdminFile(file) {
+  if (!file) return;
+  state.pendingDataset = null;
+  renderSourcePreview();
+  try {
+    state.pendingDataset = await parseSourceFile(file);
+    elements.adminDropTitle.textContent = "Source ready to publish";
+    renderSourcePreview();
+  } catch (error) {
+    elements.adminDropTitle.textContent = "Drop a source file here";
+    showToast(friendlyError(error), true);
+  }
+}
+
+function aggregateSnapshots(snapshots) {
+  const combined = { totalStock: 0, totalSales: 0, stores: 0, skus: 0, availabilityRate: 0, stockHealth: { healthy: 0, low: 0, out: 0 }, trend: [], topRisks: [] };
+  const periods = new Map();
+  let weightedAvailability = 0;
+  let totalRows = 0;
+  snapshots.forEach((item) => {
+    combined.totalStock += numberValue(item.totalStock); combined.totalSales += numberValue(item.totalSales); combined.stores += numberValue(item.stores); combined.skus += numberValue(item.skus);
+    const rows = numberValue(item.rowCount); totalRows += rows; weightedAvailability += numberValue(item.availabilityRate) * rows;
+    ["healthy","low","out"].forEach((key) => { combined.stockHealth[key] += numberValue(item.stockHealth?.[key]); });
+    (item.trend || []).forEach((point) => periods.set(point.label, (periods.get(point.label) || 0) + numberValue(point.value)));
+    combined.topRisks.push(...(item.topRisks || []).map((risk) => ({ ...risk, clientName: item.clientName })));
+  });
+  combined.availabilityRate = totalRows ? weightedAvailability / totalRows : 0;
+  combined.trend = [...periods.entries()].slice(-12).map(([label, value]) => ({ label, value }));
+  combined.topRisks = combined.topRisks.slice(0, 20);
+  return combined;
+}
+
+function renderTrend(points) {
+  if (!points?.length) { elements.trendChart.innerHTML = `<div class="chart-empty">Upload source data to build the trend.</div>`; return; }
+  const width = 760, height = 240, padX = 36, padY = 22;
+  const values = points.map((point) => numberValue(point.value));
+  const max = Math.max(...values, 1), min = Math.min(...values, 0), range = Math.max(1, max - min);
+  const coords = points.map((point, index) => ({ x: padX + (index * (width - padX * 2) / Math.max(1, points.length - 1)), y: padY + ((max - numberValue(point.value)) / range) * (height - padY * 2), ...point }));
+  const line = coords.map((point) => `${point.x},${point.y}`).join(" ");
+  const area = `${padX},${height - padY} ${line} ${coords.at(-1).x},${height - padY}`;
+  elements.trendChart.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Stock trend"><defs><linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a18" stop-opacity=".28"/><stop offset="1" stop-color="#ff8a18" stop-opacity="0"/></linearGradient></defs>${[0,1,2,3].map((lineIndex) => `<line class="chart-grid" x1="${padX}" y1="${padY + lineIndex * 60}" x2="${width - padX}" y2="${padY + lineIndex * 60}"/>`).join("")}<polygon class="chart-area" points="${area}"/><polyline class="chart-line" points="${line}"/>${coords.map((point, index) => `<circle class="chart-point" cx="${point.x}" cy="${point.y}" r="4"><title>${escapeHtml(point.label)}: ${numberValue(point.value).toLocaleString()}</title></circle>${(index === 0 || index === coords.length - 1 || coords.length < 7) ? `<text class="chart-label" x="${point.x}" y="${height - 4}" text-anchor="middle">${escapeHtml(point.label)}</text>` : ""}`).join("")}</svg>`;
+}
+
+function renderDashboard() {
+  const selected = elements.clientFilter.value || "all";
+  const visible = selected === "all" ? state.dashboardClients : state.dashboardClients.filter((client) => client.clientId === selected);
+  const data = aggregateSnapshots(visible);
+  const hasData = visible.length > 0;
+  elements.metricStock.textContent = hasData ? compactNumber(data.totalStock) : "—";
+  elements.metricStores.textContent = hasData ? data.stores.toLocaleString() : "—";
+  elements.metricSkus.textContent = hasData ? data.skus.toLocaleString() : "—";
+  elements.metricAvailability.textContent = hasData ? `${data.availabilityRate.toFixed(1)}%` : "—";
+  elements.dataStatus.className = `data-status ${hasData ? "ready" : "empty"}`;
+  elements.dataStatus.querySelector("strong").textContent = hasData ? `${visible.length} client dashboard${visible.length === 1 ? "" : "s"} live` : "No dashboard data yet";
+  elements.dataStatusCopy.textContent = hasData ? `Updated from ${visible.reduce((sum, item) => sum + numberValue(item.rowCount), 0).toLocaleString()} source rows` : "Open Admin to publish the first Excel or CSV source.";
+  renderTrend(data.trend);
+  const healthTotal = data.stockHealth.healthy + data.stockHealth.low + data.stockHealth.out;
+  const healthyPercent = healthTotal ? (data.stockHealth.healthy / healthTotal) * 100 : 0;
+  const lowPercent = healthTotal ? (data.stockHealth.low / healthTotal) * 100 : 0;
+  elements.stockDonut.style.background = healthTotal ? `conic-gradient(#37c983 0 ${healthyPercent}%,#ffad26 ${healthyPercent}% ${healthyPercent + lowPercent}%,#f15e55 ${healthyPercent + lowPercent}% 100%)` : "conic-gradient(#284b69 0 100%)";
+  elements.healthScore.textContent = healthTotal ? `${Math.round(healthyPercent)}%` : "—";
+  elements.healthyCount.textContent = data.stockHealth.healthy.toLocaleString(); elements.lowCount.textContent = data.stockHealth.low.toLocaleString(); elements.outCount.textContent = data.stockHealth.out.toLocaleString();
+  elements.clientBars.innerHTML = state.dashboardClients.length ? state.dashboardClients.slice().sort((a,b) => numberValue(b.availabilityRate) - numberValue(a.availabilityRate)).slice(0,8).map((client) => `<div class="client-bar"><span title="${escapeHtml(client.clientName)}">${escapeHtml(client.clientName)}</span><div class="client-bar-track"><i style="width:${Math.max(2,Math.min(100,numberValue(client.availabilityRate)))}%"></i></div><strong>${numberValue(client.availabilityRate).toFixed(0)}%</strong></div>`).join("") : `<div class="chart-empty">Client comparisons will appear here.</div>`;
+  elements.riskCount.textContent = `${data.topRisks.length} item${data.topRisks.length === 1 ? "" : "s"}`;
+  elements.riskTable.innerHTML = data.topRisks.length ? data.topRisks.slice(0,8).map((risk) => `<tr><td>${escapeHtml(risk.store)}</td><td title="${escapeHtml(risk.sku)}">${escapeHtml(risk.sku)}</td><td>${numberValue(risk.stock).toLocaleString()}</td><td><span class="status-pill ${risk.status === "low" ? "low" : ""}">${risk.status === "low" ? "Low stock" : "Out of stock"}</span></td></tr>`).join("") : `<tr><td colspan="4" class="table-empty">${hasData ? "No priority exceptions in this view." : "No source data published."}</td></tr>`;
+}
+
+function renderClientOptions() {
+  const current = elements.clientFilter.value;
+  elements.clientFilter.innerHTML = `<option value="all">All clients</option>${state.dashboardClients.map((client) => `<option value="${escapeHtml(client.clientId)}">${escapeHtml(client.clientName)}</option>`).join("")}`;
+  if ([...elements.clientFilter.options].some((option) => option.value === current)) elements.clientFilter.value = current;
+  const names = [...new Set([...CLIENTS, ...state.dashboardClients.map((client) => client.clientName)])].sort((a,b) => a.localeCompare(b));
+  const adminCurrent = elements.adminClient.value;
+  elements.adminClient.innerHTML = `${names.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}<option value="__new">+ Add a new client</option>`;
+  if ([...elements.adminClient.options].some((option) => option.value === adminCurrent)) elements.adminClient.value = adminCurrent;
+  renderDashboard();
+}
+
+function renderAdminHistory() {
+  elements.adminHistory.innerHTML = state.dashboardUploads.length ? state.dashboardUploads.slice(0,12).map((upload) => `<article class="history-item"><strong title="${escapeHtml(upload.sourceName)}">${escapeHtml(upload.sourceName)}</strong><span class="history-client">${escapeHtml(upload.clientName)}</span><span>${numberValue(upload.rowCount).toLocaleString()} rows · ${formatBytes(numberValue(upload.size))} · ${formatDate(upload.createdAt)}</span></article>`).join("") : `<p class="history-empty">No dashboard sources published yet.</p>`;
+}
+
+async function publishPendingDataset() {
+  const pending = state.pendingDataset;
+  const clientName = selectedClientName();
+  if (!pending || !clientName || !database || !storage) return;
+  elements.publishDataset.disabled = true;
+  elements.publishDataset.querySelector("span").textContent = "Publishing dashboard...";
+  const uploadId = uniqueId();
+  const clientId = slugify(clientName);
+  const storagePath = `dashboard-source/${clientId}/${uploadId}/${safeStorageName(pending.file.name)}`;
+  const reference = storage.ref(storagePath);
+  try {
+    const snapshot = buildSnapshot(pending.rows, pending.mapping, clientName, pending.file.name);
+    const uploadTask = reference.put(pending.file, { contentType: pending.file.type || "application/octet-stream", customMetadata: { clientId, sourceType: elements.sourceType.value } });
+    await new Promise((resolve, reject) => uploadTask.on("state_changed", (progress) => {
+      const percent = progress.totalBytes ? Math.round(progress.bytesTransferred / progress.totalBytes * 100) : 0;
+      elements.publishDataset.querySelector("small").textContent = `Uploading source · ${percent}%`;
+    }, reject, resolve));
+    if (Number(uploadTask.snapshot.metadata.size) !== pending.file.size) throw new Error("The uploaded source size could not be verified.");
+    const batch = database.batch();
+    batch.set(database.collection("dashboardClients").doc(clientId), { ...snapshot, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    batch.set(database.collection("dashboardUploads").doc(uploadId), { clientId, clientName, sourceName: pending.file.name, sourceType: elements.sourceType.value, size: pending.file.size, rowCount: pending.rows.length, storagePath, status: "published", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await batch.commit();
+    state.pendingDataset = null; elements.adminFileInput.value = ""; elements.adminDropTitle.textContent = "Drop another source file here"; renderSourcePreview();
+    showToast(`${clientName} dashboard published from ${pending.rows.length.toLocaleString()} rows.`);
+  } catch (error) {
+    await reference.delete().catch(() => {});
+    showToast(`Dashboard publish failed: ${friendlyError(error)}`, true);
+  } finally {
+    elements.publishDataset.querySelector("span").textContent = "Publish client dashboard";
+    elements.publishDataset.querySelector("small").textContent = "Source and calculated snapshot will be saved";
+    elements.publishDataset.disabled = !state.pendingDataset || !selectedClientName();
+  }
+}
+
 function initialiseFirebase() {
   try {
     database = firebase.firestore();
@@ -375,11 +673,44 @@ function initialiseFirebase() {
       elements.emptyState.querySelector("p").textContent = friendlyError(error);
       showToast(`Could not load files: ${friendlyError(error)}`, true);
     });
+    database.collection("dashboardClients").onSnapshot((snapshot) => {
+      state.dashboardClients = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((a,b) => String(a.clientName).localeCompare(String(b.clientName)));
+      renderClientOptions();
+    }, (error) => {
+      elements.dataStatus.className = "data-status empty";
+      elements.dataStatus.querySelector("strong").textContent = "Dashboard data unavailable";
+      elements.dataStatusCopy.textContent = friendlyError(error);
+    });
+    database.collection("dashboardUploads").onSnapshot((snapshot) => {
+      state.dashboardUploads = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((a,b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+      renderAdminHistory();
+    });
   } catch (error) {
     elements.fileSummary.textContent = "Storage unavailable";
     showToast("Firebase could not be initialised.", true);
   }
 }
+
+elements.adminClient.innerHTML = `${CLIENTS.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}<option value="__new">+ Add a new client</option>`;
+elements.adminNav.addEventListener("click", openAdminWorkspace);
+elements.openAdminAction.addEventListener("click", openAdminWorkspace);
+elements.closeAdminDialog.addEventListener("click", closeAdminWorkspace);
+elements.adminDialog.addEventListener("close", () => { if (window.location.hash === "#admin") closeAdminWorkspace(); });
+elements.clientFilter.addEventListener("change", renderDashboard);
+elements.adminClient.addEventListener("change", () => {
+  elements.customClientField.hidden = elements.adminClient.value !== "__new";
+  renderSourcePreview();
+  if (!elements.customClientField.hidden) elements.customClient.focus();
+});
+elements.customClient.addEventListener("input", renderSourcePreview);
+elements.adminFileInput.addEventListener("change", () => chooseAdminFile(elements.adminFileInput.files[0]));
+elements.adminDropZone.addEventListener("click", () => elements.adminFileInput.click());
+elements.adminDropZone.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); elements.adminFileInput.click(); } });
+elements.adminDropZone.addEventListener("dragenter", (event) => { if (!containsFiles(event)) return; event.preventDefault(); adminDragDepth += 1; elements.adminDropZone.classList.add("is-dragging"); elements.adminDropTitle.textContent = "Release to analyse source"; });
+elements.adminDropZone.addEventListener("dragover", (event) => { if (!containsFiles(event)) return; event.preventDefault(); event.dataTransfer.dropEffect = "copy"; });
+elements.adminDropZone.addEventListener("dragleave", (event) => { if (!containsFiles(event)) return; adminDragDepth = Math.max(0, adminDragDepth - 1); if (!adminDragDepth) { elements.adminDropZone.classList.remove("is-dragging"); elements.adminDropTitle.textContent = state.pendingDataset ? "Source ready to publish" : "Drop a source file here"; } });
+elements.adminDropZone.addEventListener("drop", (event) => { event.preventDefault(); adminDragDepth = 0; elements.adminDropZone.classList.remove("is-dragging"); chooseAdminFile(event.dataTransfer.files[0]); });
+elements.publishDataset.addEventListener("click", publishPendingDataset);
 
 elements.fileInput.addEventListener("change", () => uploadFiles([...elements.fileInput.files]));
 elements.dropZone.addEventListener("click", openFilePicker);
@@ -417,12 +748,16 @@ elements.dropZone.addEventListener("drop", async (event) => {
   }
 });
 document.addEventListener("dragover", (event) => {
-  if (elements.filesDialog.open && containsFiles(event)) event.preventDefault();
+  if ((elements.filesDialog.open || elements.adminDialog.open) && containsFiles(event)) event.preventDefault();
 });
 document.addEventListener("drop", (event) => {
   if (elements.filesDialog.open && containsFiles(event) && !event.target.closest("#dropZone")) {
     event.preventDefault();
     showToast("Drop files inside the highlighted upload area.");
+  }
+  if (elements.adminDialog.open && containsFiles(event) && !event.target.closest("#adminDropZone")) {
+    event.preventDefault();
+    showToast("Drop the spreadsheet inside the Admin source area.");
   }
 });
 elements.filesNav.addEventListener("click", openFilesWorkspace);
@@ -478,4 +813,6 @@ if ("serviceWorker" in navigator) {
 }
 setViewFromHash();
 renderFiles();
+renderClientOptions();
+renderAdminHistory();
 window.addEventListener("load", initialiseFirebase, { once: true });

@@ -26,6 +26,60 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    function validDashboardClient(clientId) {
+      return request.resource.data.keys().hasOnly([
+          'clientId', 'clientName', 'sourceName', 'rowCount', 'totalStock',
+          'totalSales', 'stores', 'skus', 'availabilityRate', 'stockHealth',
+          'trend', 'topRisks', 'updatedAt'
+        ])
+        && request.resource.data.clientId == clientId
+        && request.resource.data.clientName is string
+        && request.resource.data.clientName.size() > 0
+        && request.resource.data.clientName.size() <= 80
+        && request.resource.data.sourceName is string
+        && request.resource.data.rowCount is int
+        && request.resource.data.rowCount > 0
+        && request.resource.data.totalStock is number
+        && request.resource.data.totalSales is number
+        && request.resource.data.stores is int
+        && request.resource.data.skus is int
+        && request.resource.data.availabilityRate is number
+        && request.resource.data.availabilityRate >= 0
+        && request.resource.data.availabilityRate <= 100
+        && request.resource.data.stockHealth is map
+        && request.resource.data.trend is list
+        && request.resource.data.trend.size() <= 12
+        && request.resource.data.topRisks is list
+        && request.resource.data.topRisks.size() <= 20
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    match /dashboardClients/{clientId} {
+      allow read: if temporaryAccessIsActive();
+      allow create, update: if temporaryAccessIsActive() && validDashboardClient(clientId);
+      allow delete: if false;
+    }
+
+    match /dashboardUploads/{uploadId} {
+      allow read: if temporaryAccessIsActive();
+      allow create: if temporaryAccessIsActive()
+        && request.resource.data.keys().hasOnly([
+          'clientId', 'clientName', 'sourceName', 'sourceType', 'size',
+          'rowCount', 'storagePath', 'status', 'createdAt'
+        ])
+        && request.resource.data.clientId is string
+        && request.resource.data.clientName is string
+        && request.resource.data.sourceName is string
+        && request.resource.data.size is int
+        && request.resource.data.size > 0
+        && request.resource.data.rowCount is int
+        && request.resource.data.rowCount > 0
+        && request.resource.data.storagePath.matches('dashboard-source/' + request.resource.data.clientId + '/' + uploadId + '/[^/]+')
+        && request.resource.data.status == 'published'
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
