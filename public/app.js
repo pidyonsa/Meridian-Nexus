@@ -49,7 +49,13 @@ const elements = {
   adminDropTitle: document.querySelector("#adminDropTitle"),
   sourcePreview: document.querySelector("#sourcePreview"),
   publishDataset: document.querySelector("#publishDataset"),
-  adminHistory: document.querySelector("#adminHistory")
+  adminHistory: document.querySelector("#adminHistory"),
+  extractionStatus: document.querySelector("#extractionStatus"), extractionStatusTitle: document.querySelector("#extractionStatusTitle"), extractionStatusCopy: document.querySelector("#extractionStatusCopy"),
+  adminLogin: document.querySelector("#adminLogin"), adminLoginForm: document.querySelector("#adminLoginForm"), adminLoginEmail: document.querySelector("#adminLoginEmail"), adminLoginPassword: document.querySelector("#adminLoginPassword"),
+  adminWorkspace: document.querySelector("#adminWorkspace"), adminSessionName: document.querySelector("#adminSessionName"), adminLogout: document.querySelector("#adminLogout"),
+  retailerForm: document.querySelector("#retailerForm"), retailerId: document.querySelector("#retailerId"), retailerName: document.querySelector("#retailerName"), retailerWebAddress: document.querySelector("#retailerWebAddress"), retailerUsername: document.querySelector("#retailerUsername"), retailerPassword: document.querySelector("#retailerPassword"), retailerFormTitle: document.querySelector("#retailerFormTitle"), retailerList: document.querySelector("#retailerList"), newRetailer: document.querySelector("#newRetailer"), deleteRetailer: document.querySelector("#deleteRetailer"),
+  extractionSteps: document.querySelector("#extractionSteps"), addExtractionStep: document.querySelector("#addExtractionStep"), runRetailer: document.querySelector("#runRetailer"), runExtraction: document.querySelector("#runExtraction"),
+  adminUserForm: document.querySelector("#adminUserForm"), adminUserId: document.querySelector("#adminUserId"), adminUserName: document.querySelector("#adminUserName"), adminUserSurname: document.querySelector("#adminUserSurname"), adminUserEmail: document.querySelector("#adminUserEmail"), adminUserPassword: document.querySelector("#adminUserPassword"), adminUserDisabled: document.querySelector("#adminUserDisabled"), adminUserFormTitle: document.querySelector("#adminUserFormTitle"), adminUserList: document.querySelector("#adminUserList"), newAdminUser: document.querySelector("#newAdminUser"), deleteAdminUser: document.querySelector("#deleteAdminUser")
 };
 
 const state = {
@@ -59,6 +65,9 @@ const state = {
   uploadCount: 0,
   dashboardClients: [],
   dashboardUploads: [],
+  retailers: [],
+  adminUsers: [],
+  extractionSteps: [],
   pendingDataset: null
 };
 
@@ -66,6 +75,9 @@ let deferredInstallPrompt = null;
 let toastTimer = null;
 let database = null;
 let storage = null;
+let auth = null;
+let cloudFunctions = null;
+let adminUnsubscribers = [];
 let dragDepth = 0;
 let adminDragDepth = 0;
 
@@ -197,7 +209,7 @@ function updateSelectionControls() {
 function createUploadItem(file) {
   const item = document.createElement("div");
   item.className = "upload-item";
-  item.innerHTML = `<strong>${escapeHtml(file.name)}</strong><span>Preparing…</span><div class="progress-track"><div class="progress-bar"></div></div>`;
+  item.innerHTML = `<strong>${escapeHtml(file.name)}</strong><span>Preparing...</span><div class="progress-track"><div class="progress-bar"></div></div>`;
   elements.uploadQueue.append(item);
   elements.uploadQueue.hidden = false;
   state.uploadCount += 1;
@@ -242,7 +254,7 @@ function uploadFile(file) {
     task.on("state_changed", (snapshot) => {
       const percent = snapshot.totalBytes ? Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100) : 0;
       progress.style.width = `${percent}%`;
-      status.textContent = `${percent}% · ${formatBytes(snapshot.bytesTransferred)} of ${formatBytes(snapshot.totalBytes)}`;
+      status.textContent = `${percent}% - ${formatBytes(snapshot.bytesTransferred)} of ${formatBytes(snapshot.totalBytes)}`;
     }, (error) => {
       finishUploadItem(item, "Upload failed", true);
       showToast(`${file.name}: ${friendlyError(error)}`, true);
@@ -548,7 +560,7 @@ function renderSourcePreview() {
   if (!pending) { elements.sourcePreview.hidden = true; elements.publishDataset.disabled = true; return; }
   const mappings = Object.entries(pending.mapping).filter(([, value]) => value);
   const dashboardType = dashboardTypeFor(pending);
-  elements.sourcePreview.innerHTML = `<div class="preview-title"><strong>${escapeHtml(pending.file.name)}</strong><span>${pending.rows.length.toLocaleString()} rows · ${escapeHtml(pending.sheetName)} · ${DASHBOARD_TYPES[dashboardType]} dashboard</span></div><div class="mapping-grid">${mappings.map(([field, column]) => `<span>${escapeHtml(field)}<strong>${escapeHtml(column)}</strong></span>`).join("")}</div>${!pending.mapping.store || !pending.mapping.sku ? `<p class="preview-warning">Some location or product fields were not detected. The dashboard will group missing values as unknown.</p>` : ""}`;
+  elements.sourcePreview.innerHTML = `<div class="preview-title"><strong>${escapeHtml(pending.file.name)}</strong><span>${pending.rows.length.toLocaleString()} rows - ${escapeHtml(pending.sheetName)} - ${DASHBOARD_TYPES[dashboardType]} dashboard</span></div><div class="mapping-grid">${mappings.map(([field, column]) => `<span>${escapeHtml(field)}<strong>${escapeHtml(column)}</strong></span>`).join("")}</div>${!pending.mapping.store || !pending.mapping.sku ? `<p class="preview-warning">Some location or product fields were not detected. The dashboard will group missing values as unknown.</p>` : ""}`;
   elements.sourcePreview.hidden = false;
   elements.publishDataset.disabled = !selectedClientName();
 }
@@ -605,10 +617,10 @@ function renderDashboard() {
   );
   const data = aggregateSnapshots(visible);
   const hasData = visible.length > 0;
-  elements.metricStock.textContent = hasData ? compactNumber(data.totalStock) : "—";
-  elements.metricStores.textContent = hasData ? data.stores.toLocaleString() : "—";
-  elements.metricSkus.textContent = hasData ? data.skus.toLocaleString() : "—";
-  elements.metricAvailability.textContent = hasData ? `${data.availabilityRate.toFixed(1)}%` : "—";
+  elements.metricStock.textContent = hasData ? compactNumber(data.totalStock) : "--";
+  elements.metricStores.textContent = hasData ? data.stores.toLocaleString() : "--";
+  elements.metricSkus.textContent = hasData ? data.skus.toLocaleString() : "--";
+  elements.metricAvailability.textContent = hasData ? `${data.availabilityRate.toFixed(1)}%` : "--";
   elements.dataStatus.className = `data-status ${hasData ? "ready" : "empty"}`;
   elements.dataStatus.querySelector("strong").textContent = hasData ? `${visible.length} client dashboard${visible.length === 1 ? "" : "s"} live` : "No dashboard data yet";
   elements.dataStatusCopy.textContent = hasData ? `Updated from ${visible.reduce((sum, item) => sum + numberValue(item.rowCount), 0).toLocaleString()} source rows` : "Open Admin to publish the first Excel or CSV source.";
@@ -617,9 +629,9 @@ function renderDashboard() {
   const healthyPercent = healthTotal ? (data.stockHealth.healthy / healthTotal) * 100 : 0;
   const lowPercent = healthTotal ? (data.stockHealth.low / healthTotal) * 100 : 0;
   elements.stockDonut.style.background = healthTotal ? `conic-gradient(#37c983 0 ${healthyPercent}%,#ffad26 ${healthyPercent}% ${healthyPercent + lowPercent}%,#f15e55 ${healthyPercent + lowPercent}% 100%)` : "conic-gradient(#284b69 0 100%)";
-  elements.healthScore.textContent = healthTotal ? `${Math.round(healthyPercent)}%` : "—";
+  elements.healthScore.textContent = healthTotal ? `${Math.round(healthyPercent)}%` : "--";
   elements.healthyCount.textContent = data.stockHealth.healthy.toLocaleString(); elements.lowCount.textContent = data.stockHealth.low.toLocaleString(); elements.outCount.textContent = data.stockHealth.out.toLocaleString();
-  elements.clientBars.innerHTML = visible.length ? visible.slice().sort((a,b) => numberValue(b.availabilityRate) - numberValue(a.availabilityRate)).slice(0,8).map((client) => `<div class="client-bar"><span title="${escapeHtml(client.clientName)} · ${DASHBOARD_TYPES[dashboardTypeOf(client)]}">${escapeHtml(client.clientName)}</span><div class="client-bar-track"><i style="width:${Math.max(2,Math.min(100,numberValue(client.availabilityRate)))}%"></i></div><strong>${numberValue(client.availabilityRate).toFixed(0)}%</strong></div>`).join("") : `<div class="chart-empty">No client dashboards match these filters.</div>`;
+  elements.clientBars.innerHTML = visible.length ? visible.slice().sort((a,b) => numberValue(b.availabilityRate) - numberValue(a.availabilityRate)).slice(0,8).map((client) => `<div class="client-bar"><span title="${escapeHtml(client.clientName)} - ${DASHBOARD_TYPES[dashboardTypeOf(client)]}">${escapeHtml(client.clientName)}</span><div class="client-bar-track"><i style="width:${Math.max(2,Math.min(100,numberValue(client.availabilityRate)))}%"></i></div><strong>${numberValue(client.availabilityRate).toFixed(0)}%</strong></div>`).join("") : `<div class="chart-empty">No client dashboards match these filters.</div>`;
   elements.riskCount.textContent = `${data.topRisks.length} item${data.topRisks.length === 1 ? "" : "s"}`;
   elements.riskTable.innerHTML = data.topRisks.length ? data.topRisks.slice(0,8).map((risk) => `<tr><td>${escapeHtml(risk.store)}</td><td title="${escapeHtml(risk.sku)}">${escapeHtml(risk.sku)}</td><td>${numberValue(risk.stock).toLocaleString()}</td><td><span class="status-pill ${risk.status === "low" ? "low" : ""}">${risk.status === "low" ? "Low stock" : "Out of stock"}</span></td></tr>`).join("") : `<tr><td colspan="4" class="table-empty">${hasData ? "No priority exceptions in this view." : "No source data published."}</td></tr>`;
 }
@@ -637,7 +649,7 @@ function renderClientOptions() {
 }
 
 function renderAdminHistory() {
-  elements.adminHistory.innerHTML = state.dashboardUploads.length ? state.dashboardUploads.slice(0,12).map((upload) => `<article class="history-item"><strong title="${escapeHtml(upload.sourceName)}">${escapeHtml(upload.sourceName)}</strong><span class="history-client">${escapeHtml(upload.clientName)} · ${DASHBOARD_TYPES[upload.dashboardType || upload.sourceType] || "Inventory"}</span><span>${numberValue(upload.rowCount).toLocaleString()} rows · ${formatBytes(numberValue(upload.size))} · ${formatDate(upload.createdAt)}</span></article>`).join("") : `<p class="history-empty">No dashboard sources published yet.</p>`;
+  elements.adminHistory.innerHTML = state.dashboardUploads.length ? state.dashboardUploads.slice(0,12).map((upload) => `<article class="history-item"><strong title="${escapeHtml(upload.sourceName)}">${escapeHtml(upload.sourceName)}</strong><span class="history-client">${escapeHtml(upload.clientName)} - ${DASHBOARD_TYPES[upload.dashboardType || upload.sourceType] || "Inventory"}</span><span>${numberValue(upload.rowCount).toLocaleString()} rows - ${formatBytes(numberValue(upload.size))} - ${formatDate(upload.createdAt)}</span></article>`).join("") : `<p class="history-empty">No dashboard sources published yet.</p>`;
 }
 
 async function publishPendingDataset() {
@@ -657,7 +669,7 @@ async function publishPendingDataset() {
     const uploadTask = reference.put(pending.file, { contentType: pending.file.type || "application/octet-stream", customMetadata: { clientId, dashboardType } });
     await new Promise((resolve, reject) => uploadTask.on("state_changed", (progress) => {
       const percent = progress.totalBytes ? Math.round(progress.bytesTransferred / progress.totalBytes * 100) : 0;
-      elements.publishDataset.querySelector("small").textContent = `Uploading source · ${percent}%`;
+      elements.publishDataset.querySelector("small").textContent = `Uploading source - ${percent}%`;
     }, reject, resolve));
     if (Number(uploadTask.snapshot.metadata.size) !== pending.file.size) throw new Error("The uploaded source size could not be verified.");
     const batch = database.batch();
@@ -676,10 +688,93 @@ async function publishPendingDataset() {
   }
 }
 
+const STEP_ACTIONS = {
+  navigate: "Open web address", fillUsername: "Enter username", fillPassword: "Enter password",
+  click: "Click element", waitFor: "Wait for element", wait: "Wait seconds", select: "Select option", download: "Click to download"
+};
+
+function newStep(action = "click") {
+  return { id: uniqueId(), action, selector: "", value: "" };
+}
+
+function renderExtractionSteps() {
+  elements.extractionSteps.innerHTML = state.extractionSteps.length ? state.extractionSteps.map((step, index) => `<div class="extraction-step" draggable="true" data-step-id="${escapeHtml(step.id)}"><span class="step-number">${String(index + 1).padStart(2,"0")}</span><span class="drag-handle" title="Drag to reorder">&#8942;&#8942;</span><select class="step-action" aria-label="Step ${index + 1} action">${Object.entries(STEP_ACTIONS).map(([value,label]) => `<option value="${value}" ${step.action === value ? "selected" : ""}>${label}</option>`).join("")}</select><input class="step-selector" value="${escapeHtml(step.selector)}" placeholder="CSS selector (for example #login)" aria-label="Step ${index + 1} selector"/><input class="step-value" value="${escapeHtml(step.value)}" placeholder="URL, seconds or option value" aria-label="Step ${index + 1} value"/><button class="remove-step" type="button" title="Delete step" aria-label="Delete step ${index + 1}">&times;</button></div>`).join("") : `<p class="history-empty">Add the first step for this extraction.</p>`;
+}
+
+function readStepsFromEditor() {
+  state.extractionSteps = [...elements.extractionSteps.querySelectorAll(".extraction-step")].map((row) => ({ id: row.dataset.stepId, action: row.querySelector(".step-action").value, selector: row.querySelector(".step-selector").value.trim(), value: row.querySelector(".step-value").value.trim() }));
+  return state.extractionSteps;
+}
+
+function resetRetailerForm() {
+  elements.retailerForm.reset(); elements.retailerId.value = ""; elements.retailerFormTitle.textContent = "Add retailer extraction"; elements.deleteRetailer.hidden = true;
+  state.extractionSteps = [newStep("navigate"), newStep("fillUsername"), newStep("fillPassword"), newStep("click"), newStep("download")];
+  renderExtractionSteps();
+}
+
+function editRetailer(id) {
+  const retailer = state.retailers.find((item) => item.id === id); if (!retailer) return;
+  elements.retailerId.value = retailer.id; elements.retailerName.value = retailer.name; elements.retailerWebAddress.value = retailer.webAddress; elements.retailerUsername.value = retailer.username; elements.retailerPassword.value = ""; elements.retailerFormTitle.textContent = retailer.extractionName; elements.deleteRetailer.hidden = false;
+  state.extractionSteps = (retailer.steps || []).map((step) => ({ ...step })); renderExtractionSteps();
+  elements.retailerList.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.id === id));
+}
+
+function renderRetailers() {
+  elements.retailerList.innerHTML = state.retailers.length ? state.retailers.map((item) => `<button type="button" data-id="${escapeHtml(item.id)}"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.extractionName || `${item.name} + Sales extraction`)} - ${(item.steps || []).length} steps</small></button>`).join("") : `<p class="history-empty">No retailers configured.</p>`;
+  const current = elements.runRetailer.value;
+  elements.runRetailer.innerHTML = state.retailers.length ? state.retailers.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.extractionName)}</option>`).join("") : `<option value="">No extraction available</option>`;
+  if (state.retailers.some((item) => item.id === current)) elements.runRetailer.value = current;
+  elements.runExtraction.disabled = !state.retailers.length;
+}
+
+function resetAdminUserForm() {
+  elements.adminUserForm.reset(); elements.adminUserId.value = ""; elements.adminUserFormTitle.textContent = "Create admin user"; elements.deleteAdminUser.hidden = true;
+}
+
+function editAdminUser(uid) {
+  const user = state.adminUsers.find((item) => item.uid === uid); if (!user) return;
+  elements.adminUserId.value = uid; elements.adminUserName.value = user.name; elements.adminUserSurname.value = user.surname; elements.adminUserEmail.value = user.email; elements.adminUserPassword.value = ""; elements.adminUserDisabled.checked = user.disabled === true; elements.adminUserFormTitle.textContent = `${user.name} ${user.surname}`; elements.deleteAdminUser.hidden = uid === auth.currentUser?.uid;
+}
+
+function renderAdminUsers() {
+  elements.adminUserList.innerHTML = state.adminUsers.length ? state.adminUsers.map((user) => `<button type="button" data-id="${escapeHtml(user.uid)}"><strong>${escapeHtml(user.name)} ${escapeHtml(user.surname)}</strong><small>${escapeHtml(user.email)}${user.disabled ? " - Disabled" : ""}</small></button>`).join("") : `<p class="history-empty">No administrators found.</p>`;
+}
+
+async function callFunction(name, data) {
+  const result = await cloudFunctions.httpsCallable(name)(data);
+  return result.data;
+}
+
+function clearAdminSubscriptions() { adminUnsubscribers.forEach((unsubscribe) => unsubscribe()); adminUnsubscribers = []; }
+
+function subscribeAdminData() {
+  clearAdminSubscriptions();
+  adminUnsubscribers.push(database.collection("retailers").onSnapshot((snapshot) => { state.retailers = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.name.localeCompare(b.name)); renderRetailers(); }));
+  adminUnsubscribers.push(database.collection("adminUsers").onSnapshot((snapshot) => { state.adminUsers = snapshot.docs.map((doc) => doc.data()).sort((a,b) => a.email.localeCompare(b.email)); renderAdminUsers(); }));
+}
+
+function renderExtractionRun(run) {
+  if (!run) { elements.extractionStatus.hidden = true; return; }
+  elements.extractionStatus.hidden = false; elements.extractionStatus.className = `extraction-status ${run.status}`;
+  elements.extractionStatusTitle.textContent = run.status === "completed" ? "Extraction complete" : run.status === "failed" ? "Extraction failed" : `Extracting ${run.retailerName || "retailer"} file`;
+  elements.extractionStatusCopy.textContent = run.message || "Preparing extraction...";
+  if (["completed","failed"].includes(run.status)) window.setTimeout(() => { elements.extractionStatus.hidden = true; }, 12000);
+}
+
+async function configureAdminSession(user) {
+  if (!user) { clearAdminSubscriptions(); elements.adminLogin.hidden = false; elements.adminWorkspace.hidden = true; return; }
+  const token = await user.getIdTokenResult(true);
+  if (token.claims.admin !== true) { await auth.signOut(); showToast("This account is not authorised for Nexus Admin.", true); return; }
+  elements.adminLogin.hidden = true; elements.adminWorkspace.hidden = false; elements.adminSessionName.textContent = user.displayName || user.email; subscribeAdminData();
+}
+
 function initialiseFirebase() {
   try {
     database = firebase.firestore();
     storage = firebase.storage();
+    auth = firebase.auth();
+    cloudFunctions = firebase.app().functions("us-central1");
+    auth.onAuthStateChanged((user) => configureAdminSession(user).catch((error) => showToast(friendlyError(error), true)));
     storage.setMaxUploadRetryTime(24 * 60 * 60 * 1000);
     storage.setMaxOperationRetryTime(10 * 60 * 1000);
     database.collection("files").onSnapshot((snapshot) => {
@@ -708,6 +803,7 @@ function initialiseFirebase() {
       state.dashboardUploads = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((a,b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
       renderAdminHistory();
     });
+    database.collection("extractionRuns").orderBy("createdAt", "desc").limit(1).onSnapshot((snapshot) => renderExtractionRun(snapshot.empty ? null : snapshot.docs[0].data()));
   } catch (error) {
     elements.fileSummary.textContent = "Storage unavailable";
     showToast("Firebase could not be initialised.", true);
@@ -719,6 +815,25 @@ elements.adminNav.addEventListener("click", openAdminWorkspace);
 elements.openAdminAction.addEventListener("click", openAdminWorkspace);
 elements.closeAdminDialog.addEventListener("click", closeAdminWorkspace);
 elements.adminDialog.addEventListener("close", () => { if (window.location.hash === "#admin") closeAdminWorkspace(); });
+elements.adminLoginForm.addEventListener("submit", async (event) => { event.preventDefault(); try { await auth.signInWithEmailAndPassword(elements.adminLoginEmail.value.trim(), elements.adminLoginPassword.value); elements.adminLoginPassword.value = ""; } catch (error) { showToast(`Sign in failed: ${friendlyError(error)}`, true); } });
+elements.adminLogout.addEventListener("click", () => auth.signOut());
+document.querySelectorAll("[data-admin-tab]").forEach((button) => button.addEventListener("click", () => { document.querySelectorAll("[data-admin-tab]").forEach((item) => item.classList.toggle("active", item === button)); document.querySelectorAll("[data-admin-panel]").forEach((panel) => { const active = panel.dataset.adminPanel === button.dataset.adminTab; panel.classList.toggle("active", active); panel.hidden = !active; }); }));
+elements.newRetailer.addEventListener("click", resetRetailerForm);
+elements.addExtractionStep.addEventListener("click", () => { readStepsFromEditor(); state.extractionSteps.push(newStep()); renderExtractionSteps(); });
+elements.extractionSteps.addEventListener("input", readStepsFromEditor);
+elements.extractionSteps.addEventListener("click", (event) => { const button = event.target.closest(".remove-step"); if (!button) return; readStepsFromEditor(); const id = button.closest(".extraction-step").dataset.stepId; state.extractionSteps = state.extractionSteps.filter((step) => step.id !== id); renderExtractionSteps(); });
+let draggedStepId = null;
+elements.extractionSteps.addEventListener("dragstart", (event) => { const row = event.target.closest(".extraction-step"); if (!row) return; readStepsFromEditor(); draggedStepId = row.dataset.stepId; row.classList.add("dragging"); event.dataTransfer.effectAllowed = "move"; });
+elements.extractionSteps.addEventListener("dragend", (event) => { event.target.closest(".extraction-step")?.classList.remove("dragging"); draggedStepId = null; });
+elements.extractionSteps.addEventListener("dragover", (event) => { event.preventDefault(); const target = event.target.closest(".extraction-step"); if (!target || target.dataset.stepId === draggedStepId) return; const from = state.extractionSteps.findIndex((step) => step.id === draggedStepId), to = state.extractionSteps.findIndex((step) => step.id === target.dataset.stepId); const [moved] = state.extractionSteps.splice(from, 1); state.extractionSteps.splice(to, 0, moved); renderExtractionSteps(); });
+elements.retailerList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editRetailer(button.dataset.id); });
+elements.retailerForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveRetailer", { id: elements.retailerId.value, name: elements.retailerName.value, webAddress: elements.retailerWebAddress.value, username: elements.retailerUsername.value, password: elements.retailerPassword.value, steps: readStepsFromEditor() }); elements.retailerId.value = result.id; elements.retailerPassword.value = ""; elements.deleteRetailer.hidden = false; showToast("Retailer and sales extraction saved."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
+elements.deleteRetailer.addEventListener("click", async () => { if (!elements.retailerId.value || !window.confirm("Delete this retailer and its encrypted login credentials?")) return; try { await callFunction("deleteRetailer", { id: elements.retailerId.value }); resetRetailerForm(); showToast("Retailer deleted."); } catch (error) { showToast(friendlyError(error), true); } });
+elements.runExtraction.addEventListener("click", async () => { elements.runExtraction.disabled = true; try { await callFunction("startExtraction", { retailerId: elements.runRetailer.value }); closeAdminWorkspace(); showToast("Retailer extraction queued."); } catch (error) { showToast(friendlyError(error), true); } finally { elements.runExtraction.disabled = !state.retailers.length; } });
+elements.newAdminUser.addEventListener("click", resetAdminUserForm);
+elements.adminUserList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editAdminUser(button.dataset.id); });
+elements.adminUserForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveAdminUser", { uid: elements.adminUserId.value, name: elements.adminUserName.value, surname: elements.adminUserSurname.value, email: elements.adminUserEmail.value, password: elements.adminUserPassword.value, disabled: elements.adminUserDisabled.checked }); elements.adminUserId.value = result.uid; elements.adminUserPassword.value = ""; elements.deleteAdminUser.hidden = result.uid === auth.currentUser?.uid; showToast("Administrator updated in Firebase Authentication and Nexus."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
+elements.deleteAdminUser.addEventListener("click", async () => { if (!elements.adminUserId.value || !window.confirm("Permanently delete this administrator?")) return; try { await callFunction("deleteAdminUser", { uid: elements.adminUserId.value }); resetAdminUserForm(); showToast("Administrator deleted."); } catch (error) { showToast(friendlyError(error), true); } });
 elements.clientFilter.addEventListener("change", renderDashboard);
 elements.dashboardTypeFilter.addEventListener("change", renderDashboard);
 elements.adminClient.addEventListener("change", () => {
@@ -839,5 +954,7 @@ if ("serviceWorker" in navigator) {
 setViewFromHash();
 renderFiles();
 renderClientOptions();
+resetRetailerForm();
+resetAdminUserForm();
 renderAdminHistory();
 window.addEventListener("load", initialiseFirebase, { once: true });

@@ -6,6 +6,10 @@ service firebase.storage {
       return request.time < timestamp.date(2026, 7, 20);
     }
 
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
     match /uploads/{fileId}/{fileName} {
       // Deliberately no file-size or content-type restriction: the Files page
       // accepts every file supported by Firebase Storage.
@@ -19,7 +23,7 @@ service firebase.storage {
 
     match /dashboard-source/{clientId}/{uploadId}/{fileName} {
       allow read: if temporaryAccessIsActive();
-      allow create: if temporaryAccessIsActive()
+      allow create: if temporaryAccessIsActive() && isAdmin()
         && request.resource != null
         && request.resource.size > 0
         && request.resource.size <= 250 * 1024 * 1024

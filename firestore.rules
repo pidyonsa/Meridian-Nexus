@@ -6,6 +6,10 @@ service cloud.firestore {
       return request.time < timestamp.date(2026, 7, 20);
     }
 
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
     match /files/{fileId} {
       allow read, delete: if temporaryAccessIsActive();
 
@@ -62,13 +66,13 @@ service cloud.firestore {
 
     match /dashboardClients/{clientId} {
       allow read: if temporaryAccessIsActive();
-      allow create, update: if temporaryAccessIsActive() && validDashboardClient(clientId);
+      allow create, update: if temporaryAccessIsActive() && isAdmin() && validDashboardClient(clientId);
       allow delete: if false;
     }
 
     match /dashboardUploads/{uploadId} {
       allow read: if temporaryAccessIsActive();
-      allow create: if temporaryAccessIsActive()
+      allow create: if temporaryAccessIsActive() && isAdmin()
         && request.resource.data.keys().hasOnly([
           'clientId', 'clientName', 'dashboardType', 'sourceName', 'size',
           'rowCount', 'storagePath', 'status', 'createdAt'
@@ -85,6 +89,25 @@ service cloud.firestore {
         && request.resource.data.status == 'published'
         && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
+    }
+
+    match /retailers/{retailerId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /adminUsers/{userId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /retailerSecrets/{retailerId} {
+      allow read, write: if false;
+    }
+
+    match /extractionRuns/{runId} {
+      allow read: if temporaryAccessIsActive();
+      allow write: if false;
     }
 
     match /{document=**} {

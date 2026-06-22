@@ -14,8 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css?v=20260621-6" />
     <script defer src="/__/firebase/12.15.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/12.15.0/firebase-auth-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-firestore-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/12.15.0/firebase-functions-compat.js"></script>
     <script defer src="/__/firebase/init.js"></script>
     <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <script defer src="app.js?v=20260621-6"></script>
@@ -66,6 +68,7 @@
         <section class="data-status" id="dataStatus" aria-live="polite">
           <span class="status-dot"></span><strong>Connecting to Meridian data</strong><span id="dataStatusCopy">Loading client snapshots...</span>
         </section>
+        <section class="extraction-status" id="extractionStatus" aria-live="polite" hidden><span class="status-dot"></span><strong id="extractionStatusTitle">Extracting retailer file</strong><span id="extractionStatusCopy">Preparing secure login...</span></section>
 
         <section class="metric-grid" aria-label="Key performance indicators">
           <article class="metric-card"><span>Total stock</span><strong id="metricStock">—</strong><small id="metricStockCaption">Across selected clients</small></article>
@@ -104,8 +107,15 @@
             <button class="modal-close" id="closeAdminDialog" type="button" aria-label="Close Admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
           </header>
           <main class="admin-view">
-            <section class="admin-heading"><div><p class="eyebrow">Native data studio</p><h1 id="adminModalTitle">Build a dashboard</h1><p>Upload an Excel or CSV source. Meridian identifies the retail fields, validates the data and publishes a live client dashboard—without Power BI or manual scripts.</p></div><span class="native-badge">Meridian native</span></section>
-            <section class="admin-layout">
+            <section class="admin-login" id="adminLogin">
+              <p class="eyebrow">Secure administration</p><h1 id="adminModalTitle">Admin sign in</h1><p>Sign in with an authorised Nexus administrator account.</p>
+              <form id="adminLoginForm"><label><span>Email</span><input id="adminLoginEmail" type="email" autocomplete="username" required /></label><label><span>Password</span><input id="adminLoginPassword" type="password" autocomplete="current-password" required /></label><button class="primary-action" type="submit">Sign in</button></form>
+            </section>
+            <section id="adminWorkspace" hidden>
+              <section class="admin-heading"><div><p class="eyebrow">Native data studio</p><h1>Administration</h1></div><div class="admin-session"><span id="adminSessionName"></span><button id="adminLogout" class="secondary-button" type="button">Sign out</button></div></section>
+              <nav class="admin-tabs" aria-label="Admin sections"><button class="active" data-admin-tab="dashboards" type="button">Dashboards</button><button data-admin-tab="automation" type="button">Retailer automation</button><button data-admin-tab="users" type="button">Admin users</button></nav>
+              <section class="admin-tab-panel active" data-admin-panel="dashboards">
+              <section class="admin-layout">
               <div class="ingestion-panel">
                 <div class="step-heading"><span>01</span><div><h2>Choose the client</h2><p>Data is isolated by client and combined in the portfolio view.</p></div></div>
                 <div class="admin-fields">
@@ -120,6 +130,26 @@
                 <button class="publish-button" id="publishDataset" type="button" disabled><span>Publish client dashboard</span><small>Source and calculated snapshot will be saved</small></button>
               </div>
               <aside class="admin-history-panel"><div class="step-heading"><span>03</span><div><h2>Published sources</h2><p>Recent client dashboard updates.</p></div></div><div class="admin-history" id="adminHistory"><p class="history-empty">No dashboard sources published yet.</p></div></aside>
+              </section></section>
+              <section class="admin-tab-panel" data-admin-panel="automation" hidden>
+                <section class="automation-grid">
+                  <form class="management-panel" id="retailerForm">
+                    <header><div><p class="eyebrow">Retailer bot</p><h2 id="retailerFormTitle">Add retailer extraction</h2></div><button class="secondary-button" id="newRetailer" type="button">New</button></header>
+                    <input id="retailerId" type="hidden" />
+                    <div class="management-fields"><label><span>Retailer name</span><input id="retailerName" type="text" maxlength="100" required /></label><label><span>Retailer web address</span><input id="retailerWebAddress" type="url" required placeholder="https://portal.example.com" /></label><label><span>Login username</span><input id="retailerUsername" type="text" autocomplete="off" required /></label><label><span>Login password</span><input id="retailerPassword" type="password" autocomplete="new-password" placeholder="Leave blank to keep current password" /></label></div>
+                    <div class="step-editor-heading"><div><h3>Sales extraction steps</h3><p>Drag steps to reorder them. Selectors are standard CSS selectors from the retailer portal.</p></div><button class="secondary-button" id="addExtractionStep" type="button">Add step</button></div>
+                    <div class="extraction-steps" id="extractionSteps"></div>
+                    <div class="form-actions"><button class="danger-button" id="deleteRetailer" type="button" hidden>Delete retailer</button><button class="primary-action" type="submit">Save retailer + sales extraction</button></div>
+                  </form>
+                  <aside class="management-panel list-panel"><h2>Saved retailer extractions</h2><div id="retailerList" class="management-list"><p class="history-empty">No retailers configured.</p></div><label><span>Extraction to run</span><select id="runRetailer"></select></label><button class="publish-button run-extraction" id="runExtraction" type="button" disabled><span>Extract a new file</span><small>The downloaded file will be saved under Files</small></button></aside>
+                </section>
+              </section>
+              <section class="admin-tab-panel" data-admin-panel="users" hidden>
+                <section class="automation-grid">
+                  <form class="management-panel" id="adminUserForm"><header><div><p class="eyebrow">Access control</p><h2 id="adminUserFormTitle">Create admin user</h2></div><button class="secondary-button" id="newAdminUser" type="button">New</button></header><input id="adminUserId" type="hidden" /><div class="management-fields"><label><span>Name</span><input id="adminUserName" type="text" required /></label><label><span>Surname</span><input id="adminUserSurname" type="text" required /></label><label><span>Email</span><input id="adminUserEmail" type="email" required /></label><label><span>Password</span><input id="adminUserPassword" type="password" autocomplete="new-password" placeholder="Leave blank to keep current password" /></label></div><label class="toggle-field"><input id="adminUserDisabled" type="checkbox" /> Disable this administrator</label><div class="form-actions"><button class="danger-button" id="deleteAdminUser" type="button" hidden>Delete admin</button><button class="primary-action" type="submit">Save administrator</button></div></form>
+                  <aside class="management-panel list-panel"><h2>Administrators</h2><div id="adminUserList" class="management-list"><p class="history-empty">Loading administrators...</p></div></aside>
+                </section>
+              </section>
             </section>
           </main>
         </div>
