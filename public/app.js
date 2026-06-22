@@ -4,7 +4,6 @@ const elements = {
   filesView: document.querySelector("#filesView"),
   filesNav: document.querySelector("#filesNav"),
   adminNav: document.querySelector("#adminNav"),
-  filesDialog: document.querySelector("#filesDialog"),
   closeFilesDialog: document.querySelector("#closeFilesDialog"),
   closeAdminPage: document.querySelector("#closeAdminPage"),
   openAdminAction: document.querySelector("#openAdminAction"),
@@ -139,10 +138,9 @@ function sortFilesNewestFirst(left, right) {
 function setViewFromHash() {
   const showFiles = window.location.hash === "#files";
   const showAdmin = window.location.hash === "#admin";
-  elements.homeView.hidden = showAdmin;
+  elements.homeView.hidden = showAdmin || showFiles;
   elements.adminPage.hidden = !showAdmin;
-  if (showFiles && !elements.filesDialog.open) elements.filesDialog.showModal();
-  if (!showFiles && elements.filesDialog.open) elements.filesDialog.close();
+  elements.filesView.hidden = !showFiles;
   elements.filesNav.classList.toggle("active", showFiles);
   elements.filesNav.setAttribute("aria-expanded", String(showFiles));
   elements.adminNav.classList.toggle("active", showAdmin);
@@ -150,21 +148,15 @@ function setViewFromHash() {
 }
 
 function openFilesWorkspace() {
-  if (!elements.filesDialog.open) elements.filesDialog.showModal();
-  elements.filesNav.classList.add("active");
-  elements.filesNav.setAttribute("aria-expanded", "true");
-  document.title = "Files | Meridian Nexus";
   if (window.location.hash !== "#files") window.location.hash = "files";
+  else setViewFromHash();
 }
 
 function closeFilesWorkspace() {
-  if (elements.filesDialog.open) elements.filesDialog.close();
   if (window.location.hash === "#files") {
     window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#home`);
   }
-  elements.filesNav.classList.remove("active");
-  elements.filesNav.setAttribute("aria-expanded", "false");
-  document.title = "Meridian Nexus";
+  setViewFromHash();
 }
 
 function openAdminWorkspace() {
@@ -808,12 +800,14 @@ function subscribeAdminData() {
 }
 
 function renderExtractionRun(run) {
-  if (!run) { elements.extractionStatus.hidden = true; return; }
-  elements.extractionStatus.hidden = false; elements.extractionStatus.className = `extraction-status ${run.status}`;
+  if (!run) { state.extractionRunning = false; elements.extractionStatus.hidden = true; updateSelectionControls(); return; }
   const isPicknPay = String(run.retailerId || run.retailerName || "").toLowerCase().replace(/[^a-z]/g, "").includes("picknpay");
   const isBusy = ["queued", "running"].includes(run.status);
+  const wasRunning = state.extractionRunning;
   state.extractionRunning = isBusy;
   updateSelectionControls();
+  if (!isBusy && !wasRunning) { elements.extractionStatus.hidden = true; return; }
+  elements.extractionStatus.hidden = false; elements.extractionStatus.className = `files-extraction-status development-status ${run.status}`;
   elements.extractionStatusTitle.textContent = run.status === "completed" ? "Report ready" : run.status === "failed" ? "Report extraction failed" : isPicknPay ? "Preparing your latest PicknPay sales report" : `Preparing the latest ${run.retailerName || "retailer"} report`;
   elements.extractionStatusCopy.textContent = isBusy ? "Please wait while Nexus securely retrieves the report and saves it under Files." : run.message || "Preparing report extraction...";
   if (["completed","failed"].includes(run.status)) window.setTimeout(() => { elements.extractionStatus.hidden = true; }, 12000);
@@ -892,7 +886,6 @@ elements.runExtraction.addEventListener("click", async () => {
   elements.runExtraction.disabled = true;
   const retailer = state.retailers.find((item) => item.id === elements.runRetailer.value);
   renderExtractionRun({ status: "queued", retailerId: retailer?.id, retailerName: retailer?.name });
-  closeAdminWorkspace();
   try {
     await callFunction("startExtraction", { retailerId: elements.runRetailer.value });
     showToast("Report extraction started.");
@@ -963,10 +956,10 @@ elements.dropZone.addEventListener("drop", async (event) => {
   }
 });
 document.addEventListener("dragover", (event) => {
-  if ((elements.filesDialog.open || !elements.adminPage.hidden) && containsFiles(event)) event.preventDefault();
+  if ((!elements.filesView.hidden || !elements.adminPage.hidden) && containsFiles(event)) event.preventDefault();
 });
 document.addEventListener("drop", (event) => {
-  if (elements.filesDialog.open && containsFiles(event) && !event.target.closest("#dropZone")) {
+  if (!elements.filesView.hidden && containsFiles(event) && !event.target.closest("#dropZone")) {
     event.preventDefault();
     showToast("Drop files inside the highlighted upload area.");
   }
@@ -977,9 +970,6 @@ document.addEventListener("drop", (event) => {
 });
 elements.filesNav.addEventListener("click", openFilesWorkspace);
 elements.closeFilesDialog.addEventListener("click", closeFilesWorkspace);
-elements.filesDialog.addEventListener("close", () => {
-  if (window.location.hash === "#files") closeFilesWorkspace();
-});
 elements.selectAll.addEventListener("change", () => {
   state.selected = elements.selectAll.checked ? new Set(state.files.map((file) => file.id)) : new Set();
   renderFiles();
@@ -1011,7 +1001,6 @@ elements.downloadLatestPnp.addEventListener("click", async () => {
       return;
     }
     renderExtractionRun({ status: "queued", retailerId: "picknpay", retailerName: "PicknPay" });
-    closeFilesWorkspace();
     await callFunction("startExtraction", { retailerId: "picknpay" });
     showToast("A new PicknPay sales report is being retrieved.");
   } catch (error) {

@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260622-8" />
+    <link rel="stylesheet" href="styles.css?v=20260622-9" />
     <script defer src="/__/firebase/12.15.0/firebase-app-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-auth-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-firestore-compat.js"></script>
@@ -20,7 +20,7 @@
     <script defer src="/__/firebase/12.15.0/firebase-functions-compat.js"></script>
     <script defer src="/__/firebase/init.js"></script>
     <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-    <script defer src="app.js?v=20260622-8"></script>
+    <script defer src="app.js?v=20260622-9"></script>
   </head>
   <body>
     <div class="site-shell">
@@ -37,7 +37,7 @@
             <span class="files-nav-copy"><small>Data studio</small><strong>Admin</strong></span>
             <svg class="files-nav-arrow" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
           </button>
-          <button class="files-nav" id="filesNav" type="button" aria-haspopup="dialog" aria-controls="filesDialog">
+          <button class="files-nav" id="filesNav" type="button" aria-controls="filesView">
             <span class="files-nav-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v10H3V7Z" /></svg>
             </span>
@@ -68,8 +68,6 @@
         <section class="data-status" id="dataStatus" aria-live="polite">
           <span class="status-dot"></span><strong>Connecting to Meridian data</strong><span id="dataStatusCopy">Loading client snapshots...</span>
         </section>
-        <section class="extraction-status" id="extractionStatus" aria-live="polite" hidden><span class="status-dot"></span><strong id="extractionStatusTitle">Extracting retailer file</strong><span id="extractionStatusCopy">Preparing secure login...</span></section>
-
         <section class="metric-grid" aria-label="Key performance indicators">
           <article class="metric-card"><span>Total stock</span><strong id="metricStock">—</strong><small id="metricStockCaption">Across selected clients</small></article>
           <article class="metric-card"><span>Stores covered</span><strong id="metricStores">—</strong><small>Unique retail locations</small></article>
@@ -168,23 +166,14 @@
         </section>
       </main>
 
-      <dialog class="files-dialog" id="filesDialog" aria-labelledby="filesModalTitle">
-        <div class="files-dialog-shell">
-          <header class="files-modal-topbar">
-            <div class="files-modal-brand">
-              <span class="files-modal-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v10H3V7Z" /></svg></span>
-              <span><strong>Meridian Nexus</strong><small>Document workspace</small></span>
-            </div>
-            <button class="modal-close" id="closeFilesDialog" type="button" aria-label="Close Files workspace">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
-            </button>
-          </header>
-
-          <main id="filesView" class="files-view">
+      <main id="filesView" class="files-page view" hidden>
+        <section class="files-page-shell">
+          <div class="files-page-tools"><button class="secondary-button" id="closeFilesDialog" type="button">Back to dashboard</button></div>
+          <section class="files-view" aria-labelledby="filesPageTitle">
         <section class="files-heading">
           <div>
             <p class="eyebrow">Document workspace</p>
-            <h1 id="filesModalTitle">Files</h1>
+            <h1 id="filesPageTitle">Files</h1>
             <p>Upload, organise, download and remove shared documents.</p>
           </div>
           <label class="upload-button" for="fileInput">
@@ -192,6 +181,14 @@
             <span>Upload files</span>
           </label>
           <input id="fileInput" type="file" multiple />
+        </section>
+
+        <section class="files-extraction-status development-status" id="extractionStatus" aria-live="polite" hidden>
+          <div class="status-copy">
+            <span class="status-dot"></span>
+            <div><strong id="extractionStatusTitle">Preparing your latest PicknPay sales report</strong><span id="extractionStatusCopy">Please wait while Nexus securely retrieves the report and saves it under Files.</span></div>
+          </div>
+          <div class="tube" aria-hidden="true"><div class="tube-inner"><span class="liquid"></span><span class="open-space"><i class="bubble"></i><i class="bubble bubble-two"></i><i class="bubble bubble-three"></i><i class="bubble bubble-four"></i></span><span class="tube-shine"></span></div></div>
         </section>
 
         <section class="drop-zone" id="dropZone" role="button" tabindex="0" aria-labelledby="dropZoneTitle" aria-describedby="dropZoneCopy">
@@ -240,9 +237,9 @@
             <p>Choose Upload files to add your first document.</p>
           </div>
         </section>
-          </main>
-        </div>
-      </dialog>
+          </section>
+        </section>
+      </main>
     </div>
 
     <dialog class="confirm-dialog" id="deleteDialog">
