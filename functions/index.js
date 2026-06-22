@@ -194,7 +194,23 @@ async function runStep(page, step, retailer, downloadDir) {
   }
   if (step.action === "click") return page.click(selector);
   if (step.action === "waitFor") return;
-  if (step.action === "select") return page.select(selector, step.value);
+  if (step.action === "select") {
+    const choice = String(step.value || "").trim();
+    if (!choice) throw new Error("Select steps require an option value or visible text.");
+    const matched = await page.$eval(selector, (element, expected) => {
+      const select = element;
+      const options = Array.from(select.options || []);
+      const direct = options.find((option) => option.value === expected);
+      if (direct) return direct.value;
+      const normalized = expected.trim().toLowerCase();
+      const byLabel = options.find((option) => option.textContent.trim().toLowerCase() === normalized);
+      if (byLabel) return byLabel.value;
+      const partial = options.find((option) => option.textContent.trim().toLowerCase().includes(normalized));
+      return partial ? partial.value : null;
+    }, choice);
+    if (!matched) throw new Error(`No option matched "${choice}" for ${selector}.`);
+    return page.select(selector, matched);
+  }
   if (step.action === "download") {
     const startedAt = Date.now();
     await page.click(selector);
