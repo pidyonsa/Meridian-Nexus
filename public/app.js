@@ -1,12 +1,12 @@
 const elements = {
   homeView: document.querySelector("#homeView"),
+  adminPage: document.querySelector("#adminPage"),
   filesView: document.querySelector("#filesView"),
   filesNav: document.querySelector("#filesNav"),
   adminNav: document.querySelector("#adminNav"),
   filesDialog: document.querySelector("#filesDialog"),
-  adminDialog: document.querySelector("#adminDialog"),
   closeFilesDialog: document.querySelector("#closeFilesDialog"),
-  closeAdminDialog: document.querySelector("#closeAdminDialog"),
+  closeAdminPage: document.querySelector("#closeAdminPage"),
   openAdminAction: document.querySelector("#openAdminAction"),
   installButton: document.querySelector("#installButton"),
   fileInput: document.querySelector("#fileInput"),
@@ -124,14 +124,13 @@ function fileType(file) {
 function setViewFromHash() {
   const showFiles = window.location.hash === "#files";
   const showAdmin = window.location.hash === "#admin";
+  elements.homeView.hidden = showAdmin;
+  elements.adminPage.hidden = !showAdmin;
   if (showFiles && !elements.filesDialog.open) elements.filesDialog.showModal();
   if (!showFiles && elements.filesDialog.open) elements.filesDialog.close();
-  if (showAdmin && !elements.adminDialog.open) elements.adminDialog.showModal();
-  if (!showAdmin && elements.adminDialog.open) elements.adminDialog.close();
   elements.filesNav.classList.toggle("active", showFiles);
   elements.filesNav.setAttribute("aria-expanded", String(showFiles));
   elements.adminNav.classList.toggle("active", showAdmin);
-  elements.adminNav.setAttribute("aria-expanded", String(showAdmin));
   document.title = showFiles ? "Files | Meridian Nexus" : showAdmin ? "Admin | Meridian Nexus" : "Meridian Nexus";
 }
 
@@ -154,16 +153,13 @@ function closeFilesWorkspace() {
 }
 
 function openAdminWorkspace() {
-  if (!elements.adminDialog.open) elements.adminDialog.showModal();
   if (window.location.hash !== "#admin") window.location.hash = "admin";
+  else setViewFromHash();
 }
 
 function closeAdminWorkspace() {
-  if (elements.adminDialog.open) elements.adminDialog.close();
   if (window.location.hash === "#admin") window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#home`);
-  elements.adminNav.classList.remove("active");
-  elements.adminNav.setAttribute("aria-expanded", "false");
-  document.title = "Meridian Nexus";
+  setViewFromHash();
 }
 
 function renderFiles() {
@@ -813,8 +809,7 @@ function initialiseFirebase() {
 elements.adminClient.innerHTML = `${CLIENTS.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}<option value="__new">+ Add a new client</option>`;
 elements.adminNav.addEventListener("click", openAdminWorkspace);
 elements.openAdminAction.addEventListener("click", openAdminWorkspace);
-elements.closeAdminDialog.addEventListener("click", closeAdminWorkspace);
-elements.adminDialog.addEventListener("close", () => { if (window.location.hash === "#admin") closeAdminWorkspace(); });
+elements.closeAdminPage.addEventListener("click", closeAdminWorkspace);
 elements.adminLoginForm.addEventListener("submit", async (event) => { event.preventDefault(); try { await auth.signInWithEmailAndPassword(elements.adminLoginEmail.value.trim(), elements.adminLoginPassword.value); elements.adminLoginPassword.value = ""; } catch (error) { showToast(`Sign in failed: ${friendlyError(error)}`, true); } });
 elements.adminLogout.addEventListener("click", () => auth.signOut());
 document.querySelectorAll("[data-admin-tab]").forEach((button) => button.addEventListener("click", () => { document.querySelectorAll("[data-admin-tab]").forEach((item) => item.classList.toggle("active", item === button)); document.querySelectorAll("[data-admin-panel]").forEach((panel) => { const active = panel.dataset.adminPanel === button.dataset.adminTab; panel.classList.toggle("active", active); panel.hidden = !active; }); }));
@@ -888,14 +883,14 @@ elements.dropZone.addEventListener("drop", async (event) => {
   }
 });
 document.addEventListener("dragover", (event) => {
-  if ((elements.filesDialog.open || elements.adminDialog.open) && containsFiles(event)) event.preventDefault();
+  if ((elements.filesDialog.open || !elements.adminPage.hidden) && containsFiles(event)) event.preventDefault();
 });
 document.addEventListener("drop", (event) => {
   if (elements.filesDialog.open && containsFiles(event) && !event.target.closest("#dropZone")) {
     event.preventDefault();
     showToast("Drop files inside the highlighted upload area.");
   }
-  if (elements.adminDialog.open && containsFiles(event) && !event.target.closest("#adminDropZone")) {
+  if (!elements.adminPage.hidden && containsFiles(event) && !event.target.closest("#adminDropZone")) {
     event.preventDefault();
     showToast("Drop the spreadsheet inside the Admin source area.");
   }

@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260622-1" />
+    <link rel="stylesheet" href="styles.css?v=20260622-2" />
     <script defer src="/__/firebase/12.15.0/firebase-app-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-auth-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-firestore-compat.js"></script>
@@ -20,7 +20,7 @@
     <script defer src="/__/firebase/12.15.0/firebase-functions-compat.js"></script>
     <script defer src="/__/firebase/init.js"></script>
     <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-    <script defer src="app.js?v=20260622-1"></script>
+    <script defer src="app.js?v=20260622-2"></script>
   </head>
   <body>
     <div class="site-shell">
@@ -30,7 +30,7 @@
           <span><strong>Meridian</strong> Nexus</span>
         </a>
         <div class="topbar-actions">
-          <button class="files-nav admin-nav" id="adminNav" type="button" aria-haspopup="dialog" aria-controls="adminDialog">
+          <button class="files-nav admin-nav" id="adminNav" type="button" aria-controls="adminPage">
             <span class="files-nav-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 17V8l6-4 6 4v9M9 17v-5h6v5" /></svg>
             </span>
@@ -100,37 +100,37 @@
         </section>
       </main>
 
-      <dialog class="files-dialog admin-dialog" id="adminDialog" aria-labelledby="adminModalTitle">
-        <div class="files-dialog-shell admin-shell">
-          <header class="files-modal-topbar">
-            <div class="files-modal-brand"><span class="files-modal-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 17V8l6-4 6 4v9M9 17v-5h6v5" /></svg></span><span><strong>Meridian Nexus</strong><small>Data administration</small></span></div>
-            <button class="modal-close" id="closeAdminDialog" type="button" aria-label="Close Admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
-          </header>
-          <main class="admin-view">
+      <main id="adminPage" class="admin-page view" hidden>
+        <section class="admin-page-shell">
+          <div class="admin-view">
+            <div class="admin-page-tools">
+              <button class="secondary-button" id="closeAdminPage" type="button">Back to dashboard</button>
+            </div>
             <section class="admin-login" id="adminLogin">
-              <p class="eyebrow">Secure administration</p><h1 id="adminModalTitle">Admin sign in</h1><p>Sign in with an authorised Nexus administrator account.</p>
+              <p class="eyebrow">Secure administration</p><h1 id="adminPageTitle">Admin sign in</h1><p>Sign in with an authorised Nexus administrator account.</p>
               <form id="adminLoginForm"><label><span>Email</span><input id="adminLoginEmail" type="email" autocomplete="username" required /></label><label><span>Password</span><input id="adminLoginPassword" type="password" autocomplete="current-password" required /></label><button class="primary-action" type="submit">Sign in</button></form>
             </section>
             <section id="adminWorkspace" hidden>
-              <section class="admin-heading"><div><p class="eyebrow">Native data studio</p><h1>Administration</h1></div><div class="admin-session"><span id="adminSessionName"></span><button id="adminLogout" class="secondary-button" type="button">Sign out</button></div></section>
+              <section class="admin-heading"><div><p class="eyebrow">Native data studio</p><h1>Administration</h1><p>Manage dashboard publishing, retailer extraction automation and administrator access from one place.</p></div><div class="admin-session"><span id="adminSessionName"></span><button id="adminLogout" class="secondary-button" type="button">Sign out</button></div></section>
               <nav class="admin-tabs" aria-label="Admin sections"><button class="active" data-admin-tab="dashboards" type="button">Dashboards</button><button data-admin-tab="automation" type="button">Retailer automation</button><button data-admin-tab="users" type="button">Admin users</button></nav>
               <section class="admin-tab-panel active" data-admin-panel="dashboards">
-              <section class="admin-layout">
-              <div class="ingestion-panel">
-                <div class="step-heading"><span>01</span><div><h2>Choose the client</h2><p>Data is isolated by client and combined in the portfolio view.</p></div></div>
-                <div class="admin-fields">
-                  <label><span>Client</span><select id="adminClient"></select></label>
-                  <label id="customClientField" hidden><span>New client name</span><input id="customClient" type="text" maxlength="80" placeholder="Enter client name" /></label>
-                  <label><span>Dashboard type</span><select id="sourceType"><option value="auto">Detect automatically</option><option value="inventory">Inventory / stock</option><option value="sales">Sales</option></select></label>
-                </div>
-                <div class="step-heading second"><span>02</span><div><h2>Upload source data</h2><p>Excel (.xlsx, .xls, .xlsb) and CSV files are processed securely in your browser.</p></div></div>
-                <input id="adminFileInput" type="file" accept=".xlsx,.xls,.xlsb,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-                <div class="admin-drop-zone" id="adminDropZone" role="button" tabindex="0"><span class="drop-zone-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 20h14" /></svg></span><div><h3 id="adminDropTitle">Drop a source file here</h3><p>or click to select a spreadsheet from your device</p></div><strong>Excel / CSV</strong></div>
-                <div class="source-preview" id="sourcePreview" hidden></div>
-                <button class="publish-button" id="publishDataset" type="button" disabled><span>Publish client dashboard</span><small>Source and calculated snapshot will be saved</small></button>
-              </div>
-              <aside class="admin-history-panel"><div class="step-heading"><span>03</span><div><h2>Published sources</h2><p>Recent client dashboard updates.</p></div></div><div class="admin-history" id="adminHistory"><p class="history-empty">No dashboard sources published yet.</p></div></aside>
-              </section></section>
+                <section class="admin-layout">
+                  <div class="ingestion-panel">
+                    <div class="step-heading"><span>01</span><div><h2>Choose the client</h2><p>Data is isolated by client and combined in the portfolio view.</p></div></div>
+                    <div class="admin-fields">
+                      <label><span>Client</span><select id="adminClient"></select></label>
+                      <label id="customClientField" hidden><span>New client name</span><input id="customClient" type="text" maxlength="80" placeholder="Enter client name" /></label>
+                      <label><span>Dashboard type</span><select id="sourceType"><option value="auto">Detect automatically</option><option value="inventory">Inventory / stock</option><option value="sales">Sales</option></select></label>
+                    </div>
+                    <div class="step-heading second"><span>02</span><div><h2>Upload source data</h2><p>Excel (.xlsx, .xls, .xlsb) and CSV files are processed securely in your browser.</p></div></div>
+                    <input id="adminFileInput" type="file" accept=".xlsx,.xls,.xlsb,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                    <div class="admin-drop-zone" id="adminDropZone" role="button" tabindex="0"><span class="drop-zone-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 20h14" /></svg></span><div><h3 id="adminDropTitle">Drop a source file here</h3><p>or click to select a spreadsheet from your device</p></div><strong>Excel / CSV</strong></div>
+                    <div class="source-preview" id="sourcePreview" hidden></div>
+                    <button class="publish-button" id="publishDataset" type="button" disabled><span>Publish client dashboard</span><small>Source and calculated snapshot will be saved</small></button>
+                  </div>
+                  <aside class="admin-history-panel"><div class="step-heading"><span>03</span><div><h2>Published sources</h2><p>Recent client dashboard updates.</p></div></div><div class="admin-history" id="adminHistory"><p class="history-empty">No dashboard sources published yet.</p></div></aside>
+                </section>
+              </section>
               <section class="admin-tab-panel" data-admin-panel="automation" hidden>
                 <section class="automation-grid">
                   <form class="management-panel" id="retailerForm">
@@ -151,9 +151,9 @@
                 </section>
               </section>
             </section>
-          </main>
-        </div>
-      </dialog>
+          </div>
+        </section>
+      </main>
 
       <dialog class="files-dialog" id="filesDialog" aria-labelledby="filesModalTitle">
         <div class="files-dialog-shell">
