@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260622-2" />
+    <link rel="stylesheet" href="styles.css?v=20260622-3" />
     <script defer src="/__/firebase/12.15.0/firebase-app-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-auth-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-firestore-compat.js"></script>
@@ -20,7 +20,7 @@
     <script defer src="/__/firebase/12.15.0/firebase-functions-compat.js"></script>
     <script defer src="/__/firebase/init.js"></script>
     <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-    <script defer src="app.js?v=20260622-2"></script>
+    <script defer src="app.js?v=20260622-3"></script>
   </head>
   <body>
     <div class="site-shell">
@@ -133,15 +133,28 @@
               </section>
               <section class="admin-tab-panel" data-admin-panel="automation" hidden>
                 <section class="automation-grid">
-                  <form class="management-panel" id="retailerForm">
-                    <header><div><p class="eyebrow">Retailer bot</p><h2 id="retailerFormTitle">Add retailer extraction</h2></div><button class="secondary-button" id="newRetailer" type="button">New</button></header>
-                    <input id="retailerId" type="hidden" />
-                    <div class="management-fields"><label><span>Retailer name</span><input id="retailerName" type="text" maxlength="100" required /></label><label><span>Retailer web address</span><input id="retailerWebAddress" type="url" required placeholder="https://portal.example.com" /></label><label><span>Login username</span><input id="retailerUsername" type="text" autocomplete="off" required /></label><label><span>Login password</span><input id="retailerPassword" type="password" autocomplete="new-password" placeholder="Leave blank to keep current password" /></label></div>
-                    <div class="step-editor-heading"><div><h3>Sales extraction steps</h3><p>Drag steps to reorder them. Selectors are standard CSS selectors from the retailer portal.</p></div><button class="secondary-button" id="addExtractionStep" type="button">Add step</button></div>
-                    <div class="extraction-steps" id="extractionSteps"></div>
-                    <div class="form-actions"><button class="danger-button" id="deleteRetailer" type="button" hidden>Delete retailer</button><button class="primary-action" type="submit">Save retailer + sales extraction</button></div>
-                  </form>
-                  <aside class="management-panel list-panel"><h2>Saved retailer extractions</h2><div id="retailerList" class="management-list"><p class="history-empty">No retailers configured.</p></div><label><span>Extraction to run</span><select id="runRetailer"></select></label><button class="publish-button run-extraction" id="runExtraction" type="button" disabled><span>Extract a new file</span><small>The downloaded file will be saved under Files</small></button></aside>
+                  <div class="automation-stack">
+                    <form class="management-panel" id="retailerForm">
+                      <header><div><p class="eyebrow">Retailer profile</p><h2 id="retailerFormTitle">Create retailer profile</h2></div><button class="secondary-button" id="newRetailer" type="button">New</button></header>
+                      <input id="retailerId" type="hidden" />
+                      <div class="management-fields"><label><span>Retailer name</span><input id="retailerName" type="text" maxlength="100" required /></label><label><span>Retailer web address</span><input id="retailerWebAddress" type="url" required placeholder="https://portal.example.com" /></label><label><span>Login username</span><input id="retailerUsername" type="text" autocomplete="off" required /></label><label><span>Login password</span><input id="retailerPassword" type="password" autocomplete="new-password" placeholder="Leave blank to keep current password" /></label></div>
+                      <div class="linked-profile-row"><label><span>Linked extraction steps</span><select id="retailerExtractionProfile"></select></label><button class="secondary-button" id="openLinkedExtractionProfile" type="button" disabled>Open steps</button></div>
+                      <p class="management-note">Save retailer credentials separately, then link the retailer to a reusable extraction step set.</p>
+                      <div class="form-actions"><button class="danger-button" id="deleteRetailer" type="button" hidden>Delete retailer</button><button class="primary-action" type="submit">Save retailer profile</button></div>
+                    </form>
+                    <form class="management-panel" id="extractionProfileForm">
+                      <header><div><p class="eyebrow">Step library</p><h2 id="extractionProfileFormTitle">Create extraction step set</h2></div><button class="secondary-button" id="newExtractionProfile" type="button">New</button></header>
+                      <input id="extractionProfileId" type="hidden" />
+                      <div class="management-fields"><label><span>Step set name</span><input id="extractionProfileName" type="text" maxlength="120" placeholder="PickNPay Sales extraction steps" required /></label></div>
+                      <div class="step-editor-heading"><div><h3>Extraction steps</h3><p>Drag steps to reorder them. Open any saved step set to edit it.</p></div><button class="secondary-button" id="addExtractionStep" type="button">Add step</button></div>
+                      <div class="extraction-steps" id="extractionSteps"></div>
+                      <div class="form-actions"><button class="danger-button" id="deleteExtractionProfile" type="button" hidden>Delete step set</button><button class="primary-action" type="submit">Save extraction step set</button></div>
+                    </form>
+                  </div>
+                  <div class="automation-stack">
+                    <aside class="management-panel list-panel"><h2>Saved retailer profiles</h2><div id="retailerList" class="management-list"><p class="history-empty">No retailers configured.</p></div><label><span>Retailer to run</span><select id="runRetailer"></select></label><button class="publish-button run-extraction" id="runExtraction" type="button" disabled><span>Extract a new file</span><small>The downloaded file will be saved under Files</small></button></aside>
+                    <aside class="management-panel list-panel"><h2>Saved extraction step sets</h2><div id="extractionProfileList" class="management-list"><p class="history-empty">No extraction step sets configured.</p></div></aside>
+                  </div>
                 </section>
               </section>
               <section class="admin-tab-panel" data-admin-panel="users" hidden>

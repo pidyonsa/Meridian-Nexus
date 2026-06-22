@@ -62,6 +62,37 @@ function validateSteps(raw) {
   });
 }
 
+async function loadExtractionProfile(id) {
+  const profileId = text(id, "Extraction step set", 64);
+  const profile = await db.collection("extractionProfiles").doc(profileId).get();
+  if (!profile.exists) throw new HttpsError("not-found", "Extraction step set was not found.");
+  return { id: profile.id, ...profile.data() };
+}
+
+exports.saveExtractionProfile = onCall(async (request) => {
+  requireAdmin(request);
+  const name = text(request.data.name, "Step set name", 120);
+  const id = optionalText(request.data.id, 64) || slugify(name);
+  const steps = validateSteps(request.data.steps);
+  await db.collection("extractionProfiles").doc(id).set({
+    name,
+    steps,
+    stepCount: steps.length,
+    updatedAt: FieldValue.serverTimestamp(),
+    updatedBy: request.auth.uid
+  }, { merge: true });
+  return { id };
+});
+
+exports.deleteExtractionProfile = onCall(async (request) => {
+  requireAdmin(request);
+  const id = text(request.data.id, "Extraction step set", 64);
+  const linkedRetailers = await db.collection("retailers").where("extractionProfileId", "==", id).limit(1).get();
+  if (!linkedRetailers.empty) throw new HttpsError("failed-precondition", "This step set is linked to a retailer profile. Remove the link first.");
+  await db.collection("extractionProfiles").doc(id).delete();
+  return { id };
+});
+
 exports.saveRetailer = onCall({ secrets: [retailerKey] }, async (request) => {
   requireAdmin(request);
   const name = text(request.data.name, "Retailer name", 100);
@@ -69,13 +100,15 @@ exports.saveRetailer = onCall({ secrets: [retailerKey] }, async (request) => {
   try { new URL(webAddress); } catch { throw new HttpsError("invalid-argument", "Enter a valid retailer web address."); }
   const username = text(request.data.username, "Login username", 320);
   const id = optionalText(request.data.id, 64) || slugify(name);
-  const steps = validateSteps(request.data.steps);
+  const extractionProfileId = optionalText(request.data.extractionProfileId, 64);
   const password = optionalText(request.data.password, 1000);
   const existingSecret = await db.collection("retailerSecrets").doc(id).get();
   if (!password && !existingSecret.exists) throw new HttpsError("invalid-argument", "Login password is required for a new retailer.");
+  if (!extractionProfileId) throw new HttpsError("invalid-argument", "Link the retailer to an extraction step set.");
+  const extractionProfile = await loadExtractionProfile(extractionProfileId);
   const batch = db.batch();
   batch.set(db.collection("retailers").doc(id), {
-    name, webAddress, username, extractionName: `${name} + Sales extraction`, steps,
+    name, webAddress, username, extractionProfileId, extractionName: extractionProfile.name,
     credentialsUpdatedAt: password ? FieldValue.serverTimestamp() : existingSecret.data()?.updatedAt || null,
     updatedAt: FieldValue.serverTimestamp(), updatedBy: request.auth.uid
   }, { merge: true });
@@ -127,7 +160,9 @@ exports.startExtraction = onCall(async (request) => {
   const retailerId = text(request.data.retailerId, "Retailer", 64);
   const retailer = await db.collection("retailers").doc(retailerId).get();
   if (!retailer.exists) throw new HttpsError("not-found", "Retailer configuration was not found.");
-  const run = await db.collection("extractionRuns").add({ retailerId, retailerName: retailer.data().name, extractionName: retailer.data().extractionName, status: "queued", message: "Extraction queued", createdAt: FieldValue.serverTimestamp(), createdBy: request.auth.uid });
+  const retailerData = retailer.data();
+  const extractionName = retailerData.extractionProfileId ? (await loadExtractionProfile(retailerData.extractionProfileId)).name : retailerData.extractionName;
+  const run = await db.collection("extractionRuns").add({ retailerId, retailerName: retailerData.name, extractionProfileId: retailerData.extractionProfileId || null, extractionName, status: "queued", message: "Extraction queued", createdAt: FieldValue.serverTimestamp(), createdBy: request.auth.uid });
   return { runId: run.id };
 });
 
@@ -174,9 +209,15 @@ exports.processExtraction = onDocumentCreated({ document: "extractionRuns/{runId
   let browser;
   try {
     await runRef.update({ status: "running", message: `Logging in to ${run.retailerName}`, startedAt: FieldValue.serverTimestamp() });
-    const [retailerDoc, secretDoc] = await Promise.all([db.collection("retailers").doc(run.retailerId).get(), db.collection("retailerSecrets").doc(run.retailerId).get()]);
+    const [retailerDoc, secretDoc, extractionProfileDoc] = await Promise.all([
+      db.collection("retailers").doc(run.retailerId).get(),
+      db.collection("retailerSecrets").doc(run.retailerId).get(),
+      run.extractionProfileId ? db.collection("extractionProfiles").doc(run.extractionProfileId).get() : Promise.resolve(null)
+    ]);
     if (!retailerDoc.exists || !secretDoc.exists) throw new Error("Retailer configuration or credentials are missing.");
     const config = retailerDoc.data();
+    const steps = extractionProfileDoc?.exists ? extractionProfileDoc.data().steps : config.steps;
+    if (!Array.isArray(steps) || !steps.length) throw new Error("No extraction steps are linked to this retailer.");
     const retailer = { ...config, password: decryptPassword(secretDoc.data()) };
     const downloadDir = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-download-"));
     browser = await puppeteer.launch({ args: [...chromium.args, "--disable-dev-shm-usage"], defaultViewport: { width: 1440, height: 1000 }, executablePath: await chromium.executablePath(), headless: true });
@@ -184,9 +225,9 @@ exports.processExtraction = onDocumentCreated({ document: "extractionRuns/{runId
     const client = await page.target().createCDPSession();
     await client.send("Page.setDownloadBehavior", { behavior: "allow", downloadPath: downloadDir });
     let downloaded;
-    for (let index = 0; index < config.steps.length; index += 1) {
-      const step = config.steps[index];
-      await runRef.update({ message: `Running step ${index + 1} of ${config.steps.length}: ${step.action}`, currentStep: index + 1 });
+    for (let index = 0; index < steps.length; index += 1) {
+      const step = steps[index];
+      await runRef.update({ message: `Running step ${index + 1} of ${steps.length}: ${step.action}`, currentStep: index + 1 });
       const result = await runStep(page, step, retailer, downloadDir);
       if (step.action === "download") downloaded = result;
     }

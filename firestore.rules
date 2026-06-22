@@ -96,6 +96,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /extractionProfiles/{profileId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /adminUsers/{userId} {
       allow read: if isAdmin();
       allow write: if false;

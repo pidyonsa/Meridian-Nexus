@@ -53,7 +53,8 @@ const elements = {
   extractionStatus: document.querySelector("#extractionStatus"), extractionStatusTitle: document.querySelector("#extractionStatusTitle"), extractionStatusCopy: document.querySelector("#extractionStatusCopy"),
   adminLogin: document.querySelector("#adminLogin"), adminLoginForm: document.querySelector("#adminLoginForm"), adminLoginEmail: document.querySelector("#adminLoginEmail"), adminLoginPassword: document.querySelector("#adminLoginPassword"),
   adminWorkspace: document.querySelector("#adminWorkspace"), adminSessionName: document.querySelector("#adminSessionName"), adminLogout: document.querySelector("#adminLogout"),
-  retailerForm: document.querySelector("#retailerForm"), retailerId: document.querySelector("#retailerId"), retailerName: document.querySelector("#retailerName"), retailerWebAddress: document.querySelector("#retailerWebAddress"), retailerUsername: document.querySelector("#retailerUsername"), retailerPassword: document.querySelector("#retailerPassword"), retailerFormTitle: document.querySelector("#retailerFormTitle"), retailerList: document.querySelector("#retailerList"), newRetailer: document.querySelector("#newRetailer"), deleteRetailer: document.querySelector("#deleteRetailer"),
+  retailerForm: document.querySelector("#retailerForm"), retailerId: document.querySelector("#retailerId"), retailerName: document.querySelector("#retailerName"), retailerWebAddress: document.querySelector("#retailerWebAddress"), retailerUsername: document.querySelector("#retailerUsername"), retailerPassword: document.querySelector("#retailerPassword"), retailerFormTitle: document.querySelector("#retailerFormTitle"), retailerExtractionProfile: document.querySelector("#retailerExtractionProfile"), openLinkedExtractionProfile: document.querySelector("#openLinkedExtractionProfile"), retailerList: document.querySelector("#retailerList"), newRetailer: document.querySelector("#newRetailer"), deleteRetailer: document.querySelector("#deleteRetailer"),
+  extractionProfileForm: document.querySelector("#extractionProfileForm"), extractionProfileId: document.querySelector("#extractionProfileId"), extractionProfileName: document.querySelector("#extractionProfileName"), extractionProfileFormTitle: document.querySelector("#extractionProfileFormTitle"), extractionProfileList: document.querySelector("#extractionProfileList"), newExtractionProfile: document.querySelector("#newExtractionProfile"), deleteExtractionProfile: document.querySelector("#deleteExtractionProfile"),
   extractionSteps: document.querySelector("#extractionSteps"), addExtractionStep: document.querySelector("#addExtractionStep"), runRetailer: document.querySelector("#runRetailer"), runExtraction: document.querySelector("#runExtraction"),
   adminUserForm: document.querySelector("#adminUserForm"), adminUserId: document.querySelector("#adminUserId"), adminUserName: document.querySelector("#adminUserName"), adminUserSurname: document.querySelector("#adminUserSurname"), adminUserEmail: document.querySelector("#adminUserEmail"), adminUserPassword: document.querySelector("#adminUserPassword"), adminUserDisabled: document.querySelector("#adminUserDisabled"), adminUserFormTitle: document.querySelector("#adminUserFormTitle"), adminUserList: document.querySelector("#adminUserList"), newAdminUser: document.querySelector("#newAdminUser"), deleteAdminUser: document.querySelector("#deleteAdminUser")
 };
@@ -66,6 +67,7 @@ const state = {
   dashboardClients: [],
   dashboardUploads: [],
   retailers: [],
+  extractionProfiles: [],
   adminUsers: [],
   extractionSteps: [],
   pendingDataset: null
@@ -693,6 +695,10 @@ function newStep(action = "click") {
   return { id: uniqueId(), action, selector: "", value: "" };
 }
 
+function defaultExtractionSteps() {
+  return [newStep("navigate"), newStep("fillUsername"), newStep("fillPassword"), newStep("click"), newStep("download")];
+}
+
 function renderExtractionSteps() {
   elements.extractionSteps.innerHTML = state.extractionSteps.length ? state.extractionSteps.map((step, index) => `<div class="extraction-step" draggable="true" data-step-id="${escapeHtml(step.id)}"><span class="step-number">${String(index + 1).padStart(2,"0")}</span><span class="drag-handle" title="Drag to reorder">&#8942;&#8942;</span><select class="step-action" aria-label="Step ${index + 1} action">${Object.entries(STEP_ACTIONS).map(([value,label]) => `<option value="${value}" ${step.action === value ? "selected" : ""}>${label}</option>`).join("")}</select><input class="step-selector" value="${escapeHtml(step.selector)}" placeholder="CSS selector (for example #login)" aria-label="Step ${index + 1} selector"/><input class="step-value" value="${escapeHtml(step.value)}" placeholder="URL, seconds or option value" aria-label="Step ${index + 1} value"/><button class="remove-step" type="button" title="Delete step" aria-label="Delete step ${index + 1}">&times;</button></div>`).join("") : `<p class="history-empty">Add the first step for this extraction.</p>`;
 }
@@ -702,25 +708,57 @@ function readStepsFromEditor() {
   return state.extractionSteps;
 }
 
+function extractionProfileName(profileId, fallback = "No step set linked") {
+  const profile = state.extractionProfiles.find((item) => item.id === profileId);
+  return profile?.name || fallback;
+}
+
+function syncExtractionProfileOptions() {
+  const current = elements.retailerExtractionProfile.value;
+  elements.retailerExtractionProfile.innerHTML = `<option value="">Select extraction step set</option>${state.extractionProfiles.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join("")}`;
+  if ([...elements.retailerExtractionProfile.options].some((option) => option.value === current)) elements.retailerExtractionProfile.value = current;
+  elements.openLinkedExtractionProfile.disabled = !elements.retailerExtractionProfile.value;
+}
+
 function resetRetailerForm() {
-  elements.retailerForm.reset(); elements.retailerId.value = ""; elements.retailerFormTitle.textContent = "Add retailer extraction"; elements.deleteRetailer.hidden = true;
-  state.extractionSteps = [newStep("navigate"), newStep("fillUsername"), newStep("fillPassword"), newStep("click"), newStep("download")];
-  renderExtractionSteps();
+  elements.retailerForm.reset(); elements.retailerId.value = ""; elements.retailerFormTitle.textContent = "Create retailer profile"; elements.deleteRetailer.hidden = true;
+  syncExtractionProfileOptions();
 }
 
 function editRetailer(id) {
   const retailer = state.retailers.find((item) => item.id === id); if (!retailer) return;
-  elements.retailerId.value = retailer.id; elements.retailerName.value = retailer.name; elements.retailerWebAddress.value = retailer.webAddress; elements.retailerUsername.value = retailer.username; elements.retailerPassword.value = ""; elements.retailerFormTitle.textContent = retailer.extractionName; elements.deleteRetailer.hidden = false;
-  state.extractionSteps = (retailer.steps || []).map((step) => ({ ...step })); renderExtractionSteps();
+  elements.retailerId.value = retailer.id; elements.retailerName.value = retailer.name; elements.retailerWebAddress.value = retailer.webAddress; elements.retailerUsername.value = retailer.username; elements.retailerPassword.value = ""; elements.retailerFormTitle.textContent = retailer.name; elements.deleteRetailer.hidden = false;
+  syncExtractionProfileOptions();
+  elements.retailerExtractionProfile.value = retailer.extractionProfileId || "";
+  elements.openLinkedExtractionProfile.disabled = !elements.retailerExtractionProfile.value;
   elements.retailerList.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.id === id));
 }
 
 function renderRetailers() {
-  elements.retailerList.innerHTML = state.retailers.length ? state.retailers.map((item) => `<button type="button" data-id="${escapeHtml(item.id)}"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.extractionName || `${item.name} + Sales extraction`)} - ${(item.steps || []).length} steps</small></button>`).join("") : `<p class="history-empty">No retailers configured.</p>`;
+  elements.retailerList.innerHTML = state.retailers.length ? state.retailers.map((item) => `<button type="button" data-id="${escapeHtml(item.id)}"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(extractionProfileName(item.extractionProfileId, item.extractionName || "Legacy inline steps"))}</small></button>`).join("") : `<p class="history-empty">No retailers configured.</p>`;
   const current = elements.runRetailer.value;
-  elements.runRetailer.innerHTML = state.retailers.length ? state.retailers.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.extractionName)}</option>`).join("") : `<option value="">No extraction available</option>`;
+  elements.runRetailer.innerHTML = state.retailers.length ? state.retailers.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join("") : `<option value="">No retailer available</option>`;
   if (state.retailers.some((item) => item.id === current)) elements.runRetailer.value = current;
   elements.runExtraction.disabled = !state.retailers.length;
+}
+
+function resetExtractionProfileForm() {
+  elements.extractionProfileForm.reset(); elements.extractionProfileId.value = ""; elements.extractionProfileFormTitle.textContent = "Create extraction step set"; elements.deleteExtractionProfile.hidden = true;
+  state.extractionSteps = defaultExtractionSteps();
+  renderExtractionSteps();
+}
+
+function editExtractionProfile(id) {
+  const profile = state.extractionProfiles.find((item) => item.id === id); if (!profile) return;
+  elements.extractionProfileId.value = profile.id; elements.extractionProfileName.value = profile.name; elements.extractionProfileFormTitle.textContent = profile.name; elements.deleteExtractionProfile.hidden = false;
+  state.extractionSteps = (profile.steps || []).map((step) => ({ ...step }));
+  renderExtractionSteps();
+  elements.extractionProfileList.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.id === id));
+}
+
+function renderExtractionProfiles() {
+  elements.extractionProfileList.innerHTML = state.extractionProfiles.length ? state.extractionProfiles.map((item) => `<button type="button" data-id="${escapeHtml(item.id)}"><strong>${escapeHtml(item.name)}</strong><small>${(item.steps || []).length} steps</small></button>`).join("") : `<p class="history-empty">No extraction step sets configured.</p>`;
+  syncExtractionProfileOptions();
 }
 
 function resetAdminUserForm() {
@@ -746,6 +784,7 @@ function clearAdminSubscriptions() { adminUnsubscribers.forEach((unsubscribe) =>
 function subscribeAdminData() {
   clearAdminSubscriptions();
   adminUnsubscribers.push(database.collection("retailers").onSnapshot((snapshot) => { state.retailers = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.name.localeCompare(b.name)); renderRetailers(); }));
+  adminUnsubscribers.push(database.collection("extractionProfiles").onSnapshot((snapshot) => { state.extractionProfiles = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.name.localeCompare(b.name)); renderExtractionProfiles(); }));
   adminUnsubscribers.push(database.collection("adminUsers").onSnapshot((snapshot) => { state.adminUsers = snapshot.docs.map((doc) => doc.data()).sort((a,b) => a.email.localeCompare(b.email)); renderAdminUsers(); }));
 }
 
@@ -814,6 +853,7 @@ elements.adminLoginForm.addEventListener("submit", async (event) => { event.prev
 elements.adminLogout.addEventListener("click", () => auth.signOut());
 document.querySelectorAll("[data-admin-tab]").forEach((button) => button.addEventListener("click", () => { document.querySelectorAll("[data-admin-tab]").forEach((item) => item.classList.toggle("active", item === button)); document.querySelectorAll("[data-admin-panel]").forEach((panel) => { const active = panel.dataset.adminPanel === button.dataset.adminTab; panel.classList.toggle("active", active); panel.hidden = !active; }); }));
 elements.newRetailer.addEventListener("click", resetRetailerForm);
+elements.newExtractionProfile.addEventListener("click", resetExtractionProfileForm);
 elements.addExtractionStep.addEventListener("click", () => { readStepsFromEditor(); state.extractionSteps.push(newStep()); renderExtractionSteps(); });
 elements.extractionSteps.addEventListener("input", readStepsFromEditor);
 elements.extractionSteps.addEventListener("click", (event) => { const button = event.target.closest(".remove-step"); if (!button) return; readStepsFromEditor(); const id = button.closest(".extraction-step").dataset.stepId; state.extractionSteps = state.extractionSteps.filter((step) => step.id !== id); renderExtractionSteps(); });
@@ -822,8 +862,13 @@ elements.extractionSteps.addEventListener("dragstart", (event) => { const row = 
 elements.extractionSteps.addEventListener("dragend", (event) => { event.target.closest(".extraction-step")?.classList.remove("dragging"); draggedStepId = null; });
 elements.extractionSteps.addEventListener("dragover", (event) => { event.preventDefault(); const target = event.target.closest(".extraction-step"); if (!target || target.dataset.stepId === draggedStepId) return; const from = state.extractionSteps.findIndex((step) => step.id === draggedStepId), to = state.extractionSteps.findIndex((step) => step.id === target.dataset.stepId); const [moved] = state.extractionSteps.splice(from, 1); state.extractionSteps.splice(to, 0, moved); renderExtractionSteps(); });
 elements.retailerList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editRetailer(button.dataset.id); });
-elements.retailerForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveRetailer", { id: elements.retailerId.value, name: elements.retailerName.value, webAddress: elements.retailerWebAddress.value, username: elements.retailerUsername.value, password: elements.retailerPassword.value, steps: readStepsFromEditor() }); elements.retailerId.value = result.id; elements.retailerPassword.value = ""; elements.deleteRetailer.hidden = false; showToast("Retailer and sales extraction saved."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
+elements.extractionProfileList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editExtractionProfile(button.dataset.id); });
+elements.retailerExtractionProfile.addEventListener("change", () => { elements.openLinkedExtractionProfile.disabled = !elements.retailerExtractionProfile.value; });
+elements.openLinkedExtractionProfile.addEventListener("click", () => { if (elements.retailerExtractionProfile.value) editExtractionProfile(elements.retailerExtractionProfile.value); });
+elements.retailerForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveRetailer", { id: elements.retailerId.value, name: elements.retailerName.value, webAddress: elements.retailerWebAddress.value, username: elements.retailerUsername.value, password: elements.retailerPassword.value, extractionProfileId: elements.retailerExtractionProfile.value }); elements.retailerId.value = result.id; elements.retailerPassword.value = ""; elements.deleteRetailer.hidden = false; showToast("Retailer profile saved."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
 elements.deleteRetailer.addEventListener("click", async () => { if (!elements.retailerId.value || !window.confirm("Delete this retailer and its encrypted login credentials?")) return; try { await callFunction("deleteRetailer", { id: elements.retailerId.value }); resetRetailerForm(); showToast("Retailer deleted."); } catch (error) { showToast(friendlyError(error), true); } });
+elements.extractionProfileForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveExtractionProfile", { id: elements.extractionProfileId.value, name: elements.extractionProfileName.value, steps: readStepsFromEditor() }); elements.extractionProfileId.value = result.id; elements.deleteExtractionProfile.hidden = false; elements.retailerExtractionProfile.value = elements.retailerExtractionProfile.value || result.id; elements.openLinkedExtractionProfile.disabled = !elements.retailerExtractionProfile.value; showToast("Extraction step set saved."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
+elements.deleteExtractionProfile.addEventListener("click", async () => { if (!elements.extractionProfileId.value || !window.confirm("Delete this extraction step set?")) return; try { await callFunction("deleteExtractionProfile", { id: elements.extractionProfileId.value }); if (elements.retailerExtractionProfile.value === elements.extractionProfileId.value) elements.retailerExtractionProfile.value = ""; resetExtractionProfileForm(); showToast("Extraction step set deleted."); } catch (error) { showToast(friendlyError(error), true); } });
 elements.runExtraction.addEventListener("click", async () => { elements.runExtraction.disabled = true; try { await callFunction("startExtraction", { retailerId: elements.runRetailer.value }); closeAdminWorkspace(); showToast("Retailer extraction queued."); } catch (error) { showToast(friendlyError(error), true); } finally { elements.runExtraction.disabled = !state.retailers.length; } });
 elements.newAdminUser.addEventListener("click", resetAdminUserForm);
 elements.adminUserList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editAdminUser(button.dataset.id); });
@@ -950,6 +995,7 @@ setViewFromHash();
 renderFiles();
 renderClientOptions();
 resetRetailerForm();
+resetExtractionProfileForm();
 resetAdminUserForm();
 renderAdminHistory();
 window.addEventListener("load", initialiseFirebase, { once: true });
