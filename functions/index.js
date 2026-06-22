@@ -10,7 +10,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const os = require("node:os");
-const chromium = require("@sparticuz/chromium");
+const chromium = require("@sparticuz/chromium").default;
 const puppeteer = require("puppeteer-core");
 
 initializeApp();
