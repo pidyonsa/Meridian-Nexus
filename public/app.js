@@ -64,6 +64,7 @@ const state = {
   files: [],
   selected: new Set(),
   busy: false,
+  extractionRunning: false,
   uploadCount: 0,
   dashboardClients: [],
   dashboardUploads: [],
@@ -133,10 +134,6 @@ function fileTimestamp(file) {
 
 function sortFilesNewestFirst(left, right) {
   return fileTimestamp(right) - fileTimestamp(left) || String(right.id).localeCompare(String(left.id));
-}
-
-function latestPnpSalesReport() {
-  return state.files.find((file) => file.source === "retailer-extraction" && String(file.retailerId).toLowerCase() === "picknpay") || null;
 }
 
 function setViewFromHash() {
@@ -214,9 +211,8 @@ function updateSelectionControls() {
   const allSelected = state.files.length > 0 && selectedCount === state.files.length;
   elements.selectAll.checked = allSelected;
   elements.selectAll.indeterminate = selectedCount > 0 && !allSelected;
-  const latestPnp = latestPnpSalesReport();
-  elements.downloadLatestPnp.disabled = !latestPnp || state.busy;
-  elements.downloadLatestPnp.title = latestPnp ? `Download ${latestPnp.name}` : "No PicknPay sales report is available";
+  elements.downloadLatestPnp.disabled = state.busy || state.extractionRunning;
+  elements.downloadLatestPnp.title = state.extractionRunning ? "A PicknPay report is currently being retrieved" : "Run the PicknPay bot and save a new sales report";
   elements.downloadLatestPnp.setAttribute("aria-label", elements.downloadLatestPnp.title);
   elements.downloadSelected.disabled = selectedCount === 0 || state.busy;
   elements.deleteSelected.disabled = selectedCount === 0 || state.busy;
@@ -816,6 +812,8 @@ function renderExtractionRun(run) {
   elements.extractionStatus.hidden = false; elements.extractionStatus.className = `extraction-status ${run.status}`;
   const isPicknPay = String(run.retailerId || run.retailerName || "").toLowerCase().replace(/[^a-z]/g, "").includes("picknpay");
   const isBusy = ["queued", "running"].includes(run.status);
+  state.extractionRunning = isBusy;
+  updateSelectionControls();
   elements.extractionStatusTitle.textContent = run.status === "completed" ? "Report ready" : run.status === "failed" ? "Report extraction failed" : isPicknPay ? "Preparing your latest PicknPay sales report" : `Preparing the latest ${run.retailerName || "retailer"} report`;
   elements.extractionStatusCopy.textContent = isBusy ? "Please wait while Nexus securely retrieves the report and saves it under Files." : run.message || "Preparing report extraction...";
   if (["completed","failed"].includes(run.status)) window.setTimeout(() => { elements.extractionStatus.hidden = true; }, 12000);
@@ -899,7 +897,9 @@ elements.runExtraction.addEventListener("click", async () => {
     await callFunction("startExtraction", { retailerId: elements.runRetailer.value });
     showToast("Report extraction started.");
   } catch (error) {
+    state.extractionRunning = false;
     elements.extractionStatus.hidden = true;
+    updateSelectionControls();
     showToast(friendlyError(error), true);
   } finally {
     elements.runExtraction.disabled = !state.retailers.length;
@@ -997,10 +997,29 @@ elements.fileList.addEventListener("click", (event) => {
   if (file) downloadFiles([file]);
 });
 elements.downloadSelected.addEventListener("click", () => downloadFiles(selectedFiles()));
-elements.downloadLatestPnp.addEventListener("click", () => {
-  const report = latestPnpSalesReport();
-  if (report) downloadFiles([report]);
-  else showToast("No PicknPay sales report is available yet.", true);
+elements.downloadLatestPnp.addEventListener("click", async () => {
+  try {
+    if (!auth?.currentUser) {
+      openAdminWorkspace();
+      showToast("Sign in as an administrator to retrieve a new PicknPay report.");
+      return;
+    }
+    const token = await auth.currentUser.getIdTokenResult(true);
+    if (token.claims.admin !== true) {
+      openAdminWorkspace();
+      showToast("Administrator access is required to retrieve a PicknPay report.", true);
+      return;
+    }
+    renderExtractionRun({ status: "queued", retailerId: "picknpay", retailerName: "PicknPay" });
+    closeFilesWorkspace();
+    await callFunction("startExtraction", { retailerId: "picknpay" });
+    showToast("A new PicknPay sales report is being retrieved.");
+  } catch (error) {
+    state.extractionRunning = false;
+    elements.extractionStatus.hidden = true;
+    updateSelectionControls();
+    showToast(friendlyError(error), true);
+  }
 });
 elements.deleteSelected.addEventListener("click", () => {
   const count = state.selected.size;
