@@ -156,6 +156,8 @@ footer { position: relative; z-index: 3; display: flex; gap: 24px; color: rgba(2
 .bulk-actions { display: flex; gap: 9px; }
 .secondary-button, .danger-button { padding: 0 14px; border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.86); background: rgba(255,255,255,.06); }
 .secondary-button:hover:not(:disabled) { border-color: rgba(255,173,38,.55); background: rgba(255,173,38,.1); }
+.pnp-download-button { border-color: rgba(255,173,38,.42); color: #071b34; background: linear-gradient(135deg,var(--orange-light),var(--orange)); }
+.pnp-download-button:hover:not(:disabled) { border-color: var(--orange-light); background: linear-gradient(135deg,#ffc45c,var(--orange-light)); }
 .danger-button { color: #ffb4aa; }.danger-button:hover:not(:disabled) { border-color: rgba(255,95,75,.55); background: rgba(255,79,57,.12); }
 button:disabled { cursor: not-allowed; opacity: .42; }
 .list-header, .file-row { display: grid; grid-template-columns: 34px minmax(220px,1fr) 120px 165px 44px; align-items: center; gap: 12px; }

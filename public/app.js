@@ -18,6 +18,7 @@ const elements = {
   emptyState: document.querySelector("#emptyState"),
   listHeader: document.querySelector("#listHeader"),
   selectAll: document.querySelector("#selectAll"),
+  downloadLatestPnp: document.querySelector("#downloadLatestPnp"),
   downloadSelected: document.querySelector("#downloadSelected"),
   deleteSelected: document.querySelector("#deleteSelected"),
   deleteDialog: document.querySelector("#deleteDialog"),
@@ -123,6 +124,21 @@ function fileType(file) {
   return file.type || "Unknown file type";
 }
 
+function fileTimestamp(file) {
+  const timestamp = file.uploadedAt || file.createdAt;
+  if (typeof timestamp?.toMillis === "function") return timestamp.toMillis();
+  const parsed = timestamp ? new Date(timestamp).getTime() : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sortFilesNewestFirst(left, right) {
+  return fileTimestamp(right) - fileTimestamp(left) || String(right.id).localeCompare(String(left.id));
+}
+
+function latestPnpSalesReport() {
+  return state.files.find((file) => file.source === "retailer-extraction" && String(file.retailerId).toLowerCase() === "picknpay") || null;
+}
+
 function setViewFromHash() {
   const showFiles = window.location.hash === "#files";
   const showAdmin = window.location.hash === "#admin";
@@ -179,7 +195,7 @@ function renderFiles() {
         <span><strong title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</strong><small>${escapeHtml(fileType(file))}</small></span>
       </div>
       <span class="file-size">${formatBytes(file.size)}</span>
-      <time class="file-date">${formatDate(file.createdAt)}</time>
+      <time class="file-date">${formatDate(file.uploadedAt || file.createdAt)}</time>
       <button class="icon-button download-one" type="button" data-id="${file.id}" aria-label="Download ${escapeHtml(file.name)}" title="Download">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
       </button>
@@ -187,7 +203,7 @@ function renderFiles() {
   `).join("");
 
   const count = state.files.length;
-  elements.fileSummary.textContent = count === 1 ? "1 file" : `${count} files`;
+  elements.fileSummary.textContent = `${count === 1 ? "1 file" : `${count} files`} · Newest first`;
   elements.emptyState.hidden = count > 0;
   elements.listHeader.hidden = count === 0;
   updateSelectionControls();
@@ -198,6 +214,10 @@ function updateSelectionControls() {
   const allSelected = state.files.length > 0 && selectedCount === state.files.length;
   elements.selectAll.checked = allSelected;
   elements.selectAll.indeterminate = selectedCount > 0 && !allSelected;
+  const latestPnp = latestPnpSalesReport();
+  elements.downloadLatestPnp.disabled = !latestPnp || state.busy;
+  elements.downloadLatestPnp.title = latestPnp ? `Download ${latestPnp.name}` : "No PicknPay sales report is available";
+  elements.downloadLatestPnp.setAttribute("aria-label", elements.downloadLatestPnp.title);
   elements.downloadSelected.disabled = selectedCount === 0 || state.busy;
   elements.deleteSelected.disabled = selectedCount === 0 || state.busy;
   elements.downloadSelected.querySelector("span").textContent = selectedCount ? `Download (${selectedCount})` : "Download selected";
@@ -794,8 +814,10 @@ function subscribeAdminData() {
 function renderExtractionRun(run) {
   if (!run) { elements.extractionStatus.hidden = true; return; }
   elements.extractionStatus.hidden = false; elements.extractionStatus.className = `extraction-status ${run.status}`;
-  elements.extractionStatusTitle.textContent = run.status === "completed" ? "Extraction complete" : run.status === "failed" ? "Extraction failed" : `Extracting ${run.retailerName || "retailer"} file`;
-  elements.extractionStatusCopy.textContent = run.message || "Preparing extraction...";
+  const isPicknPay = String(run.retailerId || run.retailerName || "").toLowerCase().replace(/[^a-z]/g, "").includes("picknpay");
+  const isBusy = ["queued", "running"].includes(run.status);
+  elements.extractionStatusTitle.textContent = run.status === "completed" ? "Report ready" : run.status === "failed" ? "Report extraction failed" : isPicknPay ? "Preparing your latest PicknPay sales report" : `Preparing the latest ${run.retailerName || "retailer"} report`;
+  elements.extractionStatusCopy.textContent = isBusy ? "Please wait while Nexus securely retrieves the report and saves it under Files." : run.message || "Preparing report extraction...";
   if (["completed","failed"].includes(run.status)) window.setTimeout(() => { elements.extractionStatus.hidden = true; }, 12000);
 }
 
@@ -816,11 +838,7 @@ function initialiseFirebase() {
     storage.setMaxUploadRetryTime(24 * 60 * 60 * 1000);
     storage.setMaxOperationRetryTime(10 * 60 * 1000);
     database.collection("files").onSnapshot((snapshot) => {
-      state.files = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((left, right) => {
-        const leftTime = left.createdAt?.toMillis?.() || 0;
-        const rightTime = right.createdAt?.toMillis?.() || 0;
-        return rightTime - leftTime;
-      });
+      state.files = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort(sortFilesNewestFirst);
       renderFiles();
     }, (error) => {
       elements.fileSummary.textContent = "Could not load files";
@@ -872,7 +890,21 @@ elements.retailerForm.addEventListener("submit", async (event) => { event.preven
 elements.deleteRetailer.addEventListener("click", async () => { if (!elements.retailerId.value || !window.confirm("Delete this retailer and its encrypted login credentials?")) return; try { await callFunction("deleteRetailer", { id: elements.retailerId.value }); resetRetailerForm(); showToast("Retailer deleted."); } catch (error) { showToast(friendlyError(error), true); } });
 elements.extractionProfileForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveExtractionProfile", { id: elements.extractionProfileId.value, name: elements.extractionProfileName.value, steps: readStepsFromEditor() }); elements.extractionProfileId.value = result.id; elements.deleteExtractionProfile.hidden = false; elements.retailerExtractionProfile.value = elements.retailerExtractionProfile.value || result.id; elements.openLinkedExtractionProfile.disabled = !elements.retailerExtractionProfile.value; showToast("Extraction step set saved."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
 elements.deleteExtractionProfile.addEventListener("click", async () => { if (!elements.extractionProfileId.value || !window.confirm("Delete this extraction step set?")) return; try { await callFunction("deleteExtractionProfile", { id: elements.extractionProfileId.value }); if (elements.retailerExtractionProfile.value === elements.extractionProfileId.value) elements.retailerExtractionProfile.value = ""; resetExtractionProfileForm(); showToast("Extraction step set deleted."); } catch (error) { showToast(friendlyError(error), true); } });
-elements.runExtraction.addEventListener("click", async () => { elements.runExtraction.disabled = true; try { await callFunction("startExtraction", { retailerId: elements.runRetailer.value }); closeAdminWorkspace(); showToast("Retailer extraction queued."); } catch (error) { showToast(friendlyError(error), true); } finally { elements.runExtraction.disabled = !state.retailers.length; } });
+elements.runExtraction.addEventListener("click", async () => {
+  elements.runExtraction.disabled = true;
+  const retailer = state.retailers.find((item) => item.id === elements.runRetailer.value);
+  renderExtractionRun({ status: "queued", retailerId: retailer?.id, retailerName: retailer?.name });
+  closeAdminWorkspace();
+  try {
+    await callFunction("startExtraction", { retailerId: elements.runRetailer.value });
+    showToast("Report extraction started.");
+  } catch (error) {
+    elements.extractionStatus.hidden = true;
+    showToast(friendlyError(error), true);
+  } finally {
+    elements.runExtraction.disabled = !state.retailers.length;
+  }
+});
 elements.newAdminUser.addEventListener("click", resetAdminUserForm);
 elements.adminUserList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editAdminUser(button.dataset.id); });
 elements.adminUserForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveAdminUser", { uid: elements.adminUserId.value, name: elements.adminUserName.value, surname: elements.adminUserSurname.value, email: elements.adminUserEmail.value, password: elements.adminUserPassword.value, disabled: elements.adminUserDisabled.checked }); elements.adminUserId.value = result.uid; elements.adminUserPassword.value = ""; elements.deleteAdminUser.hidden = result.uid === auth.currentUser?.uid; showToast("Administrator updated in Firebase Authentication and Nexus."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
@@ -965,6 +997,11 @@ elements.fileList.addEventListener("click", (event) => {
   if (file) downloadFiles([file]);
 });
 elements.downloadSelected.addEventListener("click", () => downloadFiles(selectedFiles()));
+elements.downloadLatestPnp.addEventListener("click", () => {
+  const report = latestPnpSalesReport();
+  if (report) downloadFiles([report]);
+  else showToast("No PicknPay sales report is available yet.", true);
+});
 elements.deleteSelected.addEventListener("click", () => {
   const count = state.selected.size;
   elements.deleteDialogCopy.textContent = `${count} selected file${count === 1 ? "" : "s"} will be permanently removed. This action cannot be undone.`;
