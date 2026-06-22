@@ -688,7 +688,10 @@ async function publishPendingDataset() {
 
 const STEP_ACTIONS = {
   navigate: "Open web address", fillUsername: "Enter username", fillPassword: "Enter password",
-  click: "Click element", waitFor: "Wait for element", wait: "Wait seconds", select: "Select option", download: "Click to download"
+  click: "Click CSS selector", clickText: "Click visible text", clickInSection: "Click text inside section",
+  waitFor: "Wait for CSS selector", waitText: "Wait for visible text", waitUrlContains: "Wait for URL to contain",
+  waitNetworkIdle: "Wait for network idle", wait: "Wait seconds", select: "Select option",
+  export: "Export and await download", download: "Click to download"
 };
 
 function newStep(action = "click") {
@@ -700,7 +703,7 @@ function defaultExtractionSteps() {
 }
 
 function renderExtractionSteps() {
-  elements.extractionSteps.innerHTML = state.extractionSteps.length ? state.extractionSteps.map((step, index) => `<div class="extraction-step" draggable="true" data-step-id="${escapeHtml(step.id)}"><span class="step-number">${String(index + 1).padStart(2,"0")}</span><span class="drag-handle" title="Drag to reorder">&#8942;&#8942;</span><select class="step-action" aria-label="Step ${index + 1} action">${Object.entries(STEP_ACTIONS).map(([value,label]) => `<option value="${value}" ${step.action === value ? "selected" : ""}>${label}</option>`).join("")}</select><input class="step-selector" value="${escapeHtml(step.selector)}" placeholder="CSS selector (for example #login)" aria-label="Step ${index + 1} selector"/><input class="step-value" value="${escapeHtml(step.value)}" placeholder="URL, seconds, option label or option value" aria-label="Step ${index + 1} value"/><button class="remove-step" type="button" title="Delete step" aria-label="Delete step ${index + 1}">&times;</button></div>`).join("") : `<p class="history-empty">Add the first step for this extraction.</p>`;
+  elements.extractionSteps.innerHTML = state.extractionSteps.length ? state.extractionSteps.map((step, index) => `<div class="extraction-step" draggable="true" data-step-id="${escapeHtml(step.id)}"><span class="step-number">${String(index + 1).padStart(2,"0")}</span><span class="drag-handle" title="Drag to reorder">&#8942;&#8942;</span><select class="step-action" aria-label="Step ${index + 1} action">${Object.entries(STEP_ACTIONS).map(([value,label]) => `<option value="${value}" ${step.action === value ? "selected" : ""}>${label}</option>`).join("")}</select><input class="step-selector" value="${escapeHtml(step.selector)}" placeholder="CSS selector or section name" aria-label="Step ${index + 1} selector or section"/><input class="step-value" value="${escapeHtml(step.value)}" placeholder="URL, text, seconds or option" aria-label="Step ${index + 1} value"/><button class="remove-step" type="button" title="Delete step" aria-label="Delete step ${index + 1}">&times;</button></div>`).join("") : `<p class="history-empty">Add the first step for this extraction.</p>`;
 }
 
 function readStepsFromEditor() {

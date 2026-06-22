@@ -33,6 +33,12 @@ service firebase.storage {
       allow update: if false;
     }
 
+    match /extraction-evidence/{runId}/{fileName} {
+      // Evidence may contain retailer portal data and is restricted to administrators.
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }
