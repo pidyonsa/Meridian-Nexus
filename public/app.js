@@ -55,7 +55,7 @@ const elements = {
   adminWorkspace: document.querySelector("#adminWorkspace"), adminSessionName: document.querySelector("#adminSessionName"), adminLogout: document.querySelector("#adminLogout"),
   retailerForm: document.querySelector("#retailerForm"), retailerId: document.querySelector("#retailerId"), retailerName: document.querySelector("#retailerName"), retailerWebAddress: document.querySelector("#retailerWebAddress"), retailerUsername: document.querySelector("#retailerUsername"), retailerPassword: document.querySelector("#retailerPassword"), retailerFormTitle: document.querySelector("#retailerFormTitle"), retailerExtractionProfile: document.querySelector("#retailerExtractionProfile"), openLinkedExtractionProfile: document.querySelector("#openLinkedExtractionProfile"), retailerList: document.querySelector("#retailerList"), newRetailer: document.querySelector("#newRetailer"), deleteRetailer: document.querySelector("#deleteRetailer"),
   extractionProfileForm: document.querySelector("#extractionProfileForm"), extractionProfileId: document.querySelector("#extractionProfileId"), extractionProfileName: document.querySelector("#extractionProfileName"), extractionProfileFormTitle: document.querySelector("#extractionProfileFormTitle"), extractionProfileList: document.querySelector("#extractionProfileList"), newExtractionProfile: document.querySelector("#newExtractionProfile"), deleteExtractionProfile: document.querySelector("#deleteExtractionProfile"),
-  extractionSteps: document.querySelector("#extractionSteps"), addExtractionStep: document.querySelector("#addExtractionStep"), runRetailer: document.querySelector("#runRetailer"), runExtraction: document.querySelector("#runExtraction"),
+  extractionSteps: document.querySelector("#extractionSteps"), addExtractionStep: document.querySelector("#addExtractionStep"), runRetailer: document.querySelector("#runRetailer"), runExtraction: document.querySelector("#runExtraction"), runRetailerDetails: document.querySelector("#runRetailerDetails"), retailerCount: document.querySelector("#retailerCount"), stepSetCount: document.querySelector("#stepSetCount"), adminRunState: document.querySelector("#adminRunState"), adminRunStateTitle: document.querySelector("#adminRunStateTitle"), adminRunStateCopy: document.querySelector("#adminRunStateCopy"), openFilesFromAdmin: document.querySelector("#openFilesFromAdmin"),
   adminUserForm: document.querySelector("#adminUserForm"), adminUserId: document.querySelector("#adminUserId"), adminUserName: document.querySelector("#adminUserName"), adminUserSurname: document.querySelector("#adminUserSurname"), adminUserEmail: document.querySelector("#adminUserEmail"), adminUserPassword: document.querySelector("#adminUserPassword"), adminUserDisabled: document.querySelector("#adminUserDisabled"), adminUserFormTitle: document.querySelector("#adminUserFormTitle"), adminUserList: document.querySelector("#adminUserList"), newAdminUser: document.querySelector("#newAdminUser"), deleteAdminUser: document.querySelector("#deleteAdminUser")
 };
 
@@ -792,12 +792,26 @@ function editRetailer(id) {
   elements.retailerList.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.id === id));
 }
 
+function renderRunRetailerDetails() {
+  const retailer = state.retailers.find((item) => item.id === elements.runRetailer.value);
+  if (!retailer) {
+    elements.runRetailerDetails.innerHTML = `<p>Select a retailer to review its connection and linked extraction steps.</p>`;
+    return;
+  }
+  let portal = retailer.webAddress || "Portal address unavailable";
+  try { portal = new URL(retailer.webAddress).hostname; } catch (error) { /* Keep the stored address. */ }
+  const linkedSteps = extractionProfileName(retailer.extractionProfileId, retailer.extractionName || "No reusable step set linked");
+  elements.runRetailerDetails.innerHTML = `<div><span>Portal</span><strong>${escapeHtml(portal)}</strong></div><div><span>Extraction steps</span><strong>${escapeHtml(linkedSteps)}</strong></div><div><span>Destination</span><strong>Files · newest first</strong></div>`;
+}
+
 function renderRetailers() {
   elements.retailerList.innerHTML = state.retailers.length ? state.retailers.map((item) => `<button type="button" data-id="${escapeHtml(item.id)}"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(extractionProfileName(item.extractionProfileId, item.extractionName || "Legacy inline steps"))}</small></button>`).join("") : `<p class="history-empty">No retailers configured.</p>`;
+  elements.retailerCount.textContent = `${state.retailers.length} profile${state.retailers.length === 1 ? "" : "s"}`;
   const current = elements.runRetailer.value;
   elements.runRetailer.innerHTML = state.retailers.length ? state.retailers.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join("") : `<option value="">No retailer available</option>`;
   if (state.retailers.some((item) => item.id === current)) elements.runRetailer.value = current;
   elements.runExtraction.disabled = !state.retailers.length;
+  renderRunRetailerDetails();
 }
 
 function resetExtractionProfileForm() {
@@ -816,7 +830,9 @@ function editExtractionProfile(id) {
 
 function renderExtractionProfiles() {
   elements.extractionProfileList.innerHTML = state.extractionProfiles.length ? state.extractionProfiles.map((item) => `<button type="button" data-id="${escapeHtml(item.id)}"><strong>${escapeHtml(item.name)}</strong><small>${(item.steps || []).length} steps</small></button>`).join("") : `<p class="history-empty">No extraction step sets configured.</p>`;
+  elements.stepSetCount.textContent = `${state.extractionProfiles.length} set${state.extractionProfiles.length === 1 ? "" : "s"}`;
   syncExtractionProfileOptions();
+  renderRunRetailerDetails();
 }
 
 function resetAdminUserForm() {
@@ -875,6 +891,12 @@ function subscribeAdminData() {
   }));
 }
 
+function setAdminRunActivity(status = "ready", title = "Ready to extract", copy = "Choose a retailer and start a report when you are ready.") {
+  elements.adminRunState.className = `run-status-orb ${status}`;
+  elements.adminRunStateTitle.textContent = title;
+  elements.adminRunStateCopy.textContent = copy;
+}
+
 function renderExtractionBatch(batch) {
   state.latestPnpBatch = batch;
   if (!batch) { renderPnpReportCentre(); return; }
@@ -882,6 +904,7 @@ function renderExtractionBatch(batch) {
   const wasRunning = state.extractionRunning;
   state.extractionRunning = isBusy;
   updateSelectionControls(); renderPnpReportCentre();
+  setAdminRunActivity(isBusy ? "running" : batch.failedCount ? "failed" : "completed", isBusy ? "PicknPay extraction in progress" : batch.failedCount ? "Batch completed with exceptions" : "Reports saved successfully", isBusy ? `Processing profile ${batch.currentPosition} of ${batch.totalProfiles} — ${batch.currentProfileName}` : batch.message);
   if (!isBusy && !wasRunning) return;
   elements.extractionStatus.hidden = false;
   elements.extractionStatus.className = `files-extraction-status development-status ${isBusy ? "running" : batch.failedCount ? "failed" : "completed"}`;
@@ -909,12 +932,13 @@ async function refreshPnpProfiles({ silent = false } = {}) {
 }
 
 function renderExtractionRun(run) {
-  if (!run) { state.extractionRunning = false; elements.extractionStatus.hidden = true; updateSelectionControls(); return; }
+  if (!run) { state.extractionRunning = false; elements.extractionStatus.hidden = true; updateSelectionControls(); setAdminRunActivity(); return; }
   const isPicknPay = String(run.retailerId || run.retailerName || "").toLowerCase().replace(/[^a-z]/g, "").includes("picknpay");
   const isBusy = ["queued", "running"].includes(run.status);
   const wasRunning = state.extractionRunning;
   state.extractionRunning = isBusy;
   updateSelectionControls();
+  setAdminRunActivity(isBusy ? "running" : run.status === "failed" ? "failed" : "completed", isBusy ? `Extracting ${run.retailerName || "retailer"} report` : run.status === "failed" ? "Extraction needs attention" : "Report saved successfully", isBusy ? "Nexus is securely retrieving and verifying the report." : run.message || "The extraction has finished.");
   if (!isBusy && !wasRunning) { elements.extractionStatus.hidden = true; return; }
   elements.extractionStatus.hidden = false; elements.extractionStatus.className = `files-extraction-status development-status ${run.status}`;
   elements.extractionStatusTitle.textContent = run.status === "completed" ? "Report ready" : run.status === "failed" ? "Report extraction failed" : isPicknPay ? "Preparing your latest PicknPay sales report" : `Preparing the latest ${run.retailerName || "retailer"} report`;
@@ -984,7 +1008,16 @@ elements.openAdminAction.addEventListener("click", openAdminWorkspace);
 elements.closeAdminPage.addEventListener("click", closeAdminWorkspace);
 elements.adminLoginForm.addEventListener("submit", async (event) => { event.preventDefault(); try { await auth.signInWithEmailAndPassword(elements.adminLoginEmail.value.trim(), elements.adminLoginPassword.value); elements.adminLoginPassword.value = ""; } catch (error) { showToast(`Sign in failed: ${friendlyError(error)}`, true); } });
 elements.adminLogout.addEventListener("click", () => auth.signOut());
-document.querySelectorAll("[data-admin-tab]").forEach((button) => button.addEventListener("click", () => { document.querySelectorAll("[data-admin-tab]").forEach((item) => item.classList.toggle("active", item === button)); document.querySelectorAll("[data-admin-panel]").forEach((panel) => { const active = panel.dataset.adminPanel === button.dataset.adminTab; panel.classList.toggle("active", active); panel.hidden = !active; }); }));
+function activateAdminTab(tabName) {
+  document.querySelectorAll("[data-admin-tab]").forEach((item) => item.classList.toggle("active", item.dataset.adminTab === tabName));
+  document.querySelectorAll("[data-admin-panel]").forEach((panel) => {
+    const active = panel.dataset.adminPanel === tabName;
+    panel.classList.toggle("active", active);
+    panel.hidden = !active;
+  });
+}
+document.querySelectorAll("[data-admin-tab]").forEach((button) => button.addEventListener("click", () => activateAdminTab(button.dataset.adminTab)));
+document.querySelectorAll("[data-open-admin-tab]").forEach((button) => button.addEventListener("click", () => activateAdminTab(button.dataset.openAdminTab)));
 elements.newRetailer.addEventListener("click", resetRetailerForm);
 elements.newExtractionProfile.addEventListener("click", resetExtractionProfileForm);
 elements.addExtractionStep.addEventListener("click", () => { readStepsFromEditor(); state.extractionSteps.push(newStep()); renderExtractionSteps(); });
@@ -997,7 +1030,7 @@ elements.extractionSteps.addEventListener("dragover", (event) => { event.prevent
 elements.retailerList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editRetailer(button.dataset.id); });
 elements.extractionProfileList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editExtractionProfile(button.dataset.id); });
 elements.retailerExtractionProfile.addEventListener("change", () => { elements.openLinkedExtractionProfile.disabled = !elements.retailerExtractionProfile.value; });
-elements.openLinkedExtractionProfile.addEventListener("click", () => { if (elements.retailerExtractionProfile.value) editExtractionProfile(elements.retailerExtractionProfile.value); });
+elements.openLinkedExtractionProfile.addEventListener("click", () => { if (elements.retailerExtractionProfile.value) { editExtractionProfile(elements.retailerExtractionProfile.value); activateAdminTab("steps"); } });
 elements.retailerForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveRetailer", { id: elements.retailerId.value, name: elements.retailerName.value, webAddress: elements.retailerWebAddress.value, username: elements.retailerUsername.value, password: elements.retailerPassword.value, extractionProfileId: elements.retailerExtractionProfile.value }); elements.retailerId.value = result.id; elements.retailerPassword.value = ""; elements.deleteRetailer.hidden = false; showToast("Retailer profile saved."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
 elements.deleteRetailer.addEventListener("click", async () => { if (!elements.retailerId.value || !window.confirm("Delete this retailer and its encrypted login credentials?")) return; try { await callFunction("deleteRetailer", { id: elements.retailerId.value }); resetRetailerForm(); showToast("Retailer deleted."); } catch (error) { showToast(friendlyError(error), true); } });
 elements.extractionProfileForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveExtractionProfile", { id: elements.extractionProfileId.value, name: elements.extractionProfileName.value, steps: readStepsFromEditor() }); elements.extractionProfileId.value = result.id; elements.deleteExtractionProfile.hidden = false; elements.retailerExtractionProfile.value = elements.retailerExtractionProfile.value || result.id; elements.openLinkedExtractionProfile.disabled = !elements.retailerExtractionProfile.value; showToast("Extraction step set saved."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
@@ -1018,6 +1051,8 @@ elements.runExtraction.addEventListener("click", async () => {
     elements.runExtraction.disabled = !state.retailers.length;
   }
 });
+elements.runRetailer.addEventListener("change", renderRunRetailerDetails);
+elements.openFilesFromAdmin.addEventListener("click", openFilesWorkspace);
 elements.newAdminUser.addEventListener("click", resetAdminUserForm);
 elements.adminUserList.addEventListener("click", (event) => { const button = event.target.closest("button[data-id]"); if (button) editAdminUser(button.dataset.id); });
 elements.adminUserForm.addEventListener("submit", async (event) => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; try { const result = await callFunction("saveAdminUser", { uid: elements.adminUserId.value, name: elements.adminUserName.value, surname: elements.adminUserSurname.value, email: elements.adminUserEmail.value, password: elements.adminUserPassword.value, disabled: elements.adminUserDisabled.checked }); elements.adminUserId.value = result.uid; elements.adminUserPassword.value = ""; elements.deleteAdminUser.hidden = result.uid === auth.currentUser?.uid; showToast("Administrator updated in Firebase Authentication and Nexus."); } catch (error) { showToast(friendlyError(error), true); } finally { submit.disabled = false; } });
