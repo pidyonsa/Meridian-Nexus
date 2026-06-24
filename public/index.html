@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260622-9" />
+    <link rel="stylesheet" href="styles.css?v=20260624-2" />
     <script defer src="/__/firebase/12.15.0/firebase-app-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-auth-compat.js"></script>
     <script defer src="/__/firebase/12.15.0/firebase-firestore-compat.js"></script>
@@ -20,7 +20,7 @@
     <script defer src="/__/firebase/12.15.0/firebase-functions-compat.js"></script>
     <script defer src="/__/firebase/init.js"></script>
     <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-    <script defer src="app.js?v=20260622-9"></script>
+    <script defer src="app.js?v=20260624-2"></script>
   </head>
   <body>
     <div class="site-shell">
@@ -191,6 +191,19 @@
           <div class="tube" aria-hidden="true"><div class="tube-inner"><span class="liquid"></span><span class="open-space"><i class="bubble"></i><i class="bubble bubble-two"></i><i class="bubble bubble-three"></i><i class="bubble bubble-four"></i></span><span class="tube-shine"></span></div></div>
         </section>
 
+        <section class="pnp-report-centre" aria-labelledby="pnpReportCentreTitle">
+          <header>
+            <div><span class="card-kicker">Retailer automation</span><h2 id="pnpReportCentreTitle">PicknPay Report Centre</h2><p>Select portal profiles and retrieve verified sales reports without leaving Files.</p></div>
+            <div class="pnp-centre-actions">
+              <button class="secondary-button" id="refreshPnpProfiles" type="button">Refresh profiles</button>
+              <label class="pnp-select-all"><input id="selectAllPnpProfiles" type="checkbox" /><span>Select all profiles</span></label>
+              <button class="pnp-run-button" id="runSelectedPnpProfiles" type="button" disabled>Get reports for selected profiles</button>
+            </div>
+          </header>
+          <div class="pnp-centre-meta"><span id="pnpProfileSyncStatus">Sign in as an administrator to discover PicknPay profiles.</span><strong id="pnpSelectionSummary">0 profiles selected</strong></div>
+          <div class="pnp-profile-list" id="pnpProfileList"><p class="history-empty">PicknPay profiles will appear here after discovery.</p></div>
+        </section>
+
         <section class="drop-zone" id="dropZone" role="button" tabindex="0" aria-labelledby="dropZoneTitle" aria-describedby="dropZoneCopy">
           <span class="drop-zone-icon">
             <svg width="27" height="27" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 20h14" /></svg>
@@ -211,10 +224,6 @@
               <p id="fileSummary">Loading files&hellip;</p>
             </div>
             <div class="bulk-actions">
-              <button class="secondary-button pnp-download-button" id="downloadLatestPnp" type="button" disabled>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
-                <span>Get latest PicknPay sales report</span>
-              </button>
               <button class="secondary-button" id="downloadSelected" type="button" disabled>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
                 <span>Download selected</span>

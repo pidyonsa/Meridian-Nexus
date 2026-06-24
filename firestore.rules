@@ -110,6 +110,16 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /retailerPortalProfiles/{profileId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /extractionBatches/{batchId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /extractionRuns/{runId} {
       allow read: if temporaryAccessIsActive();
       allow write: if false;

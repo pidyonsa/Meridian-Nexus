@@ -17,7 +17,7 @@ const elements = {
   emptyState: document.querySelector("#emptyState"),
   listHeader: document.querySelector("#listHeader"),
   selectAll: document.querySelector("#selectAll"),
-  downloadLatestPnp: document.querySelector("#downloadLatestPnp"),
+  refreshPnpProfiles: document.querySelector("#refreshPnpProfiles"), selectAllPnpProfiles: document.querySelector("#selectAllPnpProfiles"), runSelectedPnpProfiles: document.querySelector("#runSelectedPnpProfiles"), pnpProfileSyncStatus: document.querySelector("#pnpProfileSyncStatus"), pnpSelectionSummary: document.querySelector("#pnpSelectionSummary"), pnpProfileList: document.querySelector("#pnpProfileList"),
   downloadSelected: document.querySelector("#downloadSelected"),
   deleteSelected: document.querySelector("#deleteSelected"),
   deleteDialog: document.querySelector("#deleteDialog"),
@@ -64,6 +64,11 @@ const state = {
   selected: new Set(),
   busy: false,
   extractionRunning: false,
+  pnpProfiles: [],
+  selectedPnpProfiles: new Set(),
+  pnpSelectionInitialized: false,
+  pnpRuns: [],
+  latestPnpBatch: null,
   uploadCount: 0,
   dashboardClients: [],
   dashboardUploads: [],
@@ -81,6 +86,8 @@ let storage = null;
 let auth = null;
 let cloudFunctions = null;
 let adminUnsubscribers = [];
+let pnpRunUnsubscriber = null;
+let pnpProfilesRefreshAttempted = false;
 let dragDepth = 0;
 let adminDragDepth = 0;
 
@@ -196,6 +203,7 @@ function renderFiles() {
   elements.emptyState.hidden = count > 0;
   elements.listHeader.hidden = count === 0;
   updateSelectionControls();
+  renderPnpReportCentre();
 }
 
 function updateSelectionControls() {
@@ -203,13 +211,52 @@ function updateSelectionControls() {
   const allSelected = state.files.length > 0 && selectedCount === state.files.length;
   elements.selectAll.checked = allSelected;
   elements.selectAll.indeterminate = selectedCount > 0 && !allSelected;
-  elements.downloadLatestPnp.disabled = state.busy || state.extractionRunning;
-  elements.downloadLatestPnp.title = state.extractionRunning ? "A PicknPay report is currently being retrieved" : "Run the PicknPay bot and save a new sales report";
-  elements.downloadLatestPnp.setAttribute("aria-label", elements.downloadLatestPnp.title);
   elements.downloadSelected.disabled = selectedCount === 0 || state.busy;
   elements.deleteSelected.disabled = selectedCount === 0 || state.busy;
   elements.downloadSelected.querySelector("span").textContent = selectedCount ? `Download (${selectedCount})` : "Download selected";
   elements.deleteSelected.querySelector("span").textContent = selectedCount ? `Delete (${selectedCount})` : "Delete selected";
+}
+
+function latestProfileFile(profile) {
+  return state.files.find((file) => file.portalProfileDocId === profile.id || (file.retailerId === "picknpay" && String(file.portalProfileId || "") === String(profile.portalProfileId))) || null;
+}
+
+function currentProfileRun(profile) {
+  return state.pnpRuns.find((run) => run.portalProfileDocId === profile.id || String(run.portalProfileId || "") === String(profile.portalProfileId)) || null;
+}
+
+function profileRunStatus(profile) {
+  const run = currentProfileRun(profile);
+  if (!run) return { label: "Ready", className: "ready" };
+  if (["queued", "running"].includes(run.status)) return { label: "Extracting", className: "extracting" };
+  if (run.status === "completed") return { label: "Completed", className: "completed" };
+  return { label: "Failed", className: "failed" };
+}
+
+function renderPnpReportCentre() {
+  const profiles = state.pnpProfiles.filter((profile) => profile.active !== false);
+  const profileIds = new Set(profiles.map((profile) => profile.id));
+  [...state.selectedPnpProfiles].forEach((id) => { if (!profileIds.has(id)) state.selectedPnpProfiles.delete(id); });
+  elements.pnpProfileSyncStatus.textContent = profiles.length ? `${profiles.length} profiles discovered from the live PicknPay dropdown.` : auth?.currentUser ? "No profiles discovered yet. Refresh profiles to connect to PicknPay." : "Sign in as an administrator to discover PicknPay profiles.";
+  elements.pnpSelectionSummary.textContent = `${state.selectedPnpProfiles.size} profile${state.selectedPnpProfiles.size === 1 ? "" : "s"} selected`;
+  elements.selectAllPnpProfiles.checked = profiles.length > 0 && state.selectedPnpProfiles.size === profiles.length;
+  elements.selectAllPnpProfiles.indeterminate = state.selectedPnpProfiles.size > 0 && state.selectedPnpProfiles.size < profiles.length;
+  elements.refreshPnpProfiles.disabled = state.extractionRunning;
+  elements.runSelectedPnpProfiles.disabled = state.extractionRunning || state.selectedPnpProfiles.size === 0;
+  elements.pnpProfileList.innerHTML = profiles.length ? profiles.map((profile) => {
+    const file = latestProfileFile(profile);
+    const status = profileRunStatus(profile);
+    const period = file?.actualReportPeriod || "No saved report";
+    const extracted = file ? formatDate(file.completedAt || file.uploadedAt || file.createdAt) : "Not extracted yet";
+    return `<article class="pnp-profile-row" data-profile-id="${escapeHtml(profile.id)}">
+      <label class="pnp-profile-check"><input class="pnp-profile-checkbox" type="checkbox" data-id="${escapeHtml(profile.id)}" ${state.selectedPnpProfiles.has(profile.id) ? "checked" : ""}/></label>
+      <div class="pnp-profile-name"><strong>${escapeHtml(profile.name)}</strong><small>${escapeHtml(profile.group || "PicknPay profile")}</small></div>
+      <div class="pnp-profile-detail"><span>Last extraction</span><strong>${escapeHtml(extracted)}</strong></div>
+      <div class="pnp-profile-detail"><span>Report period</span><strong>${escapeHtml(period)}${file?.reportPeriodFallbackUsed ? " · Fallback" : ""}</strong></div>
+      <span class="pnp-profile-status ${status.className}">${status.label}</span>
+      <button class="pnp-profile-download" type="button" data-download-profile="${escapeHtml(profile.id)}" ${file ? "" : "disabled"}>Download latest</button>
+    </article>`;
+  }).join("") : `<p class="history-empty">PicknPay profiles will appear here after secure portal discovery.</p>`;
 }
 
 function createUploadItem(file) {
@@ -699,7 +746,7 @@ const STEP_ACTIONS = {
   click: "Click CSS selector", clickText: "Click visible text", clickInSection: "Click text inside section",
   waitFor: "Wait for CSS selector", waitText: "Wait for visible text", waitUrlContains: "Wait for URL to contain",
   waitNetworkIdle: "Wait for network idle", wait: "Wait seconds", select: "Select option",
-  export: "Export and await download", download: "Click to download"
+  selectReportPeriod: "Select best report period", export: "Export and await download", download: "Click to download"
 };
 
 function newStep(action = "click") {
@@ -790,13 +837,75 @@ async function callFunction(name, data) {
   return result.data;
 }
 
-function clearAdminSubscriptions() { adminUnsubscribers.forEach((unsubscribe) => unsubscribe()); adminUnsubscribers = []; }
+function clearAdminSubscriptions() {
+  adminUnsubscribers.forEach((unsubscribe) => unsubscribe()); adminUnsubscribers = [];
+  if (pnpRunUnsubscriber) pnpRunUnsubscriber();
+  pnpRunUnsubscriber = null;
+  state.pnpProfiles = []; state.pnpRuns = []; state.latestPnpBatch = null; state.selectedPnpProfiles.clear(); state.pnpSelectionInitialized = false;
+  renderPnpReportCentre();
+}
+
+function subscribePnpBatchRuns(batchId) {
+  if (pnpRunUnsubscriber) pnpRunUnsubscriber();
+  state.pnpRuns = [];
+  if (!batchId) { pnpRunUnsubscriber = null; renderPnpReportCentre(); return; }
+  pnpRunUnsubscriber = database.collection("extractionRuns").where("batchId", "==", batchId).onSnapshot((snapshot) => {
+    state.pnpRuns = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((left, right) => Number(left.batchPosition || 0) - Number(right.batchPosition || 0));
+    renderPnpReportCentre();
+  });
+}
 
 function subscribeAdminData() {
   clearAdminSubscriptions();
   adminUnsubscribers.push(database.collection("retailers").onSnapshot((snapshot) => { state.retailers = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.name.localeCompare(b.name)); renderRetailers(); }));
   adminUnsubscribers.push(database.collection("extractionProfiles").onSnapshot((snapshot) => { state.extractionProfiles = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.name.localeCompare(b.name)); renderExtractionProfiles(); }));
   adminUnsubscribers.push(database.collection("adminUsers").onSnapshot((snapshot) => { state.adminUsers = snapshot.docs.map((doc) => doc.data()).sort((a,b) => a.email.localeCompare(b.email)); renderAdminUsers(); }));
+  adminUnsubscribers.push(database.collection("retailerPortalProfiles").where("retailerId", "==", "picknpay").onSnapshot((snapshot) => {
+    state.pnpProfiles = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((left, right) => Number(left.order || 0) - Number(right.order || 0));
+    if (!state.pnpSelectionInitialized) {
+      state.pnpProfiles.filter((profile) => profile.active !== false).forEach((profile) => state.selectedPnpProfiles.add(profile.id));
+      state.pnpSelectionInitialized = true;
+    }
+    renderPnpReportCentre();
+  }));
+  adminUnsubscribers.push(database.collection("extractionBatches").orderBy("createdAt", "desc").limit(1).onSnapshot((snapshot) => {
+    const batch = snapshot.empty ? null : { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+    if (batch?.id !== state.latestPnpBatch?.id) subscribePnpBatchRuns(batch?.id);
+    renderExtractionBatch(batch);
+  }));
+}
+
+function renderExtractionBatch(batch) {
+  state.latestPnpBatch = batch;
+  if (!batch) { renderPnpReportCentre(); return; }
+  const isBusy = ["queued", "running"].includes(batch.status);
+  const wasRunning = state.extractionRunning;
+  state.extractionRunning = isBusy;
+  updateSelectionControls(); renderPnpReportCentre();
+  if (!isBusy && !wasRunning) return;
+  elements.extractionStatus.hidden = false;
+  elements.extractionStatus.className = `files-extraction-status development-status ${isBusy ? "running" : batch.failedCount ? "failed" : "completed"}`;
+  elements.extractionStatusTitle.textContent = isBusy ? "Retrieving PicknPay reports" : batch.failedCount ? "PicknPay batch completed with exceptions" : "PicknPay reports ready";
+  elements.extractionStatusCopy.textContent = isBusy ? `Processing profile ${batch.currentPosition} of ${batch.totalProfiles} — ${batch.currentProfileName}` : batch.message;
+  if (!isBusy) window.setTimeout(() => { elements.extractionStatus.hidden = true; }, 16000);
+}
+
+async function refreshPnpProfiles({ silent = false } = {}) {
+  if (!auth?.currentUser) {
+    if (!silent) { openAdminWorkspace(); showToast("Sign in as an administrator to refresh PicknPay profiles."); }
+    return;
+  }
+  elements.refreshPnpProfiles.disabled = true;
+  elements.pnpProfileSyncStatus.textContent = "Securely reading profiles from the PicknPay portal...";
+  try {
+    const result = await callFunction("syncPicknPayProfiles", {});
+    if (!silent) showToast(`${result.profiles.length} PicknPay profiles refreshed.`);
+  } catch (error) {
+    elements.pnpProfileSyncStatus.textContent = `Profile refresh failed: ${friendlyError(error)}`;
+    if (!silent) showToast(friendlyError(error), true);
+  } finally {
+    elements.refreshPnpProfiles.disabled = state.extractionRunning;
+  }
 }
 
 function renderExtractionRun(run) {
@@ -814,10 +923,18 @@ function renderExtractionRun(run) {
 }
 
 async function configureAdminSession(user) {
-  if (!user) { clearAdminSubscriptions(); elements.adminLogin.hidden = false; elements.adminWorkspace.hidden = true; return; }
+  if (!user) { pnpProfilesRefreshAttempted = false; clearAdminSubscriptions(); elements.adminLogin.hidden = false; elements.adminWorkspace.hidden = true; return; }
   const token = await user.getIdTokenResult(true);
   if (token.claims.admin !== true) { await auth.signOut(); showToast("This account is not authorised for Nexus Admin.", true); return; }
   elements.adminLogin.hidden = true; elements.adminWorkspace.hidden = false; elements.adminSessionName.textContent = user.displayName || user.email; subscribeAdminData();
+  window.setTimeout(() => {
+    const pnp = state.retailers.find((retailer) => retailer.id === "picknpay");
+    const syncedAt = pnp?.profilesSyncedAt?.toMillis?.() || 0;
+    if (!pnpProfilesRefreshAttempted && (!state.pnpProfiles.length || Date.now() - syncedAt > 24 * 60 * 60 * 1000)) {
+      pnpProfilesRefreshAttempted = true;
+      refreshPnpProfiles({ silent: true });
+    }
+  }, 1800);
 }
 
 function initialiseFirebase() {
@@ -851,7 +968,10 @@ function initialiseFirebase() {
       state.dashboardUploads = snapshot.docs.map((document) => ({ id: document.id, ...document.data() })).sort((a,b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
       renderAdminHistory();
     });
-    database.collection("extractionRuns").orderBy("createdAt", "desc").limit(1).onSnapshot((snapshot) => renderExtractionRun(snapshot.empty ? null : snapshot.docs[0].data()));
+    database.collection("extractionRuns").orderBy("createdAt", "desc").limit(1).onSnapshot((snapshot) => {
+      const run = snapshot.empty ? null : snapshot.docs[0].data();
+      if (!run?.batchId) renderExtractionRun(run);
+    });
   } catch (error) {
     elements.fileSummary.textContent = "Storage unavailable";
     showToast("Firebase could not be initialised.", true);
@@ -987,11 +1107,32 @@ elements.fileList.addEventListener("click", (event) => {
   if (file) downloadFiles([file]);
 });
 elements.downloadSelected.addEventListener("click", () => downloadFiles(selectedFiles()));
-elements.downloadLatestPnp.addEventListener("click", async () => {
+elements.refreshPnpProfiles.addEventListener("click", () => refreshPnpProfiles());
+elements.selectAllPnpProfiles.addEventListener("change", () => {
+  state.pnpSelectionInitialized = true;
+  state.selectedPnpProfiles.clear();
+  if (elements.selectAllPnpProfiles.checked) state.pnpProfiles.filter((profile) => profile.active !== false).forEach((profile) => state.selectedPnpProfiles.add(profile.id));
+  renderPnpReportCentre();
+});
+elements.pnpProfileList.addEventListener("change", (event) => {
+  if (!event.target.matches(".pnp-profile-checkbox")) return;
+  state.pnpSelectionInitialized = true;
+  if (event.target.checked) state.selectedPnpProfiles.add(event.target.dataset.id);
+  else state.selectedPnpProfiles.delete(event.target.dataset.id);
+  renderPnpReportCentre();
+});
+elements.pnpProfileList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-download-profile]");
+  if (!button) return;
+  const profile = state.pnpProfiles.find((item) => item.id === button.dataset.downloadProfile);
+  const file = profile ? latestProfileFile(profile) : null;
+  if (file) downloadFiles([file]);
+});
+elements.runSelectedPnpProfiles.addEventListener("click", async () => {
   try {
     if (!auth?.currentUser) {
       openAdminWorkspace();
-      showToast("Sign in as an administrator to retrieve a new PicknPay report.");
+      showToast("Sign in as an administrator to retrieve PicknPay reports.");
       return;
     }
     const token = await auth.currentUser.getIdTokenResult(true);
@@ -1000,9 +1141,16 @@ elements.downloadLatestPnp.addEventListener("click", async () => {
       showToast("Administrator access is required to retrieve a PicknPay report.", true);
       return;
     }
-    renderExtractionRun({ status: "queued", retailerId: "picknpay", retailerName: "PicknPay" });
-    await callFunction("startExtraction", { retailerId: "picknpay" });
-    showToast("A new PicknPay sales report is being retrieved.");
+    const selectedProfiles = state.pnpProfiles.filter((profile) => state.selectedPnpProfiles.has(profile.id));
+    if (!selectedProfiles.length) throw new Error("Select at least one PicknPay profile.");
+    state.pnpRuns = [];
+    renderExtractionBatch({
+      id: `pending-${Date.now()}`, status: "running", totalProfiles: selectedProfiles.length,
+      currentPosition: 1, currentProfileName: selectedProfiles[0].name, completedCount: 0, failedCount: 0,
+      message: `Processing profile 1 of ${selectedProfiles.length} — ${selectedProfiles[0].name}`
+    });
+    const result = await callFunction("startPicknPayBatch", { profileIds: selectedProfiles.map((profile) => profile.id) });
+    showToast(`${result.totalProfiles} PicknPay report${result.totalProfiles === 1 ? "" : "s"} queued.`);
   } catch (error) {
     state.extractionRunning = false;
     elements.extractionStatus.hidden = true;
