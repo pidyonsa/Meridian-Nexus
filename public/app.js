@@ -1,7 +1,9 @@
 const elements = {
+  skipLink: document.querySelector(".skip-link"),
   homeView: document.querySelector("#homeView"),
   adminPage: document.querySelector("#adminPage"),
   filesView: document.querySelector("#filesView"),
+  homeNav: document.querySelector("#homeNav"),
   filesNav: document.querySelector("#filesNav"),
   adminNav: document.querySelector("#adminNav"),
   closeFilesDialog: document.querySelector("#closeFilesDialog"),
@@ -15,8 +17,10 @@ const elements = {
   fileList: document.querySelector("#fileList"),
   fileSummary: document.querySelector("#fileSummary"),
   emptyState: document.querySelector("#emptyState"),
+  emptyStateTitle: document.querySelector("#emptyStateTitle"), emptyStateCopy: document.querySelector("#emptyStateCopy"),
   listHeader: document.querySelector("#listHeader"),
   selectAll: document.querySelector("#selectAll"),
+  fileSearch: document.querySelector("#fileSearch"), fileTypeFilter: document.querySelector("#fileTypeFilter"), fileSort: document.querySelector("#fileSort"), filePageSize: document.querySelector("#filePageSize"), filePagination: document.querySelector("#filePagination"), filePrev: document.querySelector("#filePrev"), fileNext: document.querySelector("#fileNext"), filePageInfo: document.querySelector("#filePageInfo"),
   refreshPnpProfiles: document.querySelector("#refreshPnpProfiles"), selectAllPnpProfiles: document.querySelector("#selectAllPnpProfiles"), runSelectedPnpProfiles: document.querySelector("#runSelectedPnpProfiles"), pnpProfileSyncStatus: document.querySelector("#pnpProfileSyncStatus"), pnpSelectionSummary: document.querySelector("#pnpSelectionSummary"), pnpProfileList: document.querySelector("#pnpProfileList"),
   downloadSelected: document.querySelector("#downloadSelected"),
   deleteSelected: document.querySelector("#deleteSelected"),
@@ -62,6 +66,12 @@ const elements = {
 const state = {
   files: [],
   selected: new Set(),
+  visibleFileIds: [],
+  fileQuery: "",
+  fileType: "all",
+  fileSort: "newest",
+  filePage: 1,
+  filePageSize: 25,
   busy: false,
   extractionRunning: false,
   pnpProfiles: [],
@@ -149,8 +159,12 @@ function setViewFromHash() {
   elements.adminPage.hidden = !showAdmin;
   elements.filesView.hidden = !showFiles;
   elements.filesNav.classList.toggle("active", showFiles);
-  elements.filesNav.setAttribute("aria-expanded", String(showFiles));
+  elements.filesNav.setAttribute("aria-current", showFiles ? "page" : "false");
   elements.adminNav.classList.toggle("active", showAdmin);
+  elements.adminNav.setAttribute("aria-current", showAdmin ? "page" : "false");
+  elements.homeNav.classList.toggle("active", !showFiles && !showAdmin);
+  elements.homeNav.setAttribute("aria-current", !showFiles && !showAdmin ? "page" : "false");
+  elements.skipLink.href = showFiles ? "#filesView" : showAdmin ? "#adminPage" : "#homeView";
   document.title = showFiles ? "Files | Meridian Nexus" : showAdmin ? "Admin | Meridian Nexus" : "Meridian Nexus";
 }
 
@@ -176,11 +190,42 @@ function closeAdminWorkspace() {
   setViewFromHash();
 }
 
+function fileCategory(file) {
+  if (file.source === "retailer-extraction" || file.extractionRunId) return "reports";
+  const extension = String(file.name || "").split(".").pop().toLowerCase();
+  if (["xlsx", "xls", "xlsb", "csv", "ods"].includes(extension)) return "spreadsheets";
+  if (["pdf", "doc", "docx", "txt", "rtf", "ppt", "pptx"].includes(extension)) return "documents";
+  if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(extension)) return "images";
+  if (["zip", "rar", "7z", "tar", "gz"].includes(extension)) return "archives";
+  return "other";
+}
+
+function filteredFiles() {
+  const query = state.fileQuery.trim().toLowerCase();
+  const filtered = state.files.filter((file) => {
+    const matchesType = state.fileType === "all" || fileCategory(file) === state.fileType;
+    const searchable = [file.name, file.originalName, file.retailerName, file.portalProfileName, file.actualReportPeriod].filter(Boolean).join(" ").toLowerCase();
+    return matchesType && (!query || searchable.includes(query));
+  });
+  return filtered.sort((left, right) => {
+    if (state.fileSort === "oldest") return fileTimestamp(left) - fileTimestamp(right);
+    if (state.fileSort === "name") return String(left.name).localeCompare(String(right.name));
+    if (state.fileSort === "size") return Number(right.size || 0) - Number(left.size || 0);
+    return sortFilesNewestFirst(left, right);
+  });
+}
+
 function renderFiles() {
   const existingIds = new Set(state.files.map((file) => file.id));
   state.selected.forEach((id) => { if (!existingIds.has(id)) state.selected.delete(id); });
+  const matchingFiles = filteredFiles();
+  const pageCount = Math.max(1, Math.ceil(matchingFiles.length / state.filePageSize));
+  state.filePage = Math.min(Math.max(1, state.filePage), pageCount);
+  const start = (state.filePage - 1) * state.filePageSize;
+  const pageFiles = matchingFiles.slice(start, start + state.filePageSize);
+  state.visibleFileIds = pageFiles.map((file) => file.id);
 
-  elements.fileList.innerHTML = state.files.map((file) => `
+  elements.fileList.innerHTML = pageFiles.map((file) => `
     <article class="file-row" data-file-id="${file.id}">
       <label class="checkbox-wrap">
         <input class="file-checkbox" type="checkbox" data-id="${file.id}" ${state.selected.has(file.id) ? "checked" : ""} />
@@ -198,19 +243,28 @@ function renderFiles() {
     </article>
   `).join("");
 
-  const count = state.files.length;
-  elements.fileSummary.textContent = `${count === 1 ? "1 file" : `${count} files`} · Newest first`;
-  elements.emptyState.hidden = count > 0;
-  elements.listHeader.hidden = count === 0;
+  const total = state.files.length;
+  const matchCount = matchingFiles.length;
+  const sortLabels = { newest: "Newest first", oldest: "Oldest first", name: "Name A–Z", size: "Largest first" };
+  elements.fileSummary.textContent = matchCount === total ? `${total === 1 ? "1 file" : `${total} files`} · ${sortLabels[state.fileSort]}` : `${matchCount} of ${total} files · ${sortLabels[state.fileSort]}`;
+  elements.emptyState.hidden = pageFiles.length > 0;
+  elements.emptyStateTitle.textContent = total ? "No matching files" : "No files uploaded yet";
+  elements.emptyStateCopy.textContent = total ? "Adjust the search or file type filter to see more results." : "Choose Upload files to add your first document.";
+  elements.listHeader.hidden = pageFiles.length === 0;
+  elements.filePagination.hidden = matchingFiles.length <= state.filePageSize;
+  elements.filePageInfo.textContent = `Page ${state.filePage} of ${pageCount} · ${matchCount} files`;
+  elements.filePrev.disabled = state.filePage <= 1;
+  elements.fileNext.disabled = state.filePage >= pageCount;
   updateSelectionControls();
   renderPnpReportCentre();
 }
 
 function updateSelectionControls() {
   const selectedCount = state.selected.size;
-  const allSelected = state.files.length > 0 && selectedCount === state.files.length;
+  const selectedVisible = state.visibleFileIds.filter((id) => state.selected.has(id)).length;
+  const allSelected = state.visibleFileIds.length > 0 && selectedVisible === state.visibleFileIds.length;
   elements.selectAll.checked = allSelected;
-  elements.selectAll.indeterminate = selectedCount > 0 && !allSelected;
+  elements.selectAll.indeterminate = selectedVisible > 0 && !allSelected;
   elements.downloadSelected.disabled = selectedCount === 0 || state.busy;
   elements.deleteSelected.disabled = selectedCount === 0 || state.busy;
   elements.downloadSelected.querySelector("span").textContent = selectedCount ? `Download (${selectedCount})` : "Download selected";
@@ -901,6 +955,7 @@ function renderExtractionBatch(batch) {
   state.latestPnpBatch = batch;
   if (!batch) { renderPnpReportCentre(); return; }
   const isBusy = ["queued", "running"].includes(batch.status);
+  if (isBusy) document.querySelector(".pnp-report-centre").open = true;
   const wasRunning = state.extractionRunning;
   state.extractionRunning = isBusy;
   updateSelectionControls(); renderPnpReportCentre();
@@ -1126,9 +1181,15 @@ document.addEventListener("drop", (event) => {
 elements.filesNav.addEventListener("click", openFilesWorkspace);
 elements.closeFilesDialog.addEventListener("click", closeFilesWorkspace);
 elements.selectAll.addEventListener("change", () => {
-  state.selected = elements.selectAll.checked ? new Set(state.files.map((file) => file.id)) : new Set();
+  state.visibleFileIds.forEach((id) => { if (elements.selectAll.checked) state.selected.add(id); else state.selected.delete(id); });
   renderFiles();
 });
+elements.fileSearch.addEventListener("input", () => { state.fileQuery = elements.fileSearch.value; state.filePage = 1; renderFiles(); });
+elements.fileTypeFilter.addEventListener("change", () => { state.fileType = elements.fileTypeFilter.value; state.filePage = 1; renderFiles(); });
+elements.fileSort.addEventListener("change", () => { state.fileSort = elements.fileSort.value; state.filePage = 1; renderFiles(); });
+elements.filePageSize.addEventListener("change", () => { state.filePageSize = Number(elements.filePageSize.value) || 25; state.filePage = 1; renderFiles(); });
+elements.filePrev.addEventListener("click", () => { state.filePage = Math.max(1, state.filePage - 1); renderFiles(); elements.fileList.scrollIntoView({ behavior: "smooth", block: "start" }); });
+elements.fileNext.addEventListener("click", () => { state.filePage += 1; renderFiles(); elements.fileList.scrollIntoView({ behavior: "smooth", block: "start" }); });
 elements.fileList.addEventListener("change", (event) => {
   if (!event.target.matches(".file-checkbox")) return;
   if (event.target.checked) state.selected.add(event.target.dataset.id);
@@ -1178,6 +1239,7 @@ elements.runSelectedPnpProfiles.addEventListener("click", async () => {
     }
     const selectedProfiles = state.pnpProfiles.filter((profile) => state.selectedPnpProfiles.has(profile.id));
     if (!selectedProfiles.length) throw new Error("Select at least one PicknPay profile.");
+    document.querySelector(".pnp-report-centre").open = true;
     state.pnpRuns = [];
     renderExtractionBatch({
       id: `pending-${Date.now()}`, status: "running", totalProfiles: selectedProfiles.length,
