@@ -1,0 +1,46 @@
+# Azure dispatcher: every 2 minutes, starts job-georep-worker for each run the Google trigger handed to Azure
+# (status "azure-reserved"). Same image as the worker, RUNNER_MODE=dispatch.
+# Google access: keyless as georep-worker@ (federation pool). Secrets are read from Key Vault by the runner at start.
+location: southafricanorth
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-georep: {}
+properties:
+  environmentId: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourceGroups/rg-meridian-nexus-automations/providers/Microsoft.App/managedEnvironments/cae-nexus-automations
+  workloadProfileName: Consumption
+  configuration:
+    triggerType: Schedule
+    replicaTimeout: 240
+    replicaRetryLimit: 0
+    scheduleTriggerConfig:
+      cronExpression: '*/2 * * * *'
+      parallelism: 1
+      replicaCompletionCount: 1
+    registries:
+      - server: acrnexusautop2fzlrpwgvno2.azurecr.io
+        identity: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-georep
+  template:
+    containers:
+      - name: dispatcher
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/georep-worker:pab-00446-r6
+        resources:
+          cpu: 0.5
+          memory: 1Gi
+        env:
+          - name: RUNNER_MODE
+            value: dispatch
+          - name: WORKER_JOB_ID
+            value: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourceGroups/rg-meridian-nexus-automations/providers/Microsoft.App/jobs/job-georep-worker
+          - name: RUN_ID
+            value: unset
+          - name: AZURE_CLIENT_ID
+            value: c3fbaa7c-edb9-442c-b5ed-b3038d6d29d5
+          - name: AUDIENCE
+            value: api://95e8953c-64bf-4a17-a65d-e5d531ef7837
+          - name: GOOGLE_PROVIDER
+            value: //iam.googleapis.com/projects/730011371323/locations/global/workloadIdentityPools/azure-nexus-automations/providers/entra
+          - name: KEY_VAULT_URL
+            value: https://kv-nexusauto-p2fzlrpwgvn.vault.azure.net
+          - name: GOOGLE_SERVICE_ACCOUNT
+            value: georep-worker@meridain-nexus.iam.gserviceaccount.com

@@ -1,0 +1,1730 @@
+[
+  {
+    "page": 1,
+    "text": "NEXUS  /  DATA & APPLICATION OWNERSHIP",
+    "x": 2.35,
+    "y": 0.24,
+    "w": 6.1,
+    "h": 0.22
+  },
+  {
+    "page": 1,
+    "text": "CEO & MD  |  13 SEPTEMBER 2026",
+    "x": 9.05,
+    "y": 0.24,
+    "w": 3.78,
+    "h": 0.22
+  },
+  {
+    "page": 1,
+    "text": "Choose the data home and the application operator",
+    "x": 0.5,
+    "y": 0.94,
+    "w": 12.33,
+    "h": 0.49
+  },
+  {
+    "page": 1,
+    "text": "Three operating models for one Nexus portal. Around 1,000 users: field teams, office teams and authorised client viewers.",
+    "x": 0.5,
+    "y": 1.52,
+    "w": 12.33,
+    "h": 0.44
+  },
+  {
+    "page": 1,
+    "text": "CONFIDENTIAL",
+    "x": 0.5,
+    "y": 7.23,
+    "w": 1.3,
+    "h": 0.17
+  },
+  {
+    "page": 1,
+    "text": "1 / 5",
+    "x": 12.12,
+    "y": 7.18,
+    "w": 0.71,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "01",
+    "x": 0.5,
+    "y": 2.08,
+    "w": 0.34,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "CATALYST HOLDS THE DATA",
+    "x": 0.9299999999999999,
+    "y": 2.08,
+    "w": 3.5,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Continuity option",
+    "x": 0.5,
+    "y": 2.42,
+    "w": 3.9,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Retailer sales + inventory",
+    "x": 0.64,
+    "y": 2.91,
+    "w": 3.61,
+    "h": 0.2
+  },
+  {
+    "page": 1,
+    "text": "Catalyst extraction + supplier data",
+    "x": 0.64,
+    "y": 3.5,
+    "w": 3.6100000000000003,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Existing service; exact hosting unconfirmed",
+    "x": 0.64,
+    "y": 3.8,
+    "w": 3.6100000000000003,
+    "h": 0.33
+  },
+  {
+    "page": 1,
+    "text": "Meridian integrates Nexus",
+    "x": 0.64,
+    "y": 4.489999999999999,
+    "w": 3.6100000000000003,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Carin's handover still needs integration",
+    "x": 0.64,
+    "y": 4.79,
+    "w": 3.6100000000000003,
+    "h": 0.33
+  },
+  {
+    "page": 1,
+    "text": "BENEFIT",
+    "x": 0.5,
+    "y": 5.34,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Retain current feeds and supplier knowledge; avoid an immediate data cutover.",
+    "x": 0.5,
+    "y": 5.63,
+    "w": 3.89,
+    "h": 0.49
+  },
+  {
+    "page": 1,
+    "text": "TRADE-OFF",
+    "x": 0.5,
+    "y": 6.16,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "API/export limits and supplier dependency remain. The quoted retainer is not a complete Nexus integration service.",
+    "x": 0.5,
+    "y": 6.43,
+    "w": 3.89,
+    "h": 0.59
+  },
+  {
+    "page": 1,
+    "text": "02",
+    "x": 4.72,
+    "y": 2.08,
+    "w": 0.34,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "GEO REP HOLDS THE DATA",
+    "x": 5.1499999999999995,
+    "y": 2.08,
+    "w": 3.5,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Managed integration option",
+    "x": 4.72,
+    "y": 2.42,
+    "w": 3.9,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Retailer feeds + Geo field data",
+    "x": 4.859999999999999,
+    "y": 2.91,
+    "w": 3.61,
+    "h": 0.2
+  },
+  {
+    "page": 1,
+    "text": "Geo Rep data + integration services",
+    "x": 4.859999999999999,
+    "y": 3.5,
+    "w": 3.6100000000000003,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Proposed AWS model; scope and quote needed",
+    "x": 4.859999999999999,
+    "y": 3.8,
+    "w": 3.6100000000000003,
+    "h": 0.33
+  },
+  {
+    "page": 1,
+    "text": "Geo integrates + hosts one Nexus",
+    "x": 4.859999999999999,
+    "y": 4.489999999999999,
+    "w": 3.6100000000000003,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Carin's scripts + current Nexus capabilities",
+    "x": 4.859999999999999,
+    "y": 4.79,
+    "w": 3.6100000000000003,
+    "h": 0.33
+  },
+  {
+    "page": 1,
+    "text": "BENEFIT",
+    "x": 4.72,
+    "y": 5.34,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Potentially one accountable integration and hosting partner, aligned with field operations.",
+    "x": 4.72,
+    "y": 5.63,
+    "w": 3.89,
+    "h": 0.49
+  },
+  {
+    "page": 1,
+    "text": "TRADE-OFF",
+    "x": 4.72,
+    "y": 6.16,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Data, hosting and field services concentrate in one supplier. Firebase migration and retailer ETL must be priced and proven.",
+    "x": 4.72,
+    "y": 6.43,
+    "w": 3.89,
+    "h": 0.59
+  },
+  {
+    "page": 1,
+    "text": "03",
+    "x": 8.94,
+    "y": 2.08,
+    "w": 0.34,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "MERIDIAN HOLDS THE DATA",
+    "x": 9.37,
+    "y": 2.08,
+    "w": 3.5,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Recommended strategic destination",
+    "x": 8.94,
+    "y": 2.42,
+    "w": 3.9,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Authorised supplier feeds + files",
+    "x": 9.08,
+    "y": 2.91,
+    "w": 3.61,
+    "h": 0.2
+  },
+  {
+    "page": 1,
+    "text": "Meridian lake on Google Cloud",
+    "x": 9.08,
+    "y": 3.5,
+    "w": 3.6100000000000003,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Johannesburg | Meridian-controlled account",
+    "x": 9.08,
+    "y": 3.8,
+    "w": 3.6100000000000003,
+    "h": 0.33
+  },
+  {
+    "page": 1,
+    "text": "Meridian integrates + hosts Nexus",
+    "x": 9.08,
+    "y": 4.489999999999999,
+    "w": 3.6100000000000003,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Continue the existing Firebase integration",
+    "x": 9.08,
+    "y": 4.79,
+    "w": 3.6100000000000003,
+    "h": 0.33
+  },
+  {
+    "page": 1,
+    "text": "BENEFIT",
+    "x": 8.94,
+    "y": 5.34,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Reuse Nexus work; control data access and priorities for mobile, AI and client reporting.",
+    "x": 8.94,
+    "y": 5.63,
+    "w": 3.89,
+    "h": 0.49
+  },
+  {
+    "page": 1,
+    "text": "TRADE-OFF",
+    "x": 8.94,
+    "y": 6.16,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Meridian owns integration, security and support obligations. A cloud bill does not fund the people or replace retailer extraction.",
+    "x": 8.94,
+    "y": 6.43,
+    "w": 3.89,
+    "h": 0.59
+  },
+  {
+    "page": 1,
+    "text": "Basis: Meridian brief + E1 supplier email",
+    "x": 1.98,
+    "y": 7.21,
+    "w": 3.3,
+    "h": 0.19
+  },
+  {
+    "page": 1,
+    "text": "H1/H2: Carin handovers",
+    "x": 5.4399999999999995,
+    "y": 7.21,
+    "w": 2.15,
+    "h": 0.19
+  },
+  {
+    "page": 1,
+    "text": "Google Cloud locations",
+    "x": 7.75,
+    "y": 7.21,
+    "w": 2.03,
+    "h": 0.19
+  },
+  {
+    "page": 1,
+    "text": "Geo product claims",
+    "x": 9.94,
+    "y": 7.21,
+    "w": 1.7,
+    "h": 0.19
+  },
+  {
+    "page": 2,
+    "text": "NEXUS  /  DATA & APPLICATION OWNERSHIP",
+    "x": 2.35,
+    "y": 0.24,
+    "w": 6.1,
+    "h": 0.22
+  },
+  {
+    "page": 2,
+    "text": "CEO & MD  |  13 SEPTEMBER 2026",
+    "x": 9.05,
+    "y": 0.24,
+    "w": 3.78,
+    "h": 0.22
+  },
+  {
+    "page": 2,
+    "text": "Carin's handover is a product integration programme",
+    "x": 0.5,
+    "y": 0.94,
+    "w": 12.33,
+    "h": 0.49
+  },
+  {
+    "page": 2,
+    "text": "Require the same complete acceptance scope from Geo Rep and the in-house team. Moving HTML files alone does not complete it.",
+    "x": 0.5,
+    "y": 1.52,
+    "w": 12.33,
+    "h": 0.44
+  },
+  {
+    "page": 2,
+    "text": "CONFIDENTIAL",
+    "x": 0.5,
+    "y": 7.23,
+    "w": 1.3,
+    "h": 0.17
+  },
+  {
+    "page": 2,
+    "text": "2 / 5",
+    "x": 12.12,
+    "y": 7.18,
+    "w": 0.71,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "WORKSTREAM",
+    "x": 0.65,
+    "y": 2.22,
+    "w": 2.25,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "WHAT MUST WORK IN ONE NEXUS",
+    "x": 3.24,
+    "y": 2.22,
+    "w": 4.07,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "COST / MIGRATION IMPLICATION",
+    "x": 7.59,
+    "y": 2.22,
+    "w": 5.08,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Insights + inventory",
+    "x": 0.65,
+    "y": 2.62,
+    "w": 2.28,
+    "h": 0.45
+  },
+  {
+    "page": 2,
+    "text": "All source tabs, filters, charts, drilldowns and exports; verified retail sales and inventory totals.",
+    "x": 3.24,
+    "y": 2.62,
+    "w": 4.04,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "Keep proven calculations. Inventory every sales/DuckDB query and data source before changing storage.",
+    "x": 7.59,
+    "y": 2.62,
+    "w": 5.08,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "Stock Fix end to end",
+    "x": 0.65,
+    "y": 3.21,
+    "w": 2.28,
+    "h": 0.45
+  },
+  {
+    "page": 2,
+    "text": "Inventory refresh, roster import, task generation, field capture and reporting; durable job status.",
+    "x": 3.24,
+    "y": 3.21,
+    "w": 4.04,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "H2 describes separate operational Postgres and reporting DuckDB. Migrating one does not migrate both.",
+    "x": 7.59,
+    "y": 3.21,
+    "w": 5.08,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "Call Cycle + attendance",
+    "x": 0.65,
+    "y": 3.8000000000000003,
+    "w": 2.28,
+    "h": 0.45
+  },
+  {
+    "page": 2,
+    "text": "Master building, coverage, hierarchy, approvals, refresh jobs and rep/merchandiser attendance.",
+    "x": 3.24,
+    "y": 3.8000000000000003,
+    "w": 4.04,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "H1 describes a manual three-file master build. Preserve human review; automatic extraction is separate scope.",
+    "x": 7.59,
+    "y": 3.8000000000000003,
+    "w": 5.08,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "One application shell",
+    "x": 0.65,
+    "y": 4.39,
+    "w": 2.28,
+    "h": 0.45
+  },
+  {
+    "page": 2,
+    "text": "One sign-in, Nexus sidebar, consistent roles, client isolation, deep links and mobile layouts.",
+    "x": 3.24,
+    "y": 4.39,
+    "w": 4.04,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "Geo must price Firebase auth, database/rules, files, functions and current chat/tasks/notifications parity.",
+    "x": 7.59,
+    "y": 4.39,
+    "w": 5.08,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "Production operations",
+    "x": 0.65,
+    "y": 4.9799999999999995,
+    "w": 2.28,
+    "h": 0.45
+  },
+  {
+    "page": 2,
+    "text": "Scheduled jobs, retries, audit logs, rollback, alerts, secrets, backups and a named support owner.",
+    "x": 3.24,
+    "y": 4.9799999999999995,
+    "w": 4.04,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "H2 reports jobs lasting 55-75 minutes. Use durable workers, not long browser requests or laptop processes.",
+    "x": 7.59,
+    "y": 4.9799999999999995,
+    "w": 5.08,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "GEO REP: QUOTE THE WHOLE HANDOVER",
+    "x": 0.5,
+    "y": 5.66,
+    "w": 5.9,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Discovery + code integration + any AWS replatforming + data transfer + parallel testing + training + ongoing support. Separate one-off and recurring fees.",
+    "x": 0.5,
+    "y": 5.98,
+    "w": 5.9,
+    "h": 0.51
+  },
+  {
+    "page": 2,
+    "text": "MERIDIAN: COST THE REMAINING WORK",
+    "x": 6.91,
+    "y": 5.66,
+    "w": 5.92,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Reuse Firebase. Integration cost = remaining engineering/test days x approved internal rate, plus operating cover. Existing staff time is not free.",
+    "x": 6.91,
+    "y": 5.98,
+    "w": 5.92,
+    "h": 0.59
+  },
+  {
+    "page": 2,
+    "text": "Acceptance: source-design parity + reconciled data + all workflows in one portal, not separate embedded applications.",
+    "x": 0.66,
+    "y": 6.745,
+    "w": 12,
+    "h": 0.23
+  },
+  {
+    "page": 2,
+    "text": "H1: Call Cycle handover",
+    "x": 1.98,
+    "y": 7.21,
+    "w": 2.2,
+    "h": 0.19
+  },
+  {
+    "page": 2,
+    "text": "H2: Stock Fix handover, 6 Sep 2026",
+    "x": 4.34,
+    "y": 7.21,
+    "w": 3.04,
+    "h": 0.19
+  },
+  {
+    "page": 2,
+    "text": "Source designs + current Nexus: scope baseline, not a fresh audit",
+    "x": 7.54,
+    "y": 7.21,
+    "w": 4.25,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "NEXUS  /  DATA & APPLICATION OWNERSHIP",
+    "x": 2.35,
+    "y": 0.24,
+    "w": 6.1,
+    "h": 0.22
+  },
+  {
+    "page": 3,
+    "text": "CEO & MD  |  13 SEPTEMBER 2026",
+    "x": 9.05,
+    "y": 0.24,
+    "w": 3.78,
+    "h": 0.22
+  },
+  {
+    "page": 3,
+    "text": "Compare the costs without hiding integration effort",
+    "x": 0.5,
+    "y": 0.94,
+    "w": 12.33,
+    "h": 0.49
+  },
+  {
+    "page": 3,
+    "text": "Catalyst: supplier email. Geo Rep: no quote. Meridian: Google Cloud infrastructure allowance only, not a total project price.",
+    "x": 0.5,
+    "y": 1.52,
+    "w": 12.33,
+    "h": 0.44
+  },
+  {
+    "page": 3,
+    "text": "CONFIDENTIAL",
+    "x": 0.5,
+    "y": 7.23,
+    "w": 1.3,
+    "h": 0.17
+  },
+  {
+    "page": 3,
+    "text": "3 / 5",
+    "x": 12.12,
+    "y": 7.18,
+    "w": 0.71,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "CATALYST | QUOTED",
+    "x": 0.5,
+    "y": 2.25,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "R25,000 / month",
+    "x": 0.5,
+    "y": 2.59,
+    "w": 3.89,
+    "h": 0.35
+  },
+  {
+    "page": 3,
+    "text": "Retainer: 2-4 days expected effort; operations, fixes and some small changes. Reviewed periodically.",
+    "x": 0.5,
+    "y": 3.04,
+    "w": 3.89,
+    "h": 0.57
+  },
+  {
+    "page": 3,
+    "text": "R60,000 once-off, excl VAT",
+    "x": 0.5,
+    "y": 3.72,
+    "w": 3.89,
+    "h": 0.23
+  },
+  {
+    "page": 3,
+    "text": "API: 5-8 workdays; full raw history/export not confirmed. Nexus configuration excluded.",
+    "x": 0.5,
+    "y": 4.05,
+    "w": 3.89,
+    "h": 0.53
+  },
+  {
+    "page": 3,
+    "text": "GEO REP | QUOTE REQUIRED",
+    "x": 4.72,
+    "y": 2.25,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "Not yet priced",
+    "x": 4.72,
+    "y": 2.59,
+    "w": 3.89,
+    "h": 0.35
+  },
+  {
+    "page": 3,
+    "text": "Request a fixed scope for integrating Carin + Nexus, retailer ETL, data migration and hosting.",
+    "x": 4.72,
+    "y": 3.04,
+    "w": 3.89,
+    "h": 0.57
+  },
+  {
+    "page": 3,
+    "text": "Separate monthly charges",
+    "x": 4.72,
+    "y": 3.72,
+    "w": 3.89,
+    "h": 0.23
+  },
+  {
+    "page": 3,
+    "text": "Hosting, support/SLA, API and field licences; identify overlap with current Geo fees.",
+    "x": 4.72,
+    "y": 4.05,
+    "w": 3.89,
+    "h": 0.53
+  },
+  {
+    "page": 3,
+    "text": "MERIDIAN | CLOUD ONLY",
+    "x": 8.94,
+    "y": 2.25,
+    "w": 3.89,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "R6,000-15,000 / month",
+    "x": 8.94,
+    "y": 2.59,
+    "w": 3.89,
+    "h": 0.35
+  },
+  {
+    "page": 3,
+    "text": "Indicative infrastructure budget; R72,000-180,000 per year at the same usage. Excludes VAT.",
+    "x": 8.94,
+    "y": 3.04,
+    "w": 3.89,
+    "h": 0.57
+  },
+  {
+    "page": 3,
+    "text": "Integration is additional effort",
+    "x": 8.94,
+    "y": 3.72,
+    "w": 3.89,
+    "h": 0.23
+  },
+  {
+    "page": 3,
+    "text": "Existing staff capacity, not free work. Finance must value the remaining backlog and support cover.",
+    "x": 8.94,
+    "y": 4.05,
+    "w": 3.89,
+    "h": 0.53
+  },
+  {
+    "page": 3,
+    "text": "FIRST-YEAR COMPARISON: NO CLAIM OF SAVINGS",
+    "x": 0.5,
+    "y": 4.94,
+    "w": 6,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "Catalyst: R300k retainer; R360k with API.*\nMeridian lake + Catalyst kept for 12 months + API:\nR432k-540k, before other excluded costs.*",
+    "x": 0.5,
+    "y": 5.29,
+    "w": 5.93,
+    "h": 0.7
+  },
+  {
+    "page": 3,
+    "text": "*Assumes the R25k retainer is ex VAT (not stated in email), unchanged for 12 months; API purchased once. Confirm tax, hosting inclusions and outstanding project fees.",
+    "x": 0.5,
+    "y": 6.08,
+    "w": 5.93,
+    "h": 0.52
+  },
+  {
+    "page": 3,
+    "text": "Meridian excludes labour, migration, paid support, source/API fees, AI/IR, WhatsApp, devices and regional-disaster failover. These are not zero-cost items.",
+    "x": 0.5,
+    "y": 6.66,
+    "w": 5.93,
+    "h": 0.34
+  },
+  {
+    "page": 3,
+    "text": "GOOGLE CLOUD: MONTHLY PLANNING ALLOWANCES",
+    "x": 6.79,
+    "y": 4.94,
+    "w": 6.04,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "Lake files, history and backup storage",
+    "x": 6.79,
+    "y": 5.29,
+    "w": 4.2,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "R600-R1 500",
+    "x": 11.11,
+    "y": 5.29,
+    "w": 1.72,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "BigQuery storage and analytical queries",
+    "x": 6.79,
+    "y": 5.51,
+    "w": 4.2,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "R1 000-R3 000",
+    "x": 11.11,
+    "y": 5.51,
+    "w": 1.72,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "APIs, ETL jobs and operational data",
+    "x": 6.79,
+    "y": 5.73,
+    "w": 4.2,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "R1 800-R4 000",
+    "x": 11.11,
+    "y": 5.73,
+    "w": 1.72,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "Logs, secrets and security services",
+    "x": 6.79,
+    "y": 5.95,
+    "w": 4.2,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "R600-R1 500",
+    "x": 11.11,
+    "y": 5.95,
+    "w": 1.72,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "Network, serving and fixed outbound IP",
+    "x": 6.79,
+    "y": 6.17,
+    "w": 4.2,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "R1 000-R2 500",
+    "x": 11.11,
+    "y": 6.17,
+    "w": 1.72,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "Subtotal R5,000-12,500 + 20% reserve = R6,000-15,000",
+    "x": 6.79,
+    "y": 6.48,
+    "w": 6.04,
+    "h": 0.22
+  },
+  {
+    "page": 3,
+    "text": "Planning range, not a regional quote. Validate page-5 sizing with actual usage.",
+    "x": 6.79,
+    "y": 6.78,
+    "w": 6.04,
+    "h": 0.22
+  },
+  {
+    "page": 3,
+    "text": "E1: RE Info Needed.msg, 8 Sep 2026",
+    "x": 1.98,
+    "y": 7.21,
+    "w": 3,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "Storage rates",
+    "x": 5.140000000000001,
+    "y": 7.21,
+    "w": 1.1,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "BigQuery rates",
+    "x": 6.4,
+    "y": 7.21,
+    "w": 1.2,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "Cloud Run rates",
+    "x": 7.76,
+    "y": 7.21,
+    "w": 1.29,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "Firestore rates",
+    "x": 9.209999999999999,
+    "y": 7.21,
+    "w": 1.18,
+    "h": 0.19
+  },
+  {
+    "page": 3,
+    "text": "Calculator",
+    "x": 10.549999999999999,
+    "y": 7.21,
+    "w": 0.93,
+    "h": 0.19
+  },
+  {
+    "page": 4,
+    "text": "NEXUS  /  DATA & APPLICATION OWNERSHIP",
+    "x": 2.35,
+    "y": 0.24,
+    "w": 6.1,
+    "h": 0.22
+  },
+  {
+    "page": 4,
+    "text": "CEO & MD  |  13 SEPTEMBER 2026",
+    "x": 9.05,
+    "y": 0.24,
+    "w": 3.78,
+    "h": 0.22
+  },
+  {
+    "page": 4,
+    "text": "Risk follows control, evidence and operating capacity",
+    "x": 0.5,
+    "y": 0.94,
+    "w": 12.33,
+    "h": 0.49
+  },
+  {
+    "page": 4,
+    "text": "Provisional pre-control exposure, not an audit or provider score. H = material gap / decision gate; M = manageable exposure requiring evidence.",
+    "x": 0.5,
+    "y": 1.52,
+    "w": 12.33,
+    "h": 0.44
+  },
+  {
+    "page": 4,
+    "text": "CONFIDENTIAL",
+    "x": 0.5,
+    "y": 7.23,
+    "w": 1.3,
+    "h": 0.17
+  },
+  {
+    "page": 4,
+    "text": "4 / 5",
+    "x": 12.12,
+    "y": 7.18,
+    "w": 0.71,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "RISK",
+    "x": 0.62,
+    "y": 2.22,
+    "w": 1.76,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "CATALYST",
+    "x": 2.62,
+    "y": 2.22,
+    "w": 1.49,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "GEO REP",
+    "x": 4.3500000000000005,
+    "y": 2.22,
+    "w": 1.49,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "MERIDIAN",
+    "x": 6.08,
+    "y": 2.22,
+    "w": 1.49,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "CONTROL / ACCOUNTABLE OWNER",
+    "x": 7.8100000000000005,
+    "y": 2.22,
+    "w": 4.8999999999999995,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "Feed / ETL continuity",
+    "x": 0.62,
+    "y": 2.61,
+    "w": 1.76,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "M | existing feeds",
+    "x": 2.62,
+    "y": 2.61,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | new pipeline",
+    "x": 4.3500000000000005,
+    "y": 2.61,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | new imports",
+    "x": 6.08,
+    "y": 2.61,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Parallel daily + monthly reconciliation; preserve source rights. BI + integration lead.",
+    "x": 7.8100000000000005,
+    "y": 2.61,
+    "w": 4.8999999999999995,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Handover / parity",
+    "x": 0.62,
+    "y": 3.0549999999999997,
+    "w": 1.76,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | not in quote",
+    "x": 2.62,
+    "y": 3.0549999999999997,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | scope unpriced",
+    "x": 4.3500000000000005,
+    "y": 3.0549999999999997,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "M | reuse, then test",
+    "x": 6.08,
+    "y": 3.0549999999999997,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Module register; one-portal regression and field workflow tests. Software & AI lead.",
+    "x": 7.8100000000000005,
+    "y": 3.0549999999999997,
+    "w": 4.8999999999999995,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Data / IP lock-in",
+    "x": 0.62,
+    "y": 3.5,
+    "w": 1.76,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | export unclear",
+    "x": 2.62,
+    "y": 3.5,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | concentrated",
+    "x": 4.3500000000000005,
+    "y": 3.5,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "M | direct control",
+    "x": 6.08,
+    "y": 3.5,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Raw/history export rights; code assignments; tested exit. Legal + executive sponsor.",
+    "x": 7.8100000000000005,
+    "y": 3.5,
+    "w": 4.8999999999999995,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Security / privacy",
+    "x": 0.62,
+    "y": 3.945,
+    "w": 1.76,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | unverified",
+    "x": 2.62,
+    "y": 3.945,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | unverified",
+    "x": 4.3500000000000005,
+    "y": 3.945,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | configuration",
+    "x": 6.08,
+    "y": 3.945,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Admin MFA, client isolation, secret rotation, operator agreements. IT + Information Officer.",
+    "x": 7.8100000000000005,
+    "y": 3.945,
+    "w": 4.8999999999999995,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Outage / recovery",
+    "x": 0.62,
+    "y": 4.39,
+    "w": 1.76,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | SLA unmeasured",
+    "x": 2.62,
+    "y": 4.39,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | SLA unknown",
+    "x": 4.3500000000000005,
+    "y": 4.39,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | single region",
+    "x": 6.08,
+    "y": 4.39,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Restore proof, recovery targets and region-outage response. IT + service operator.",
+    "x": 7.8100000000000005,
+    "y": 4.39,
+    "w": 4.8999999999999995,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Support / key person",
+    "x": 0.62,
+    "y": 4.835,
+    "w": 1.76,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "M | retainer limits",
+    "x": 2.62,
+    "y": 4.835,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | combined reliance",
+    "x": 4.3500000000000005,
+    "y": 4.835,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | staff dependence",
+    "x": 6.08,
+    "y": 4.835,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Named deputy, incident cover, release controls and runbooks. Delivery owner.",
+    "x": 7.8100000000000005,
+    "y": 4.835,
+    "w": 4.8999999999999995,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Freshness / cost drift",
+    "x": 0.62,
+    "y": 5.279999999999999,
+    "w": 1.76,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "M | reviewable fee",
+    "x": 2.62,
+    "y": 5.279999999999999,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "H | quote + tests due",
+    "x": 4.3500000000000005,
+    "y": 5.279999999999999,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "M | usage exposure",
+    "x": 6.08,
+    "y": 5.279999999999999,
+    "w": 1.49,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "Freshness/latency tests, spend monitoring, quotas and price scope. BI + Finance.",
+    "x": 7.8100000000000005,
+    "y": 5.279999999999999,
+    "w": 4.8999999999999995,
+    "h": 0.32
+  },
+  {
+    "page": 4,
+    "text": "OWNERSHIP IS A CONTRACT + CONTROL, NOT A HOSTING LABEL",
+    "x": 0.5,
+    "y": 5.86,
+    "w": 7.09,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "Meridian-controlled billing, repositories and recovery access; written rights to custom code, historical data, mappings and exports. Supplier and open-source IP remains subject to its licence.",
+    "x": 0.5,
+    "y": 6.17,
+    "w": 7.09,
+    "h": 0.52
+  },
+  {
+    "page": 4,
+    "text": "SECURITY GATES APPLY TO ALL THREE",
+    "x": 8,
+    "y": 5.86,
+    "w": 4.83,
+    "h": 0.24
+  },
+  {
+    "page": 4,
+    "text": "Read-only APIs can still leak data. Keep keys server-side; review AI-generated code and enforce user-scoped AI access. Hosting in JHB is not a POPIA guarantee.",
+    "x": 8,
+    "y": 6.17,
+    "w": 4.83,
+    "h": 0.64
+  },
+  {
+    "page": 4,
+    "text": "Residual risks must be re-rated after evidence. Local backups do not eliminate a Johannesburg-wide outage.",
+    "x": 0.5,
+    "y": 6.85,
+    "w": 7.14,
+    "h": 0.17
+  },
+  {
+    "page": 4,
+    "text": "POPIA: ss. 19-22, 72",
+    "x": 1.98,
+    "y": 7.21,
+    "w": 1.95,
+    "h": 0.19
+  },
+  {
+    "page": 4,
+    "text": "Google shared responsibility",
+    "x": 4.09,
+    "y": 7.21,
+    "w": 2.45,
+    "h": 0.19
+  },
+  {
+    "page": 4,
+    "text": "Cloud terms: IP, section 5.1",
+    "x": 6.7,
+    "y": 7.21,
+    "w": 2.3,
+    "h": 0.19
+  },
+  {
+    "page": 4,
+    "text": "E1 + H1/H2: scope evidence",
+    "x": 9.16,
+    "y": 7.21,
+    "w": 2.33,
+    "h": 0.19
+  },
+  {
+    "page": 5,
+    "text": "NEXUS  /  DATA & APPLICATION OWNERSHIP",
+    "x": 2.35,
+    "y": 0.24,
+    "w": 6.1,
+    "h": 0.22
+  },
+  {
+    "page": 5,
+    "text": "CEO & MD  |  13 SEPTEMBER 2026",
+    "x": 9.05,
+    "y": 0.24,
+    "w": 3.78,
+    "h": 0.22
+  },
+  {
+    "page": 5,
+    "text": "Build Meridian ownership in controlled stages",
+    "x": 0.5,
+    "y": 0.94,
+    "w": 12.33,
+    "h": 0.49
+  },
+  {
+    "page": 5,
+    "text": "Recommendation: keep useful supplier feeds, retain one Nexus app, and make the Meridian-owned lake the strategic destination.",
+    "x": 0.5,
+    "y": 1.52,
+    "w": 12.33,
+    "h": 0.44
+  },
+  {
+    "page": 5,
+    "text": "CONFIDENTIAL",
+    "x": 0.5,
+    "y": 7.23,
+    "w": 1.3,
+    "h": 0.17
+  },
+  {
+    "page": 5,
+    "text": "5 / 5",
+    "x": 12.12,
+    "y": 7.18,
+    "w": 0.71,
+    "h": 0.24
+  },
+  {
+    "page": 5,
+    "text": "MERIDIAN GOOGLE CLOUD  |  JOHANNESBURG: africa-south1",
+    "x": 0.65,
+    "y": 2.18,
+    "w": 6.86,
+    "h": 0.2
+  },
+  {
+    "page": 5,
+    "text": "Incoming: authorised Catalyst / Geo feeds + retailer files + masters",
+    "x": 0.69,
+    "y": 2.63,
+    "w": 6.79,
+    "h": 0.22
+  },
+  {
+    "page": 5,
+    "text": "INGEST + VALIDATE",
+    "x": 0.7799999999999999,
+    "y": 3.24,
+    "w": 1.82,
+    "h": 0.18
+  },
+  {
+    "page": 5,
+    "text": "Cloud Run jobs",
+    "x": 0.7799999999999999,
+    "y": 3.49,
+    "w": 1.82,
+    "h": 0.18
+  },
+  {
+    "page": 5,
+    "text": "RAW + CLEAN DATA",
+    "x": 3.13,
+    "y": 3.24,
+    "w": 1.8699999999999999,
+    "h": 0.18
+  },
+  {
+    "page": 5,
+    "text": "Cloud Storage",
+    "x": 3.13,
+    "y": 3.49,
+    "w": 1.8699999999999999,
+    "h": 0.18
+  },
+  {
+    "page": 5,
+    "text": "CURATED REPORTING",
+    "x": 5.53,
+    "y": 3.24,
+    "w": 1.8699999999999999,
+    "h": 0.18
+  },
+  {
+    "page": 5,
+    "text": "BigQuery",
+    "x": 5.53,
+    "y": 3.49,
+    "w": 1.8699999999999999,
+    "h": 0.18
+  },
+  {
+    "page": 5,
+    "text": "Nexus APIs + dashboards  |  Firestore: operational data, not the data lake",
+    "x": 0.69,
+    "y": 3.91,
+    "w": 6.79,
+    "h": 0.24
+  },
+  {
+    "page": 5,
+    "text": "Google operates infrastructure; Meridian controls the account, data access and application.",
+    "x": 0.69,
+    "y": 4.2,
+    "w": 6.79,
+    "h": 0.16
+  },
+  {
+    "page": 5,
+    "text": "JOHANNESBURG, IN PLAIN LANGUAGE",
+    "x": 8.02,
+    "y": 2.14,
+    "w": 4.8,
+    "h": 0.24
+  },
+  {
+    "page": 5,
+    "text": "A controlled library of raw and cleaned data, stored in the selected Johannesburg cloud region. No office server is needed.",
+    "x": 8.02,
+    "y": 2.48,
+    "w": 4.8,
+    "h": 0.58
+  },
+  {
+    "page": 5,
+    "text": "Lake storage, analytics and workers are region-bound. Sign-in, delivery networks and external APIs/AI need separate location reviews.",
+    "x": 8.02,
+    "y": 3.14,
+    "w": 4.8,
+    "h": 0.58
+  },
+  {
+    "page": 5,
+    "text": "Keep proven calculations during relocation. Change queries/storage only after parity tests. BigQuery is a proposed target, not a completed rewrite.",
+    "x": 8.02,
+    "y": 3.81,
+    "w": 4.8,
+    "h": 0.58
+  },
+  {
+    "page": 5,
+    "text": "INDICATIVE PLAN AFTER APPROVAL + ACCESS",
+    "x": 0.5,
+    "y": 4.63,
+    "w": 7.17,
+    "h": 0.24
+  },
+  {
+    "page": 5,
+    "text": "Weeks 1-2",
+    "x": 0.5,
+    "y": 4.99,
+    "w": 1.26,
+    "h": 0.23
+  },
+  {
+    "page": 5,
+    "text": "Inventory Carin + Nexus; confirm data rights, quotations, backlog and cloud sizing.",
+    "x": 1.94,
+    "y": 4.99,
+    "w": 5.73,
+    "h": 0.3
+  },
+  {
+    "page": 5,
+    "text": "Weeks 3-4",
+    "x": 0.5,
+    "y": 5.36,
+    "w": 1.26,
+    "h": 0.23
+  },
+  {
+    "page": 5,
+    "text": "Secure JHB foundation; first authorised feed and one end-to-end module pilot.",
+    "x": 1.94,
+    "y": 5.36,
+    "w": 5.73,
+    "h": 0.3
+  },
+  {
+    "page": 5,
+    "text": "Weeks 5-8",
+    "x": 0.5,
+    "y": 5.73,
+    "w": 1.26,
+    "h": 0.23
+  },
+  {
+    "page": 5,
+    "text": "Integrate agreed modules; compare daily/monthly totals, jobs, exports and roles.",
+    "x": 1.94,
+    "y": 5.73,
+    "w": 5.73,
+    "h": 0.3
+  },
+  {
+    "page": 5,
+    "text": "Weeks 9-12",
+    "x": 0.5,
+    "y": 6.1,
+    "w": 1.26,
+    "h": 0.23
+  },
+  {
+    "page": 5,
+    "text": "Controlled rollout only after restore, parity and support acceptance; retain rollback.",
+    "x": 1.94,
+    "y": 6.1,
+    "w": 5.73,
+    "h": 0.3
+  },
+  {
+    "page": 5,
+    "text": "APPROVE NOW / RELEASE LATER",
+    "x": 8.02,
+    "y": 4.63,
+    "w": 4.8,
+    "h": 0.24
+  },
+  {
+    "page": 5,
+    "text": "Approve discovery and Meridian ownership. Get a comparable Geo quote and firm Catalyst API acceptance terms before committing the full programme.",
+    "x": 8.02,
+    "y": 4.99,
+    "w": 4.8,
+    "h": 0.64
+  },
+  {
+    "page": 5,
+    "text": "No internal cover? Keep Catalyst while procuring managed support. Do not switch off a feed until two complete reporting cycles reconcile and business owners sign off.",
+    "x": 8.02,
+    "y": 5.8,
+    "w": 4.8,
+    "h": 0.61
+  },
+  {
+    "page": 5,
+    "text": "Cloud sizing assumption: 0.5-2 TiB files incl. backups; 0.1-0.5 TiB analytical tables; 5-20 TiB scans/month; daily feeds; 100 concurrent users.\nNot measured demand or a delivery promise. All-script scope, full retailer replacement, mobile ordering, IR and WhatsApp need separate estimates.",
+    "x": 0.5,
+    "y": 6.58,
+    "w": 12.33,
+    "h": 0.42
+  },
+  {
+    "page": 5,
+    "text": "Storage",
+    "x": 1.98,
+    "y": 7.21,
+    "w": 0.76,
+    "h": 0.19
+  },
+  {
+    "page": 5,
+    "text": "BigQuery",
+    "x": 2.9,
+    "y": 7.21,
+    "w": 0.87,
+    "h": 0.19
+  },
+  {
+    "page": 5,
+    "text": "Cloud Run",
+    "x": 3.9299999999999997,
+    "y": 7.21,
+    "w": 0.92,
+    "h": 0.19
+  },
+  {
+    "page": 5,
+    "text": "Firestore",
+    "x": 5.01,
+    "y": 7.21,
+    "w": 0.89,
+    "h": 0.19
+  },
+  {
+    "page": 5,
+    "text": "Firebase location limits",
+    "x": 6.06,
+    "y": 7.21,
+    "w": 1.97,
+    "h": 0.19
+  },
+  {
+    "page": 5,
+    "text": "Plan + estimates: Meridian assumptions",
+    "x": 8.19,
+    "y": 7.21,
+    "w": 3.22,
+    "h": 0.19
+  }
+]

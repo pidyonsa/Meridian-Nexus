@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+import {geoMercator,geoPath} from 'd3-geo';
+import {feature} from 'topojson-client';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const bytes=fs.readFileSync(path.resolve(root,'../public/sales-insights-source/assets/sa-provinces.topo.json'));
+const topology=JSON.parse(bytes),all=feature(topology,topology.objects.ZAF_adm1);
+all.features=all.features.filter(f=>!f.properties.NAME_1.toLowerCase().includes('isolated'));
+if(all.features.length!==9)throw Error('Expected the nine South African provinces');
+const projection=geoMercator().fitExtent([[22,22],[618,530]],all),draw=geoPath(projection).digits(2);
+const provinces=all.features.map(f=>({name:f.properties.NAME_1,path:draw(f),label:draw.centroid(f).map(n=>Number(n.toFixed(2)))}));
+const data={viewBox:'0 0 640 552',source:'Sales Insights / ZAF_adm1',sourceSha256:crypto.createHash('sha256').update(bytes).digest('hex'),provinces};
+fs.writeFileSync(path.join(root,'public/province-geometry.js'),`globalThis.FranchiseProvinceGeometry=${JSON.stringify(data)};\n`);

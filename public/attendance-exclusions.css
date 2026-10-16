@@ -1,0 +1,21 @@
+.aex { min-width:0; padding:20px 0; color:#edf4fa; }
+.aex * { box-sizing:border-box; letter-spacing:0; }
+.aex-heading,.aex section>header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.aex h2 { margin:0; font-size:22px; }.aex h3 { margin:0; font-size:16px; }
+.aex .eyebrow { color:#ff862f; }.aex-status { min-height:22px; font-size:13px; color:#acc7da; }
+.aex fieldset { min-width:0; border:0; padding:0; margin:0; }
+.aex-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.aex label { display:grid; gap:6px; font-size:13px; }.aex .aex-reason { grid-column:1/-1; }
+.aex input:not([type=checkbox]),.aex select { width:100%; min-width:0; min-height:40px; padding:8px 10px; border:1px solid #38576c; border-radius:6px; background:#0c2338; color:#edf4fa; }
+.aex .aex-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:12px 0; }
+.aex button,.aex-import { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; padding:8px 12px; border:1px solid #38576c; border-radius:6px; color:#edf4fa; background:#142c40; cursor:pointer; font-size:13px; }
+.aex button.primary-action { background:#ed761d; color:#071729; border-color:#ed761d; font-weight:700; }
+.aex button:disabled { opacity:.5; cursor:default; }.aex button[aria-label] { width:40px; padding:8px; }
+.aex-import input { max-width:245px; }.aex input[type=checkbox] { width:18px; height:18px; accent-color:#f58220; }
+.aex-list,.aex-preview,.aex-history { margin-top:24px; padding:20px 0; border-top:1px solid #38576c; }
+.aex-table { overflow:auto; max-height:480px; margin:14px 0; }.aex table { width:100%; border-collapse:collapse; font-size:13px; text-align:left; }
+.aex th { position:sticky; top:0; background:#0d263d; z-index:1; }.aex th,.aex td { padding:12px; border-bottom:1px solid #29485b; vertical-align:top; }
+.aex td small { display:block; color:#a2becf; margin-top:5px; }.aex section>header span { color:#a2becf; font-size:12px; }
+.aex label.aex-confirm { display:flex; align-items:flex-start; line-height:1.5; }.aex-confirm input { flex-shrink:0; }
+.aex-history summary { cursor:pointer; }.aex-history p { font-size:12px; }.aex :focus-visible { outline:2px solid #75c8ef; outline-offset:2px; }
+@media(max-width:600px) { .aex-fields { grid-template-columns:minmax(0,1fr); }.aex-table table { min-width:640px; }.aex-import { flex-wrap:wrap; justify-content:flex-start; max-width:100%; }.aex-import input { max-width:100%; }.aex h2 { font-size:20px; } }

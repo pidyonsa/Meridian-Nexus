@@ -1,0 +1,42 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+module.exports=async function testJobStatus(page){
+  const out=path.resolve(__dirname,'../../.tmp/job-status-verification');fs.mkdirSync(out,{recursive:true});
+  const toggle='#franchiseOrderView [data-job-status-toggle]';
+  const geometry=()=>page.evaluate(()=>{const box=e=>{const b=e.getBoundingClientRect();return [b.x,b.y,b.width,b.height];};return {page:box(document.getElementById('franchiseOrders')),nav:box(document.querySelector('#franchiseOrderView aside')),height:document.documentElement.scrollHeight,scroll:scrollY,sidebarScroll:document.querySelector('#franchiseOrderView aside').scrollTop};});
+  const running=(id='test-job',extra={})=>page.evaluate(({id,extra})=>renderExtractionRun({id,status:'running',retailerName:'Salesforce attendance',currentStep:3,createdAt:new Date().toISOString(),startedAt:new Date().toISOString(),message:'Reading the monthly workbook. '+('Status details '.repeat(4)),createdByName:'Synthetic staff member',...extra},{passive:true}),{id,extra});
+  await page.waitForSelector(toggle);assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),true);
+  const before=await geometry();await running();assert.deepEqual(await geometry(),before,'Background job updates must not move the dashboard or sidebar');
+  assert.equal(await page.$eval('#extractionStatus',e=>e.parentElement.tagName),'BODY');assert.equal(await page.$eval(toggle,e=>e.getAttribute('aria-expanded')),'false');
+  const initialAborts=await page.evaluate(()=>foTest.calls.filter(c=>c.name==='abortExtraction').length);
+  await page.click(toggle);assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),false);assert.equal(await page.$eval('#extractionStatus',e=>getComputedStyle(e).position),'fixed');assert.deepEqual(await geometry(),before);
+  assert.equal(await page.evaluate(()=>document.querySelectorAll('dialog[open]').length),0,'Status is non-modal');
+  const overlap=await page.evaluate(()=>{const p=document.getElementById('extractionStatus').getBoundingClientRect(),s=document.querySelector('#franchiseOrderView aside').getBoundingClientRect();return p.left<s.right&&p.right>s.left&&p.top<s.bottom&&p.bottom>s.top;});assert.equal(overlap,false,'Panel must not cover desktop navigation');
+  await page.screenshot({path:path.join(out,'desktop-open.png')});
+  await page.click('#extractionStatusHide');assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),true);await running('test-job',{currentStep:4});assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),true,'Updates cannot reopen a hidden panel');
+  await page.click(toggle);await page.keyboard.press('Escape');assert.equal(await page.$eval(toggle,e=>document.activeElement===e),true);assert.deepEqual(await geometry(),before);
+  await page.click(toggle);await page.click('[data-fo-filter="region"]');assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),true);await page.keyboard.press('Escape');
+  await page.click(toggle);await page.$eval('#franchiseOrders',e=>e.scrollTo(0,350));await page.waitForFunction(()=>document.getElementById('extractionStatus').hidden);await page.$eval('#franchiseOrders',e=>e.scrollTo(0,0));
+  await page.click(toggle);await page.evaluate(()=>{location.hash='automation';});await page.waitForFunction(()=>location.hash==='#automation');assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),true);
+  await page.evaluate(()=>{location.hash='franchiseorder';});await page.waitForSelector('.fo-kpi');
+  await page.click(toggle);await page.evaluate(()=>{window.jobOriginalTimeout=window.setTimeout;window.setTimeout=(fn,ms,...args)=>jobOriginalTimeout(fn,ms===12000?40:ms,...args);});
+  await running('old-job',{status:'completed',message:'The report is ready.'});await running('next-job');await new Promise(r=>setTimeout(r,100));
+  assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),false,'Old completion timers cannot hide a newer run');await page.evaluate(()=>{window.setTimeout=jobOriginalTimeout;delete window.jobOriginalTimeout;});
+  assert.equal(await page.evaluate(()=>foTest.calls.filter(c=>c.name==='abortExtraction').length),initialAborts,'Hide/show/navigation must never stop a job');
+  await page.click('#extractionStatusHide');
+  for(const width of [1024,768,640,390,320]){
+    await page.setViewport({width,height:844});await new Promise(r=>setTimeout(r,80));const initial=await geometry();await running('mobile-job',{message:'A long extraction update '+('long detail '.repeat(80))});assert.deepEqual(await geometry(),initial);
+    await page.$eval(toggle,e=>e.click());
+    const b=await page.$eval('#extractionStatus',e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:e.clientWidth,scrollWidth:e.scrollWidth,clientHeight:e.clientHeight,scrollHeight:e.scrollHeight};});
+    assert.ok(b.x>=0&&b.y>=0&&b.right<=width&&b.bottom<=844,JSON.stringify(b));assert.ok(b.scrollWidth<=b.width+1,JSON.stringify(b));assert.deepEqual(await geometry(),initial,'Opening the panel cannot reflow the page');
+    await page.$eval('#extractionStatus',e=>e.scrollTo(0,e.scrollHeight));await new Promise(r=>setTimeout(r,50));assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),false,'Scrolling status details keeps the panel open');
+    assert.equal(await page.$eval('#extractionStatusHide',e=>{const b=e.getBoundingClientRect();return document.elementFromPoint(b.x+b.width/2,b.y+b.height/2)===e||e.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),true,'Close stays reachable with long messages');await page.$eval('#extractionStatus',e=>e.scrollTo(0,0));
+    await page.screenshot({path:path.join(out,`open-${width}.png`)});await page.$eval('#extractionStatusHide',e=>e.click());
+  }
+  await page.setViewport({width:1440,height:1000});await running('abort-test');await page.$eval(toggle,e=>e.click());
+  page.once('dialog',dialog=>dialog.accept());await page.click('#extractionStatusAbort');await page.waitForFunction(()=>foTest.calls.some(c=>c.name==='abortExtraction'));
+  assert.equal(await page.evaluate(()=>foTest.calls.filter(c=>c.name==='abortExtraction').length),initialAborts+1);
+  await page.evaluate(()=>{NexusJobStatus.identity(null);renderExtractionRun({id:'late',status:'running'},{passive:true});});assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),true);assert.equal(await page.$eval(toggle,e=>e.hidden),true);assert.ok(!(await page.$eval('#extractionStatus',e=>e.textContent)).includes('monthly workbook'));
+  await page.evaluate(()=>{NexusJobStatus.identity('normal');renderExtractionRun(null,{passive:true});});assert.equal(await page.$eval('#extractionStatus',e=>e.hidden),true);
+  fs.writeFileSync(path.join(out,'passed.json'),JSON.stringify({passed:true,defaultCollapsed:true,layoutStable:true,desktopMobile:true,sessionCleared:true,abortUnaffected:true},null,2));
+  console.log('PASS: job status hide/show, updates, escape/outside click, route changes, no page reflow, desktop/mobile bounds, session clearing and explicit abort.');
+};

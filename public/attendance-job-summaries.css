@@ -1,0 +1,50 @@
+.attendance-job-summaries { min-width: 0; padding: 24px 0 48px; }
+.attendance-job-summaries [hidden] { display: none !important; }
+.attendance-job-summaries * { letter-spacing: 0; }
+.job-summary-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.job-summary-heading h1 { margin: 4px 0; font-size: 28px; }
+.job-summary-heading p { margin: 6px 0; color: #98b5cb; font-size: 12px; }
+.job-summary-heading .eyebrow { color: #f58220; }
+.job-summary-heading button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; flex: 0 0 44px; font-size: 20px; }
+#attendanceJobSummaryStatus { display: block; }
+.job-summary-toolbar { display: flex; align-items: center; gap: 16px; margin-top: 22px; border-bottom: 1px solid #234463; }
+.job-summary-toolbar > button { width: 40px; height: 40px; padding: 0; flex: 0 0 40px; font-size: 20px; }
+.job-summary-tabs { display: flex; flex: 1; gap: 24px; }
+body:has(#attendanceDashboardView.attendance-jobs-active:not([hidden])) #nexusAssistantToggle { display: none !important; }
+.job-summary-tabs button { min-height: 44px; padding: 8px 12px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; color: #a5bfd4; background: transparent; font: inherit; font-size: 13px; font-weight: 700; }
+.job-summary-tabs button[aria-selected="true"] { color: #fff; border-bottom-color: #f58220; }
+.job-summary-tabs button:focus-visible { outline: 2px solid #71b7ed; outline-offset: -2px; }
+.job-summary-kpis { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 20px 0; }
+.job-summary-kpis article { min-width: 0; padding: 18px; border: 1px solid #264867; border-top: 3px solid #f58220; border-radius: 6px; background: #0b2036; }
+.job-summary-kpis article:nth-child(3n+2) { border-top-color: #65b2e4; }
+.job-summary-kpis article:nth-child(3n) { border-top-color: #25b874; }
+.job-summary-kpis span { display: block; min-height: 32px; color: #a5bfd4; font-size: 12px; }
+.job-summary-kpis strong { display: block; color: #fff; font-size: 28px; line-height: 1.3; overflow-wrap: anywhere; }
+.attendance-job-summaries .sales-chart-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; margin: 0; }
+.job-summary-section { min-width: 0; padding: 20px 0; border-top: 1px solid #234463; }
+.job-summary-section.sales-chart-wide { grid-column: 1 / -1; }
+.job-summary-section header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.job-summary-section h2 { margin: 0; font-size: 16px; color: #eef7fd; }
+.job-summary-section header span,.job-summary-note { color: #98b5cb; font-size: 12px; }
+.job-summary-section .sales-order-table-wrap { max-height: 460px; }
+.job-summary-section .sales-order-table-wrap table { font-size: 12px; }
+.job-summary-section .sales-order-table-wrap th { font-size: 10px; position: sticky; top: 0; z-index: 1; background: #0b2036; }
+.job-summary-section .sales-order-table-wrap td { text-align: left; font-weight: 400; }
+.job-summary-section .sales-bars { margin-top: 16px; max-height: 330px; overflow: auto; }
+.job-summary-section .sales-bar-row strong { font-size: 12px; }
+.job-summary-section .sales-bar-row span { font-size: 11px; white-space: normal; }
+.job-summary-section .sales-monthly-snapshot-grid strong { white-space: normal; overflow-wrap: anywhere; }
+.job-summary-section .sales-monthly-snapshot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.job-summary-section .sales-monthly-snapshot-actions a,.job-summary-section .sales-monthly-snapshot-actions button { white-space: normal; }
+.attendance-jobs-active #attendanceStandardHeader,.attendance-jobs-active #attendanceStandardControls { display: none !important; }
+@media (max-width: 700px) {
+  .job-summary-heading { align-items: flex-start; }
+  .job-summary-heading h1 { font-size: 24px; }
+  .job-summary-heading button { min-width: 40px; padding: 10px; }
+  .job-summary-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .job-summary-kpis article { padding: 12px; }
+  .job-summary-kpis strong { font-size: 24px; }
+  .job-summary-section .sales-bar-row > div { display: grid; grid-template-columns: minmax(0,1fr); gap: 4px; }
+  .attendance-job-summaries .sales-chart-grid { grid-template-columns: minmax(0,1fr); }
+  .attendance-job-summaries .sales-monthly-snapshot-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}

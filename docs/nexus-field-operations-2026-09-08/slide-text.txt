@@ -1,0 +1,203 @@
+NEXUS  /  FIELD OPERATIONS
+
+CEO & MD  |  08 SEPTEMBER 2026
+
+Meridian Nexus, built around the store visit
+
+Sales reps and merchandisers are the primary users. Managers and clients use the evidence to guide action.
+
+CONFIDENTIAL  |  1. NEXUS TARGET ARCHITECTURE
+
+1 / 3
+
+MERIDIAN NEXUS  |  AWS, GEO REP-OPERATED
+
+FIELD AGENTS
+
+Geo Rep mobile + API
+Nexus Field proposed
+
+OFFICE + CLIENTS
+
+Nexus web dashboards
+Existing sidebar retained
+
+Secure APIs + sign-in
+
+Workflows + background jobs
+
+Orders + tasks
+
+Operational database
+
+Photos + files
+
+Amazon S3
+
+Sales + inventory
+
+Analytics data layer
+
+Client isolation  |  Monitoring  |  Backups  |  Protected credentials
+
+What field teams need
+
+SALES REPS
+
+Call cycle and store context;
+quotes, orders and returns;
+clear approval and fulfilment status.
+
+MERCHANDISERS
+
+Attendance, shelf availability,
+price and promotion checks;
+Stock Fix tasks with photo proof.
+
+FIELD VALUE
+
+Accepted orders, verified shelf work
+and clear ownership of follow-ups.
+Measure coverage, availability
+and task closure.
+
+NON-NEGOTIABLE
+
+Offline capture, reliable photo sync,
+one sign-in and client/store access.
+About 1,000 total users; field, office
+and client licence split to confirm.
+
+HOSTING DECISION
+
+Move Nexus to AWS with Geo Rep.
+Meridian-owned account recommended;
+controlled provider access. Account
+ownership and operating scope: TBC.
+
+Target architecture, not a completed migration. AWS SA Region: Cape Town (af-south-1); Geo Rep region to confirm. [1]
+
+NEXUS  /  FIELD OPERATIONS
+
+CEO & MD  |  08 SEPTEMBER 2026
+
+Geo Rep should run the field experience
+
+Build on the existing product; accept the mobile-to-Nexus workflow only after a representative field pilot.
+
+CONFIDENTIAL  |  2. GEO REP DELIVERY AND ACCEPTANCE
+
+2 / 3
+
+FIELD MOBILE APP
+
+Offline visits, photos and orders
+Nexus Field branding proposed
+
+EXTERNAL GEO REP  |  AWS
+
+Field records and mobile sync
+Visits, attendance, forms, tasks, orders
+
+Existing product; Meridian API scope to confirm
+
+API
+
+MERIDIAN NEXUS  |  AWS
+
+Exceptions, Insights and client evidence
+
+Task / order write-back
+API access to prove
+
+Geo Rep advertises offline field capture and sales [2]. API access, LMS feeds, SSO and white-label rights require confirmation.
+
+BENEFIT / DISADVANTAGE
+
+Reuse established field workflows.
+Reduce duplicate capture and app
+switching. Trade-off: dependence
+on the supplier, its API and licences.
+
+PILOT ACCEPTANCE
+
+Capture offline for a full shift.
+Recover photo queues after restart.
+Retry without duplicate orders.
+Test speed on actual field devices.
+
+SECURITY + SERVICE
+
+Client isolation; encrypted device data.
+Lost-device controls; scoped GPS use.
+Named support and incident SLAs.
+Prove backups and restoration.
+
+Geo Rep operates the service; Meridian retains product decisions, data access and release acceptance.
+
+NEXUS  /  FIELD OPERATIONS
+
+CEO & MD  |  08 SEPTEMBER 2026
+
+Catalyst data must drive action in store
+
+Retailer sales and inventory identify the issue; the field visit verifies it, resolves it and provides evidence.
+
+3 / 3
+
+RETAILERS
+
+Clicks, Shoprite + others
+Sales + inventory exports
+
+CATALYST  |  AWS
+
+External service provider
+API access pending
+
+NEXUS  |  AWS
+
+Validate store / product data
+Insights + Stock Fix priorities
+
+FIELD EXECUTION
+
+Task, shelf check and photo proof
+Manager confirms closure
+
+RETAILER SOURCE
+
+SUPPLIER BOUNDARY
+
+MERIDIAN BUSINESS RULES
+
+GEO REP MOBILE / NEXUS FIELD
+
+Completion evidence returns to Nexus
+
+Retailer sell-out is not rep-captured orders. Show source dates; daily feeds are not real-time.
+
+BENEFITS + RISKS
+
+Focus visits on stock and sales gaps.
+Risk: stale feeds, retailer access
+changes and incorrect SKU mapping.
+Retain source lineage and retry alerts.
+
+COSTS: QUOTE REQUIRED
+
+36-month total: AWS + field licences
++ support + retailer feeds + migration
++ AI, image recognition and WhatsApp.
+Track cost per field user / store visit.
+
+APPROVAL GATES
+
+1  Pilot Stock Fix; retain current service.
+2  Reconcile feeds and test recovery.
+3  Prove ordering, then AI / IR / WhatsApp.
+Replace Catalyst only after acceptance.
+
+Approve a scoped Geo Rep-managed AWS pilot, not an unconditional platform handover.
+
+AWS consumption is usage-priced [3]; supplier fees, volumes and an approved budget remain unconfirmed.

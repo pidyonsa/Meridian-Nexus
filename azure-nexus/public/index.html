@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meridian Nexus</title>
+  <link rel="icon" href="/assets/meridian-logo.png">
+  <link rel="stylesheet" href="/vendor/icons/style.css">
+  <link rel="stylesheet" href="/attendance-base.css"><link rel="stylesheet" href="/attendance.css">
+  <link rel="stylesheet" href="/orders.css"><link rel="stylesheet" href="/shell.css">
+  <script defer src="/attendance.js"></script><script defer src="/orders.js"></script><script defer src="/shell.js"></script>
+</head>
+<body>
+  <aside id="sidebar" aria-label="Main navigation">
+    <a href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" class="brand" data-portal-home aria-label="Meridian Nexus home" title="Home"><img src="/assets/meridian-logo.png" alt="Meridian Group"></a>
+    <div class="workspace-label">NEXUS</div>
+    <nav>
+      <a href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" class="portal-home" data-portal-home><i class="ph ph-house" aria-hidden="true"></i> Home</a>
+      <details id="attendance-tree"><summary><i class="ph ph-chart-bar" aria-hidden="true"></i> Time &amp; Attendance</summary><div id="attendance-nav"></div></details>
+      <details id="orders-tree"><summary><i class="ph ph-shopping-cart" aria-hidden="true"></i> Franchise Orders</summary><div id="orders-nav"></div></details>
+    </nav>
+    <footer><a href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" class="portal-back" data-portal-back><i class="ph ph-arrow-left" aria-hidden="true"></i> Back to portal</a><span id="user-name"></span><button id="sources" hidden><i class="ph ph-database" aria-hidden="true"></i> Data imports</button><a href="/.auth/logout?post_logout_redirect_uri=/" id="sign-out"><i class="ph ph-sign-out" aria-hidden="true"></i> Sign out</a></footer>
+  </aside>
+  <div class="workspace">
+    <div id="preview-banner" hidden>LOCAL PREVIEW - SYNTHETIC TEST DATA</div>
+    <div class="mobile-bar"><button id="nav-toggle" aria-label="Open navigation" aria-expanded="false"><i class="ph ph-list" aria-hidden="true"></i></button><a href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" class="mobile-home" data-portal-home>Meridian Nexus</a><a href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" class="portal-back" data-portal-back aria-label="Back to portal" title="Back to portal"><i class="ph ph-arrow-left" aria-hidden="true"></i></a></div>
+    <main id="main"><p class="page-message" role="status">Starting Nexus...</p></main>
+  </div>
+  <dialog id="source-dialog" aria-labelledby="source-title">
+    <header><h2 id="source-title">Data imports</h2><button id="close-sources" aria-label="Close data imports"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+    <div id="source-status" role="status"></div>
+    <form id="import-form">
+      <label>Source<select name="kind"><option value="attendance-rep">Syndicated rep schedules</option><option value="attendance-merchandiser">Syndicated merchandiser schedules</option><option value="stores">Store master</option><option value="hierarchy">Reporting hierarchy</option></select></label>
+      <label id="period-label">Report month<input type="month" name="period" required></label>
+      <label>Workbook<input type="file" name="workbook" accept=".xlsx" required></label>
+      <button type="submit"><i class="ph ph-upload-simple" aria-hidden="true"></i> Validate and import</button>
+      <p id="import-status" role="status"></p>
+    </form>
+  </dialog>
+</body>
+</html>

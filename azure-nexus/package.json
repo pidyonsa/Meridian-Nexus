@@ -1,0 +1,29 @@
+{
+  "name": "meridian-nexus-azure",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Meridian-owned Azure edition: syndicated attendance and Franchise Orders",
+  "engines": {"node": ">=24 <25"},
+  "scripts": {
+    "start": "node server/main.cjs",
+    "preview": "node scripts/preview.cjs",
+    "sync": "node server/sync.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "vendor": "node scripts/vendor.cjs",
+    "package": "node scripts/package.cjs"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.9.0",
+    "@azure/identity": "^4.13.0",
+    "@azure/storage-blob": "^12.28.0",
+    "@fontsource/poppins": "^5.2.6",
+    "@phosphor-icons/web": "2.1.1",
+    "exceljs": "4.4.0",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jose": "^6.1.0",
+    "yauzl": "^3.2.0"
+  },
+  "devDependencies": {"@playwright/test": "^1.55.0", "archiver": "^7.0.1"},
+  "overrides": {"exceljs": {"uuid": "^11.1.1"}}
+}

@@ -1,0 +1,64 @@
+{
+  "date": "2026-09-13",
+  "currency": "ZAR",
+  "confidence": "Planning allowances, not vendor quotations",
+  "catalyst": {
+    "monthly": 25000,
+    "monthlyVatBasis": "Unstated; assumed ex VAT only for comparisons",
+    "oneOffApiExVat": 60000,
+    "annualWithApiAssumingExVat": 360000
+  },
+  "geo": {
+    "oneOffIntegration": null,
+    "monthlyHosting": null,
+    "monthlySupport": null
+  },
+  "meridian": {
+    "scope": "Cloud infrastructure only",
+    "lines": [
+      [
+        "Lake files, history and backup storage",
+        600,
+        1500
+      ],
+      [
+        "BigQuery storage and analytical queries",
+        1000,
+        3000
+      ],
+      [
+        "APIs, ETL jobs and operational data",
+        1800,
+        4000
+      ],
+      [
+        "Logs, secrets and security services",
+        600,
+        1500
+      ],
+      [
+        "Network, serving and fixed outbound IP",
+        1000,
+        2500
+      ]
+    ],
+    "subtotal": [
+      5000,
+      12500
+    ],
+    "reservePercent": 20,
+    "monthly": [
+      6000,
+      15000
+    ],
+    "annual": [
+      72000,
+      180000
+    ],
+    "internalLabourRate": null
+  },
+  "overlapFullYearWithCatalystAndApi": [
+    432000,
+    540000
+  ]
+}

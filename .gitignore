@@ -4,3 +4,25 @@ firebase-debug.*.log
 node_modules/
 .env
 .DS_Store
+/.tmp/chat-release/
+/.tmp/chat-verification/
+/.tmp/azure-dashboard-migration/
+/.tmp/nexus-azure-migration/
+/.tmp/nexus-azure-copy/
+/.tmp/dataorbis-sales-20260922/
+/.tmp/admin-profiles-20260923/
+/.tmp/dataorbis-clients-20260923/
+/.tmp/azure-attendance-publisher-20260922/
+/.tmp/salesforce-monthly-recovery-20260922/
+/azure-field-dashboards/server/report-engine/
+# Local working material: evidence, exports, backups and logs (may contain business data)
+/.tmp/
+/.tmp-*
+/.validation-*
+/tmp/
+/tmp-*
+/.tools/
+*.log
+__pycache__/
+dist/
+test-results/

@@ -1,0 +1,183 @@
+{
+  "builtAt": "2026-09-17T11:29:00.319Z",
+  "files": [
+    {
+      "source": "azure-nexus/public/attendance.js",
+      "target": "dist/attendance.js",
+      "sha256": "3cae4ebdd38904f9be6865f800177e33de8a1c36df199f2a61bc6a390c490c11",
+      "outputSha256": "a39b4d19dd3c3a3afdce5e86bb5bfd7036564231f6a7e5574af104a56bb2207f"
+    },
+    {
+      "source": "azure-nexus/public/attendance.css",
+      "target": "dist/attendance.css",
+      "sha256": "a4ea78878a4fe83a257058a5de6fe7aa80b1768499bab076b30bea6557008858",
+      "outputSha256": "a4ea78878a4fe83a257058a5de6fe7aa80b1768499bab076b30bea6557008858"
+    },
+    {
+      "source": "azure-nexus/public/attendance-base.css",
+      "target": "dist/attendance-base.css",
+      "sha256": "f6b91f0f3de93f01c9f7657431b0780834eb124e263b846ddbe4aa40e78a6ae5",
+      "outputSha256": "f6b91f0f3de93f01c9f7657431b0780834eb124e263b846ddbe4aa40e78a6ae5"
+    },
+    {
+      "source": "azure-nexus/public/orders.js",
+      "target": "dist/orders.js",
+      "sha256": "8fbb20cd79a12eb212f6ea5152bd3eccc1dc102b8f4b628a85694b0d8193c9a1",
+      "outputSha256": "de82d815d8126f6d1f2623ccd100720e88d0a68317cdc5b4e99e72c9f2654951"
+    },
+    {
+      "source": "azure-nexus/public/orders.css",
+      "target": "dist/orders.css",
+      "sha256": "18e0d0176dd0808d36ab7b8218133b61be6e715e126d7e80f42430f829a2df8f",
+      "outputSha256": "18e0d0176dd0808d36ab7b8218133b61be6e715e126d7e80f42430f829a2df8f"
+    },
+    {
+      "source": "azure-nexus/public/shell.css",
+      "target": "dist/shell.css",
+      "sha256": "bf7cef4da71766753a35ad8523d1b6614e585dad4b4c464476b68d423513741e",
+      "outputSha256": "bf7cef4da71766753a35ad8523d1b6614e585dad4b4c464476b68d423513741e"
+    },
+    {
+      "source": "azure-nexus/public/assets/meridian-logo.png",
+      "target": "dist/assets/meridian-logo.png",
+      "sha256": "a30b8d98cdc9f19263983fe0476502b6d1838811ba43dfb2dfe5ba36aa40f7c2",
+      "outputSha256": "a30b8d98cdc9f19263983fe0476502b6d1838811ba43dfb2dfe5ba36aa40f7c2"
+    },
+    {
+      "source": "firebase-dashboards/public/index.html",
+      "target": "dist/index.html",
+      "sha256": "b3bf6e42eb3ca7b725ae410ef8d7451d5ef292ec03ce1f9289c0862a48efa7ff",
+      "outputSha256": "b3bf6e42eb3ca7b725ae410ef8d7451d5ef292ec03ce1f9289c0862a48efa7ff"
+    },
+    {
+      "source": "firebase-dashboards/public/viewer.js",
+      "target": "dist/viewer.js",
+      "sha256": "c4d41d4cbd0f4400b723b9c957c1900e721427c968496a07f5dba1690c37a945",
+      "outputSha256": "c4d41d4cbd0f4400b723b9c957c1900e721427c968496a07f5dba1690c37a945"
+    },
+    {
+      "source": "firebase-dashboards/public/viewer.css",
+      "target": "dist/viewer.css",
+      "sha256": "a9aea89e1ec3b1c41dce7d8f325eea57123fc6a6f5a5e380c04c6f0618f2a87b",
+      "outputSha256": "a9aea89e1ec3b1c41dce7d8f325eea57123fc6a6f5a5e380c04c6f0618f2a87b"
+    },
+    {
+      "source": "firebase-dashboards/public/robots.txt",
+      "target": "dist/robots.txt",
+      "sha256": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
+      "outputSha256": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1"
+    },
+    {
+      "source": "azure-nexus/node_modules/@fontsource/poppins/files/poppins-latin-400-normal.woff2",
+      "target": "dist/vendor/fonts/poppins-latin-400-normal.woff2",
+      "sha256": "7d93459d86585bfcdbb7e0376056226adb25821ee54b96236fe2123e9560929f",
+      "outputSha256": "7d93459d86585bfcdbb7e0376056226adb25821ee54b96236fe2123e9560929f"
+    },
+    {
+      "source": "azure-nexus/node_modules/@fontsource/poppins/files/poppins-latin-500-normal.woff2",
+      "target": "dist/vendor/fonts/poppins-latin-500-normal.woff2",
+      "sha256": "cd36de204aca2d5fa263a731f7c20009b5e3d754ba1f1e03c33e93a48f3e7446",
+      "outputSha256": "cd36de204aca2d5fa263a731f7c20009b5e3d754ba1f1e03c33e93a48f3e7446"
+    },
+    {
+      "source": "azure-nexus/node_modules/@fontsource/poppins/files/poppins-latin-600-normal.woff2",
+      "target": "dist/vendor/fonts/poppins-latin-600-normal.woff2",
+      "sha256": "f4e80d9dfd374d02989b87a27b5ed4cb78fbb177c27f1478e9a8b0afb7513149",
+      "outputSha256": "f4e80d9dfd374d02989b87a27b5ed4cb78fbb177c27f1478e9a8b0afb7513149"
+    },
+    {
+      "source": "azure-nexus/node_modules/@fontsource/poppins/files/poppins-latin-700-normal.woff2",
+      "target": "dist/vendor/fonts/poppins-latin-700-normal.woff2",
+      "sha256": "9338e65fc077355c7a87ae0d64cc101e23b9bf8ad78ae65f0f319c857311b526",
+      "outputSha256": "9338e65fc077355c7a87ae0d64cc101e23b9bf8ad78ae65f0f319c857311b526"
+    },
+    {
+      "source": "azure-nexus/node_modules/@phosphor-icons/web/src/regular/style.css",
+      "target": "dist/vendor/icons/style.css",
+      "sha256": "873761b8711147dc516b6102936e9ad005f3a3015349efcde1a496f0326f1051",
+      "outputSha256": "873761b8711147dc516b6102936e9ad005f3a3015349efcde1a496f0326f1051"
+    },
+    {
+      "source": "azure-nexus/node_modules/@phosphor-icons/web/src/regular/Phosphor.ttf",
+      "target": "dist/vendor/icons/Phosphor.ttf",
+      "sha256": "06b91e022b7ee899a63efced879392a74f0bacbda54e4467e9f663220d173a10",
+      "outputSha256": "06b91e022b7ee899a63efced879392a74f0bacbda54e4467e9f663220d173a10"
+    },
+    {
+      "source": "azure-nexus/node_modules/@phosphor-icons/web/src/regular/Phosphor.woff",
+      "target": "dist/vendor/icons/Phosphor.woff",
+      "sha256": "396c5eae7f2dfb4d1f5432edd87109eda2f92a451b2167e43a26165b82770f75",
+      "outputSha256": "396c5eae7f2dfb4d1f5432edd87109eda2f92a451b2167e43a26165b82770f75"
+    },
+    {
+      "source": "azure-nexus/node_modules/@phosphor-icons/web/src/regular/Phosphor.woff2",
+      "target": "dist/vendor/icons/Phosphor.woff2",
+      "sha256": "c2ea45ea05ff5c7df1936770c104725f2a68f43fd343f35f3da23a30b27de32a",
+      "outputSha256": "c2ea45ea05ff5c7df1936770c104725f2a68f43fd343f35f3da23a30b27de32a"
+    },
+    {
+      "source": "functions/attendance-analytics.js",
+      "target": "backend/vendor/attendance.cjs",
+      "sha256": "75749dce4e991dec5d1e69661a68f1b0ba7e1db95934e9c7dce7732052e86e45",
+      "outputSha256": "8da41b1076605b75dc1a5f168b6679c2ecb3ba71688bb53652dbd9a114336223"
+    },
+    {
+      "source": "functions/attendance-exclusions-core.js",
+      "target": "backend/vendor/attendance-exclusions-core.js",
+      "sha256": "c51e830f58a3798e18b74d708eb0dc734cba51164666ee1c0dd98c594e6be9c2",
+      "outputSha256": "c51e830f58a3798e18b74d708eb0dc734cba51164666ee1c0dd98c594e6be9c2"
+    },
+    {
+      "source": "functions/franchise-orders.js",
+      "target": "backend/vendor/orders.cjs",
+      "sha256": "0aea88504ffefdcedbc73a170e6f9d5d5d6f98865f43c80e650fb122660a06ec",
+      "outputSha256": "878e3f0739c64a05ed0f337ddb35ad5788458d6c56ced30c002f4bb49ad1361a"
+    },
+    {
+      "source": "functions/attendance-hierarchy.json",
+      "target": "backend/vendor/hierarchy.json",
+      "sha256": "bccfef0c7990f73c286aefb8197d7c21e7f931b0fdb6a0259151d40767cd1bde",
+      "outputSha256": "bccfef0c7990f73c286aefb8197d7c21e7f931b0fdb6a0259151d40767cd1bde"
+    },
+    {
+      "source": "functions/index.js (reader declarations only)",
+      "target": "backend/vendor/source-reader.cjs",
+      "names": [
+        "readGeoRepAttendanceSource",
+        "geoRepAttendanceContractForTab",
+        "geoRepAttendanceRawTabContracts",
+        "geoRepAttendanceSourceContracts",
+        "geoRepAttendanceCellValue",
+        "spreadsheetDate",
+        "spreadsheetCellText",
+        "text",
+        "geoRepAttendanceSheetHeaders",
+        "geoRepAttendanceCanonicalHeader",
+        "normalizeSpreadsheetText",
+        "geoRepAttendanceTrackerValue",
+        "geoRepAttendanceExcelDateSerial",
+        "geoRepAttendanceNormalizeRegion",
+        "geoRepAttendanceRoleGroup",
+        "geoRepAttendanceRoleDescription",
+        "geoRepAttendanceScheduleRowsAsObjects",
+        "geoRepAttendanceSourceRowsAsObjects",
+        "geoRepAttendanceIsoDate",
+        "geoRepAttendanceWeekLabel",
+        "geoRepAttendanceDivisionValue",
+        "geoRepAttendanceStoreMasterEnrichment",
+        "optionalText",
+        "geoRepAttendanceStoreMasterId",
+        "readGeoRepSalesStoreMaster",
+        "downloadSalesDashboardWorkbook",
+        "salesDashboardSheetHeaders",
+        "salesDashboardHeaderIndex",
+        "salesDashboardNormalise",
+        "salesDashboardCleanText",
+        "salesDashboardValue",
+        "geoRepAttendanceEnrichScheduleRows"
+      ],
+      "sha256": "5d97bf328f6d4df76af1b8c658bc44fc65a159f065f113a38c5069496e7d19eb",
+      "outputSha256": "15868b00688a3561c953fbfb669e19b10f7f66d1de644ad7de849707d0f53d4a"
+    }
+  ]
+}

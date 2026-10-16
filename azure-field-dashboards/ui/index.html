@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Meridian | Field Dashboards</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png?v=20260918">
+  <link rel="stylesheet" href="/vendor/icons/style.css">
+  <link rel="stylesheet" href="/attendance-base.css"><link rel="stylesheet" href="/attendance.css">
+  <link rel="stylesheet" href="/orders.css"><link rel="stylesheet" href="/shell.css"><link rel="stylesheet" href="/viewer.css"><link rel="stylesheet" href="/dashboard-theme.css"><link rel="stylesheet" href="/attendance-layout.css"><link rel="stylesheet" href="/orders-reference.css">
+  <link rel="stylesheet" href="/orders-regions.css">
+  <script defer src="/attendance.js"></script><script defer src="/attendance-presentation.js"></script><script defer src="/attendance-daily.js"></script><script defer src="/attendance-excel.js"></script><script defer src="/attendance-roster.js"></script><script defer src="/attendance-stores.js"></script><script defer src="/orders-reference.js"></script><script defer src="/province-geometry.js"></script><script defer src="/orders-regions.js"></script><script defer src="/orders.js"></script><script defer src="/report-loader.js"></script><script defer src="/viewer.js"></script>
+</head>
+<body class="dashboard-only">
+  <aside id="attendance-sidebar" aria-label="Attendance navigation" hidden>
+    <a class="attendance-brand" href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" title="Meridian Nexus home"><img src="/assets/meridian-mark.png" alt=""><span>Meridian <b>Nexus</b></span></a>
+    <button id="attendance-nav-close" class="attendance-nav-close" aria-label="Close navigation" title="Close navigation"><i class="ph ph-x" aria-hidden="true"></i></button>
+    <div class="attendance-sidebar-heading"><span>Syndicated</span><strong id="attendance-audience-label">Rep attendance</strong></div>
+    <div id="attendance-sidebar-controls"></div>
+    <footer><a href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" data-attendance-home><i class="ph ph-arrow-square-out" aria-hidden="true"></i> Home</a><img src="/assets/meridian-logo.png" alt="Meridian Group"><small id="attendance-refreshed">Latest Geo Rep report</small></footer>
+  </aside>
+  <button id="attendance-nav-backdrop" tabindex="-1" aria-label="Close navigation" hidden></button>
+  <aside id="orders-sidebar" aria-label="Franchise orders navigation" hidden>
+    <a class="orders-brand" href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" title="Meridian Nexus home"><img src="/assets/meridian-mark.png" alt=""><span>Meridian <b>Nexus</b><small>Franchise orders</small></span></a>
+    <button id="orders-nav-close" aria-label="Close navigation" title="Close navigation"><i class="ph ph-x" aria-hidden="true"></i></button>
+    <p class="orders-data-month">Data month: <strong id="orders-data-month">Loading...</strong></p>
+    <div id="orders-sidebar-controls"></div>
+    <footer><a href="https://meridian-group-za.github.io/Meridian-Nexus/portal.html" data-portal-home><i class="ph ph-house" aria-hidden="true"></i> Home</a><img src="/assets/meridian-logo.png" alt="Meridian Group"></footer>
+  </aside>
+  <button id="orders-nav-backdrop" tabindex="-1" aria-label="Close navigation" hidden></button>
+  <main id="main">
+    <div id="attendance-mobile-bar" hidden><button id="attendance-nav-toggle" aria-label="Open attendance navigation" title="Open navigation" aria-expanded="false" aria-controls="attendance-sidebar"><i class="ph ph-list" aria-hidden="true"></i></button><span>Meridian <b>Nexus</b></span></div>
+    <div id="orders-mobile-bar" hidden><button id="orders-nav-toggle" aria-label="Open franchise navigation" title="Open navigation" aria-expanded="false" aria-controls="orders-sidebar"><i class="ph ph-list" aria-hidden="true"></i></button><span>Meridian <b>Nexus</b></span></div>
+    <div class="report-navigation">
+      <div id="audience-switch" class="audience-switch" role="group" aria-label="Attendance audience" hidden></div>
+      <nav id="report-tabs" class="report-tabs" aria-label="Report views"></nav>
+    </div>
+    <div id="report-body"><p class="page-message" role="status">Loading report...</p></div>
+  </main>
+  <div id="loading-status" class="loading-status" role="status" aria-live="polite" aria-atomic="true" hidden><i class="ph ph-circle-notch" aria-hidden="true"></i><span id="loading-label">Fetching latest data...</span><span class="loading-track" aria-hidden="true"></span></div>
+</body>
+</html>

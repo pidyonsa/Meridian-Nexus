@@ -7,7 +7,21 @@ service firebase.storage {
     }
 
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+      return request.auth != null && request.auth.token.get('admin', false) == true
+        && request.auth.token.get('chatClient', false) != true
+        && request.auth.token.get('nexusRole', '') != 'client' && activeAdminProfile();
+    }
+    function activeAdminProfile() {
+      let p = firestore.get(/databases/(default)/documents/adminUsers/$(request.auth.uid)).data;
+      return p.get('role', '') == 'admin' && p.get('disabled', false) != true
+        && p.get('accountType', '') != 'client'
+        && p.get('chatAccess', {}).get('audience', '') != 'external'
+        && p.get('chatAccess', {}).get('workRole', '') != 'Client';
+    }
+
+    function isOperationsUser() {
+      return request.auth != null
+        && (isAdmin() || request.auth.token.get('operator', false) == true || request.auth.token.get('nexusRole', '') == 'normal');
     }
 
     match /uploads/{fileId}/{fileName} {
@@ -33,12 +47,146 @@ service firebase.storage {
       allow update: if false;
     }
 
+    // Normalised Stock Fix weekly data remains a Storage object. The matching
+    // Firestore snapshot is published by a privileged Cloud Function only.
+    match /stockfix-source/{uploadId}/{fileName} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 250 * 1024 * 1024
+        && request.resource.metadata.uploadId == uploadId;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Adoption exports are a separate people-level source. They never share
+    // the Stock Fix task-data path, so replacing a snapshot cannot affect the
+    // existing dashboard or batch pipeline.
+    match /stockfix-adoption-source/{uploadId}/{fileName} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024
+        && request.resource.metadata.uploadId == uploadId;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Raw Stock Fix workbooks are uploaded into an isolated run folder. The
+    // Cloud Run worker reads these objects with its service account and the
+    // browser cannot alter a source once it has been uploaded.
+    match /stockfix-pipeline-input/{runId}/sources/{fileName} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 250 * 1024 * 1024
+        && request.resource.metadata.runId == runId;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Field evidence is the only Stock Fix path a rep can write directly.
+    // The matching task must be assigned to that Firebase account; task state
+    // is still saved through a privileged callable with an audit event.
+    match /stockfix-evidence/{taskId}/{fileName} {
+      function canAccessTaskEvidence() {
+        return request.auth != null
+          && (isAdmin()
+            || firestore.get(/databases/(default)/documents/stockFixOperationalTasks/$(taskId)).data.assignedUid == request.auth.uid);
+      }
+      allow read: if canAccessTaskEvidence();
+      allow create: if canAccessTaskEvidence()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 12 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp|heic)')
+        && request.resource.metadata.taskId == taskId;
+      allow update, delete: if isAdmin();
+    }
+
+    match /geo-rep-store-masters/{masterId}/{fileName} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow update: if false;
+    }
+
+    match /geo-rep-sales-store-masters/{masterId}/{fileName} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow update: if false;
+    }
+
+    match /geo-rep-attendance-store-masters/{masterId}/{fileName} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow update: if false;
+    }
+
+    match /geo-rep-form-intakes/{intakeId}/{fileName} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow update: if false;
+    }
+
+    match /salesforce-attendance-masters/{masterId}/{fileName} {
+      allow read, delete: if isAdmin();
+      allow create: if isOperationsUser()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow update: if false;
+    }
+
+    match /salesforce-display-compliance-masters/{masterId}/{fileName} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow update: if false;
+    }
+
+    // The Resources catalogue is the controlled landing area for shared
+    // masters, templates and reference files. Records are saved only through
+    // admin callables after the browser upload completes.
+    match /portal-resources/{resourceId}/{fileName} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 100 * 1024 * 1024
+        && request.resource.metadata.resourceId == resourceId;
+      allow update: if false;
+    }
+
+    match /file-drops/{roomId}/{accessKey}/{fileName} {
+      // Legacy link-based sharing is retired, including previously issued room keys.
+      allow read, write: if false;
+    }
+
     match /extraction-evidence/{runId}/{fileName} {
       // Evidence may contain retailer portal data and is restricted to administrators.
       allow read: if isAdmin();
       allow write: if false;
     }
 
+    // Authenticated media callable rechecks staff membership on each download.
+    match /meridian-chat-attachments/{fileId} { allow read, write: if false; }
     match /{allPaths=**} {
       allow read, write: if false;
     }

@@ -1,0 +1,5 @@
+{
+  "name": "meridian-field-dashboards",
+  "type": "Microsoft.Web/sites",
+  "isFqdn": false
+}

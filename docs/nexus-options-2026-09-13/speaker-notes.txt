@@ -1,0 +1,132 @@
+PAGE 1
+
+RECOMMENDATION
+Prefer a Meridian-controlled data lake and continued in-house Nexus integration, conditional on funded cover, accepted data rights and operating controls. Retain Catalyst's proven service during transition. Geo Rep remains a valid managed-service alternative if its full quotation and proof of capability outperform the in-house business case. No option is declared cheapest; cost scopes and evidence differ.
+
+THE THREE OPTIONS
+Option 1 keeps Catalyst as the current data service while Meridian completes the single Nexus application. The supplied quote does not promise to integrate all Carin handovers into Nexus. Option 2 explicitly includes Geo Rep integrating Carin's scripts and the existing Nexus capabilities, plus hosting and data custody; this is a requirement to price, not a confirmed offer. Option 3 retains Meridian's existing Firebase-based product and moves toward a Meridian-controlled analytical repository on Google Cloud Johannesburg. Geo Rep can still provide bounded services without owning the data account.
+
+SCOPE AND EVIDENCE
+E1: supplied RE Info Needed.msg, read locally. Relevant supplier response: Nikita Turck, 8 September 2026, 17:48; forwarded by Jaco Jooste on 9 September and acknowledged by Jeorge Pinto on 10 September. The email is from MAD9000; the user identifies this supplier as Catalyst. This assessment follows that attribution, not an independent legal-entity verification. The email does not answer where the data is hosted, despite that question appearing in the thread. Meridian's earlier brief describes Geo Rep and Catalyst as AWS suppliers; neither the exact account nor region nor access model has been audited.
+H1: Handover - Call Cycle Portal and Coverage Dashboard.docx.
+H2: StockFix_Weekly_Refresh_Azure_Migration_Handover.docx, version 1, 6 September 2026.
+The supplied assessment PDF has two pages. This revised five-page assessment replaces its platform-neutral/Azure source links and its unsupported POPIA-guarantee statement. It is not a deployment or a certification of current infrastructure. No application or cloud changes are made.
+
+BUSINESS CONTEXT
+Meridian is a sales and merchandising company. Priorities are reliable store visits, shelf availability, orders, task completion and client reporting. About 1,000 users is a total population, not measured concurrency or licensed supplier seats. External clients receive only authorised dashboard access; staff chat remains internal. Retailer sell-out is not interchangeable with rep-captured orders. Future ordering, image recognition, AI and WhatsApp need their own scope, privacy and funding gates.
+
+SOURCE LINKS
+https://docs.cloud.google.com/storage/docs/locations
+https://georep.com/product-features/
+Geo product descriptions are supplier claims, not performance benchmarks or contractual entitlements.
+
+
+PAGE 2
+
+WHY THIS CHANGES THE COMPARISON
+The latest instruction requires Geo Rep to bring Carin's dashboards and scripts into one application equivalent to the existing Firebase-based Nexus. A data-lake quote alone is therefore insufficient. Both bidders must price against the same module register and acceptance test set, including business workflows, not only screens. Any handover integration already accepted in Nexus should be reused, not paid for twice. A new inventory is needed to identify what remains incomplete and what Geo can retain unchanged.
+
+HANDOVER FACTS, NOT A LIVE INFRASTRUCTURE AUDIT
+H1 describes the Call Cycle Control Centre as an interactive tool combining three GeoRep exports, reviewing exceptions and publishing a Call Cycle Master. Coverage reads that master and has additional hierarchy-derived refreshes. It is not simply another reporting page. H1/H2 also show that some work had already moved from laptops to managed jobs and organisation repositories; this presentation does not claim all current production scripts still live on personal laptops.
+H2 separates the original StockFix operational Postgres database and field-capture app from the inventory/reporting DuckDB pipeline. Its Azure migration moved the refresh caller; it did not migrate the original application or operational database. These historical boundaries are migration-discovery risks, not proof that the current Nexus is still dependent on each original service. H2 describes the inventory job at 55-75 minutes, dashboard generation at 15-25 minutes and task generation up to approximately 90 minutes. Preserve reviewed destructive-week transition behaviour and use resumable, durable job state. Do not assume a dashboard port completes field capture or task generation.
+
+SHARED DEFINITION OF DONE
+1. All authorised source pages represented in Nexus navigation, source visual/functional parity and responsive layouts.
+2. Common corporate sign-in; backend authorisation for every endpoint and export; no duplicate login page.
+3. Field capture, task lifecycle, chat, notifications, resources and current Nexus capabilities preserved or explicitly excluded with approval.
+4. Reconcile facts by retailer, client, store, product and period; preserve canonical clean-store mappings and manager hierarchy.
+5. Schedule, rerun, retry and diagnose each job from the portal; retain safe manual approvals where needed.
+6. Restore, rollback, mobile/offline behaviour, load, permissions, logs and support ownership tested.
+7. Repository, deployment configuration, documentation, data dictionary and test evidence handed over to Meridian.
+
+COSTING METHOD
+For each workstream, list baseline code, remaining gaps, engineering days, testing days, acceptance owner, infrastructure changes and support effort. Geo must state whether it will retain Firebase services or replatform them to AWS and price the difference explicitly. Existing API compatibility, security rules, listeners, queues and file permissions do not convert automatically. Meridian internal effort should be valued at Finance-approved loaded rates and shown separately from cloud cash spending. No internal rate, final module backlog or Geo quotation was supplied, so no invented integration price or total-programme fixed deadline is asserted.
+
+
+PAGE 3
+
+CATALYST COMMERCIAL EVIDENCE
+E1 states a monthly R25,000 retainer, expecting 2-4 days of effort, to keep the system operational, address fixes/updates and sometimes small changes. The supplier reviews the retainer every few months and may recommend increases if effort consistently grows; migration may also change it. This is not a fixed multi-year rate, unlimited development or a measurable 24/7 SLA. The email says the first September retainer was billed; payment was not independently verified. The retainer's VAT basis, separate infrastructure charges and final project balance are not supplied.
+The API is R60,000 excluding VAT, estimated 5-8 supplier workdays. It excludes helping configure Meridian dashboards. The described read-only REST datasets are monthly sales by store/region/banner/brand with trends, share of trade, weekly/monthly stock on hand, stock status/availability, listing gaps, store performance/growth/size profiles and reference stores/regions/fiscal calendar. Matching dashboard filters and an OpenAPI specification are promised. This is not a statement that raw transactions, product-line history, all scripts or ownership transfer are included. API credentials may use a key and additional headers, rotation on request and preferred IP restrictions.
+
+COMMERCIAL JUDGEMENT
+The proposed API has useful scope but value cannot be established from price and duration alone. Require a sample, full-history and granularity specification, pagination/incremental updates, tenant isolation, throughput, support, secure credential delivery and acceptance-based payment. Avoid treating R60,000 as the price to move Carin's entire application estate or to replace retailer extraction. Obtain a comparable Geo quotation before a price ranking.
+
+ARITHMETIC
+R25,000 x 12 = R300,000. Add R60,000 once = R360,000. These comparison figures assume the retainer is ex VAT solely for comparison; the email does not confirm it. Keep that caveat in any onward quotation. Cloud R6,000-15,000 x 12 = R72,000-180,000. If Catalyst and the new lake overlap for a full year and the API is bought once: R360,000 + R72,000-180,000 = R432,000-540,000. This is a partial cost illustration, not total cost of ownership and not a claim of additional spend on top of everything already budgeted. Avoid adding any shared existing Nexus hosting or already-paid API work twice. Existing supplier charges continue until a commercial change and accepted replacement remove them.
+
+GOOGLE CLOUD ESTIMATE BASIS
+The five rows are rounded ZAR engineering planning allowances, not extracted Johannesburg SKU rates or a supplier quotation. Published primary pricing pages establish billing drivers; region selectors' default rates have not been misrepresented as Johannesburg rates. Allowances total R5,000-12,500 before a 20% usage/price reserve, producing R6,000-15,000. Reprice the actual bill of materials for africa-south1 and the invoice currency. No cloud bill or measured usage was supplied; confidence is low until discovery and a pilot.
+Planning envelope: 0.5-2 TiB total object footprint INCLUDING retained versions/backups; 0.1-0.5 TiB of analytical tables; 5-20 TiB of query scans/month; daily supplier ingestion and weekly batch rebuilds; about 1,000 registered users with 100 concurrent users as an assumption, not a measurement. Start with production plus a small non-production environment, cached dashboard aggregates and on-demand jobs. Image/voice content growth, frequent full-data scans, streaming requirements or always-on heavy workers require a fresh estimate.
+Included categories cover lake storage, analytical queries, batch/API compute, incremental operational data support, logs/secrets, cloud security services and network/serving with fixed outbound IP if needed for API allowlisting. They do not purchase a security review or an engineer. Exclusions: internal labour and ongoing cover, migration/testing, paid cloud-support plan, Catalyst/Geo/retailer/API charges, licensing, AI tokens, image recognition, WhatsApp, mobile devices/connectivity and regional-disaster failover. The common ongoing Nexus baseline must be allocated rather than counted twice.
+
+INTEGRATION COST METHOD
+Meridian: remaining engineering/test days x Finance-approved loaded day rate, plus any external review. Report incremental cash and existing staff opportunity cost separately. Geo: one-off integration and migration price + 12 x hosting/support/API fees + retained source feeds + agreed change/exit charges. Catalyst: its quoted service is not equivalent to either complete build. An internal rate was requested but not supplied when the document was prepared.
+
+PRIMARY PRICING LINKS
+https://cloud.google.com/storage/pricing
+https://cloud.google.com/bigquery/pricing
+https://cloud.google.com/run/pricing
+https://cloud.google.com/firestore/pricing
+https://cloud.google.com/products/calculator
+Accessed 13 September 2026. Budget estimates are not approval to spend.
+
+
+PAGE 4
+
+RISK METHOD
+This is a qualitative decision assessment using the supplied email, handovers, Meridian's requirements and primary cloud references. No penetration test, SLA audit, throughput benchmark, contract review or verified control inventory was performed. H indicates a material impact with an unresolved scope/control/evidence gate; M indicates manageable exposure that still requires evidence. Missing evidence is not evidence of a security breach. Ratings are not calibrated probabilities and should not be added into an artificial vendor score. Residual risk is not rated down until controls are tested.
+
+WHY THE RATINGS DIFFER
+Catalyst has a lower immediate feed-transition exposure because keeping the existing service avoids replacing the pipeline now; this is not a freshness/performance guarantee. Its email omits a full Nexus integration scope and full-history/raw-export rights. Geo introduces both supplier concentration and an unpriced integration/data migration, so acceptance gates are material. Meridian can reuse current Nexus work and control the cloud account but must actually provide engineering cover and operate security; ownership does not remove upstream dependence or cloud lock-in. A single Johannesburg region leaves a regional outage risk even with local backup copies.
+
+REQUIRED SECURITY AND PRIVACY CONTROLS
+Meridian must define role/client/store access at the backend, including exports and AI retrieval; administrators need MFA and controlled emergency access. No supplier API keys in browser bundles, shared prompts or public source control. Use bounded workload identities, private storage, short-lived download access, TLS, encryption, audit logs and secret rotation. Enforce data retention and limit GPS, photos, message data and customer records to business need. POPIA responsibilities are not outsourced merely by selecting a host; agree operator terms, incident notification and any external processing with the Information Officer. Legal counsel should validate the application to Meridian; this document is not a compliance certification. [POPIA ss.19-22,72]
+
+IP AND EXIT
+Meridian should own assigned bespoke Nexus code, configuration, tests and documentation, subject to employment/contractor agreements and third-party licences. Cloud-provider software remains the provider's IP; Google's terms distinguish customer data/applications from Google services. A white-label portal or paying for an API does not automatically convey provider code. Source retailer data may be licensed rather than unconditionally owned: secure rights to retain, combine, backfill, export and use authorised history after supplier termination. Obtain practical bulk export, data dictionary, mappings, credential transfer/revocation, transition assistance and deletion confirmation. Repositories and billing/recovery contacts should be under Meridian corporate control with at least two named custodians. [Google terms 5.1]
+
+AI CAUTION IN E1
+The supplier warns about AI-built systems using API access. Treat this as a real implementation-security concern, not proof that every AI-assisted application is unsafe. Review generated code; run secrets/dependency checks and tenant-isolation tests; keep credentials away from models; require human approval before write actions. A read-only API prevents modifications but does not prevent unauthorised reading. Runtime AI must use the current user's permissions and be tested for leakage and unsupported answers.
+
+RECOVERY AND OPERATIONS
+Agree business recovery targets and demonstrated restores rather than using a provider availability headline as an application guarantee. Candidate targets for analytical reporting, for approval only: restored within 4 hours for a recoverable application incident, no more than one daily refresh lost. These do not apply to a whole-region outage or to accepted orders, which need stricter no-loss/idempotency controls. Do not promise these targets before testing and funding them. Keep job checkpoints, retry/duplicate handling and visible last-success timestamps. Set cost alerts plus query/API quotas and spending response procedures; an alerts-only budget is not a hard limit.
+
+REFERENCES
+https://www.justice.gov.za/legislation/acts/2013-004.pdf
+https://docs.cloud.google.com/architecture/framework/security/shared-responsibility-shared-fate
+https://cloud.google.com/terms
+https://docs.cloud.google.com/billing/docs/how-to/budgets
+Accessed 13 September 2026.
+
+
+PAGE 5
+
+JOHANNESBURG DESIGN BASIS
+The data lake is a central, governed repository of original and cleaned data, not an operational document database alone. Propose Cloud Storage for raw/versioned files and cleaned portable outputs, BigQuery for curated analytical tables, Cloud Run jobs and APIs for ingestion/validation/serving, and Firestore for operational application records and selected aggregates. Primary documentation lists Johannesburg/africa-south1 for these regional services. Select the actual storage/dataset/runtime locations and confirm feature availability. This architecture states the desired design, not proof that every existing resource is already configured this way. Google manages physical infrastructure; Meridian controls its corporate account, code and data access.
+
+DATA FLOW AND REUSE
+Catalyst may remain an upstream retailer-extraction supplier while Meridian holds authorised copies; source independence is a separate later decision. Geo contributes field activity and orders, not a substitute for retailer sell-out. Preserve masters, source timestamps, client/store/product mapping and complete reporting history. Copying only dashboard summaries may not support later analysis or an exit: agree the required granularity first. Keep working Python/DuckDB calculations in a controlled batch/query service during transition if necessary; adopt curated BigQuery outputs in stages rather than silently changing business logic. Reconcile before changing the reader. Serve the existing single Nexus application with verified roles; do not make each dashboard depend on a live supplier request.
+
+RESIDENCY AND RECOVERY BOUNDARY
+Regional lake storage, analytical data and selected compute can be placed in Johannesburg. This is not a claim that every identity, content-delivery, messaging, AI or supplier service is Johannesburg-resident. Firebase's published location policy requires a separate review of services without regional selection. Maintain transparent data-flow records and operator terms. Backups stored in the same region do not remove a region-wide outage. Decide and fund regional-disaster recovery separately; it is excluded from the initial hosting-only budget.
+
+DELIVERY
+Weeks 1-2: confirm the handover register, completed Nexus work, approved changes, private source access, vendor account/region, contract/IP, test cases, loaded internal rates and a detailed Geo quote. Name Software & AI lead plus a second engineer, IT/InfoSec, BI/Carin as data-validation contributors and business acceptance owners. Finance validates cost scopes.
+Weeks 3-4: private company-controlled foundation, secrets, logging, backup and a representative feed/module pilot. The supplier's 5-8 API workdays are not a complete application integration timeline and depend on supplier scheduling and acceptance.
+Weeks 5-8: agreed module waves, regression tests, permissions, scheduled jobs, data correction/backfill and mobile field testing. Establish baseline and new p95 response times, refresh completion and failure recovery; no measured provider speed comparison is available today.
+Weeks 9-12: gated rollout with training, monitoring and tested rollback. These are indicative overlapping timeboxes for an initial agreed release, NOT a fixed-price or full-handover completion promise. Access delays, retailer consent, schema quality, ETL replacement or new cloud architecture can extend them. Monthly validation must span real complete reporting cycles even if that extends the plan.
+
+DECISION
+Prefer Meridian as the strategic data custodian and continue internal integration where existing capacity and tested controls support it. Authorise discovery first, not unconditional migration or supplier cancellation. Geo should compete on complete integration, support, hosting and exit terms against the SAME source/code inventory. If internal cover is not available, retain Catalyst and buy bounded managed support or reconsider Geo against the evidence. Require explicit corporate account/repository access and contractually protected Meridian IP under every model.
+
+PRICING-ENVELOPE LIMITS
+The page-3 cloud allowance assumes moderate batched data, caching, production plus small testing, 0.5-2 TiB object footprint including retained versions/backups, 0.1-0.5 TiB analytical tables and 5-20 TiB scans monthly. Approximately 100 simultaneous users is an unverified planning input from a population of about 1,000. It is not evidence that the application supports that load. Increasing volume, retention, non-production size, query scans, images/audio or always-on compute changes cost. Get a region-selected calculator bill of materials and a pilot usage sample before Finance authorises a production budget. Internal labour has not been priced in the infrastructure allowance.
+
+REFERENCES
+https://docs.cloud.google.com/storage/docs/locations
+https://docs.cloud.google.com/bigquery/docs/locations
+https://docs.cloud.google.com/run/docs/locations
+https://firebase.google.com/docs/firestore/locations
+https://firebase.google.com/support/privacy
+Sources accessed 13 September 2026. No deployment or infrastructure changes form part of this document task.

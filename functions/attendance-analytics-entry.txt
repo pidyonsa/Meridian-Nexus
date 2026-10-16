@@ -1,0 +1,19 @@
+const attendanceAnalyticsService = require('./attendance-analytics').createService({
+  db, ExcelJS, HttpsError, hierarchy: require('./attendance-hierarchy.json'),
+  async loadVisits(file, audience) {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'nexus-attendance-analytics-'));
+    try {
+      const source = await readGeoRepAttendanceSource(file, 'Schedules', directory, {roleGroup: audience});
+      const raw = geoRepAttendanceScheduleRowsAsObjects(source).map((row, index) => ({...row, id: `Schedules!${source.sourceRowNumbers[index]}`}));
+      const enrichment = await geoRepAttendanceStoreMasterEnrichment(audience, directory);
+      return geoRepAttendanceEnrichScheduleRows(raw, enrichment).rows;
+    } finally {
+      await fs.rm(directory, {recursive: true, force: true});
+    }
+  }
+});
+
+exports.getGeoRepAttendanceDashboard = onCall({ timeoutSeconds: 120, memory: "1GiB", cors: ["https://meridian-nexus.web.app", "https://meridian-nexus.firebaseapp.com"] }, async (request) => {
+  await requireAttendanceViewPermission(request);
+  return attendanceAnalyticsService(request);
+});

@@ -1,0 +1,15 @@
+{
+  "name": "meridian-inventory-etl",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": { "node": "22" },
+  "scripts": { "start": "node worker.cjs", "test": "node --test test/*.test.cjs" },
+  "dependencies": {
+    "@fast-csv/parse": "4.3.6",
+    "@google-cloud/storage": "7.22.0",
+    "exceljs": "4.4.0",
+    "yauzl": "3.4.0"
+  },
+  "overrides": { "uuid": "11.1.1" }
+}

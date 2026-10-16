@@ -1,0 +1,49 @@
+# Manual check that an Azure identity can reach Google through the keyless link.
+# Prints only which Google service account was obtained; no tokens or business data.
+location: southafricanorth
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-etl: {}
+properties:
+  environmentId: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourceGroups/rg-meridian-nexus-automations/providers/Microsoft.App/managedEnvironments/cae-nexus-automations
+  workloadProfileName: Consumption
+  configuration:
+    triggerType: Manual
+    replicaTimeout: 300
+    replicaRetryLimit: 0
+    manualTriggerConfig:
+      parallelism: 1
+      replicaCompletionCount: 1
+    registries:
+      - server: acrnexusautop2fzlrpwgvno2.azurecr.io
+        identity: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-etl
+  template:
+    containers:
+      - name: check
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/tools/node:22-alpine
+        resources:
+          cpu: 0.25
+          memory: 0.5Gi
+        env:
+          - name: AZURE_CLIENT_ID
+            value: ecd3eda7-cc4b-4b62-854a-528942fa0dbc
+          - name: AUDIENCE
+            value: api://95e8953c-64bf-4a17-a65d-e5d531ef7837
+          - name: GOOGLE_PROVIDER
+            value: //iam.googleapis.com/projects/730011371323/locations/global/workloadIdentityPools/azure-nexus-automations/providers/entra
+          - name: GOOGLE_SERVICE_ACCOUNT
+            value: nexus-inventory-etl@meridain-nexus.iam.gserviceaccount.com
+        command:
+          - node
+          - -e
+          - |
+            (async () => {
+              const e = process.env;
+              const step = async (name, res) => { if (!res.ok) { console.log(name + ' FAILED ' + res.status + ' ' + (await res.text()).slice(0, 300)); process.exit(1); } console.log(name + ' ok'); return res.json(); };
+              const ms = await step('azure-token', await fetch(`${e.IDENTITY_ENDPOINT}?api-version=2019-08-01&resource=${encodeURIComponent(e.AUDIENCE)}&client_id=${e.AZURE_CLIENT_ID}`, { headers: { 'X-IDENTITY-HEADER': e.IDENTITY_HEADER } }));
+              const sts = await step('google-sts', await fetch('https://sts.googleapis.com/v1/token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grantType: 'urn:ietf:params:oauth:grant-type:token-exchange', audience: e.GOOGLE_PROVIDER, scope: 'https://www.googleapis.com/auth/cloud-platform', requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token', subjectTokenType: 'urn:ietf:params:oauth:token-type:jwt', subjectToken: ms.access_token }) }));
+              const sa = await step('impersonate', await fetch(`https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${e.GOOGLE_SERVICE_ACCOUNT}:generateAccessToken`, { method: 'POST', headers: { Authorization: 'Bearer ' + sts.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ scope: ['https://www.googleapis.com/auth/cloud-platform'] }) }));
+              const info = await step('tokeninfo', await fetch('https://oauth2.googleapis.com/tokeninfo?access_token=' + sa.accessToken));
+              console.log('acting as ' + info.email + ', expires in ' + info.expires_in + 's');
+            })().catch(err => { console.log('ERROR ' + err.message); process.exit(1); });

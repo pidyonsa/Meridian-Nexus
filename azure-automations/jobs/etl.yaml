@@ -1,0 +1,63 @@
+# Nexus ETL worker on Azure: the same image as Google's nexus-inventory-etl job (digest 2a1732a7...).
+# The wrapper writes an Azure token and a Google external-account credentials file (keyless), then runs
+# the image's own command (node worker.cjs). ETL_RUN_ID is supplied per execution.
+location: southafricanorth
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-etl: {}
+properties:
+  environmentId: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourceGroups/rg-meridian-nexus-automations/providers/Microsoft.App/managedEnvironments/cae-nexus-automations
+  workloadProfileName: Consumption
+  configuration:
+    triggerType: Manual
+    replicaTimeout: 1800
+    replicaRetryLimit: 0
+    manualTriggerConfig:
+      parallelism: 1
+      replicaCompletionCount: 1
+    registries:
+      - server: acrnexusautop2fzlrpwgvno2.azurecr.io
+        identity: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-etl
+  template:
+    containers:
+      - name: worker
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/nexus-etl/worker:gcp-2a1732a7
+        resources:
+          cpu: 1
+          memory: 2Gi
+        env:
+          - name: ETL_RUN_ID
+            value: unset
+          - name: GOOGLE_CLOUD_PROJECT
+            value: meridain-nexus
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /tmp/gcp-credentials.json
+          - name: AZURE_CLIENT_ID
+            value: ecd3eda7-cc4b-4b62-854a-528942fa0dbc
+          - name: AUDIENCE
+            value: api://95e8953c-64bf-4a17-a65d-e5d531ef7837
+          - name: GOOGLE_PROVIDER
+            value: //iam.googleapis.com/projects/730011371323/locations/global/workloadIdentityPools/azure-nexus-automations/providers/entra
+          - name: GOOGLE_SERVICE_ACCOUNT
+            value: nexus-inventory-etl@meridain-nexus.iam.gserviceaccount.com
+        command:
+          - node
+          - -e
+          - |
+            const fs = require('node:fs'), { spawn } = require('node:child_process'), e = process.env;
+            (async () => {
+              if (!/^[a-f0-9]{32}(-[a-f0-9]{8})?$/.test(e.ETL_RUN_ID || '')) throw Error('ETL_RUN_ID is required');
+              const r = await fetch(`${e.IDENTITY_ENDPOINT}?api-version=2019-08-01&resource=${encodeURIComponent(e.AUDIENCE)}&client_id=${e.AZURE_CLIENT_ID}`, { headers: { 'X-IDENTITY-HEADER': e.IDENTITY_HEADER } });
+              if (!r.ok) throw Error('Azure token ' + r.status);
+              fs.writeFileSync('/tmp/azure-token', (await r.json()).access_token, { mode: 0o600 });
+              fs.writeFileSync(e.GOOGLE_APPLICATION_CREDENTIALS, JSON.stringify({
+                type: 'external_account', audience: e.GOOGLE_PROVIDER,
+                subject_token_type: 'urn:ietf:params:oauth:token-type:jwt', token_url: 'https://sts.googleapis.com/v1/token',
+                service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${e.GOOGLE_SERVICE_ACCOUNT}:generateAccessToken`,
+                credential_source: { file: '/tmp/azure-token' }
+              }), { mode: 0o600 });
+              console.log(JSON.stringify({ event: 'azure-etl-start', runId: e.ETL_RUN_ID }));
+              const child = spawn('node', ['worker.cjs'], { stdio: 'inherit' });
+              child.on('exit', code => process.exit(code ?? 1));
+            })().catch(err => { console.log(JSON.stringify({ event: 'azure-etl-wrapper-failed', error: err.message })); process.exit(1); });

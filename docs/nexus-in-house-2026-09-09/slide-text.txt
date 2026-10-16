@@ -1,0 +1,273 @@
+NEXUS  /  OWNERSHIP & FIELD OPERATIONS
+
+CEO & MD  |  09 SEPTEMBER 2026
+
+Keep Nexus in-house, with accountable support
+
+Johannesburg hosting is the design basis. About 1,000 users: field teams first, with office and client dashboards.
+
+CONFIDENTIAL
+
+1 / 3
+
+NEXUS  |  DEDICATED MERIDIAN CLOUD  |  JOHANNESBURG
+
+Insights  |  Stock Fix  |  Attendance  |  Call Cycle  |  Orders  |  Chat
+
+FIELD TEAMS
+
+Sales reps +
+merchandisers
+
+OFFICE + CLIENTS
+
+Assigned access
+and dashboards
+
+One sign-in + access controls
+
+Secure APIs + automated jobs
+
+Operational data
+
+Orders, tasks, attendance
+
+Sales analytics
+
+Validated retailer history
+
+Photos + files
+
+Masters and visit evidence
+
+Next: mobile ordering, image recognition, AI expansion and WhatsApp
+
+MFA  |  client/store isolation  |  audit logs  |  backups  |  cost controls
+
+GEO REP  |  EXTERNAL, AWS
+
+Field activity + order API
+
+CATALYST  |  EXTERNAL, AWS
+
+Retailer sales + inventory
+Clicks, Shoprite | API pending
+
+SHAREPOINT + SOURCE FILES
+
+Attendance reports + masters
+
+Logical hosting model, not migration sign-off. Confirm the cloud platform and each resource location; dotted link = future API.
+
+OWN THE BUSINESS PLATFORM
+
+Meridian controls its code, data, access
+and roadmap; supplier exit stays possible.
+
+DESIGN FOR THE STORE VISIT
+
+Prioritise coverage, shelf availability,
+accepted orders and task completion.
+
+BUY EXPERTISE SELECTIVELY
+
+Keep useful Geo Rep and Catalyst services.
+Add specialist support without handover.
+
+Location checks: Azure [1]
+
+Firestore [2]
+
+Geo Rep capabilities [3]
+
+Supplier roles: Meridian brief
+
+NEXUS  /  OWNERSHIP & FIELD OPERATIONS
+
+CEO & MD  |  09 SEPTEMBER 2026
+
+In-house control comes with operating obligations
+
+The largest exposure is concentrated knowledge and support. Fund the controls before expanding business-critical use.
+
+CONFIDENTIAL
+
+2 / 3
+
+RISK / BUSINESS IMPACT
+
+LEVEL*
+
+REQUIRED CONTROL / ACCEPTANCE EVIDENCE
+
+PROPOSED OWNER
+
+Key-person dependency
+
+Absence delays fixes
+
+H > M
+
+Two-person deployment and restore cover; runbooks, code review
+and a support retainer.
+
+Director + IT
+
+Client / staff data exposure
+
+GPS, photos and reports
+
+H > M
+
+MFA, client/store isolation tests, scoped service access;
+device revocation and retention rules.
+
+Information
+Officer + IT
+
+Outage / failed cutover
+
+Visits and jobs disrupted
+
+H > M
+
+Staged releases, job alerts, versioned backups and restore drills;
+rehearse rollback and a regional-outage response.
+
+Cloud lead
++ QA
+
+Offline work / order loss
+
+Poor signal or lost device
+
+H > M
+
+Encrypted local queue; restart and sync tests; duplicate-safe
+orders with clear pending, accepted and rejected states.
+
+Mobile lead
++ Field Ops
+
+Supplier or data failure
+
+Wrong or stale actions
+
+H > M
+
+API contracts, retries and freshness alerts; reconcile retailer
+totals and store/product masters; retain export rights.
+
+BI + API
+owner
+
+AI misuse / cost growth
+
+Leakage, mistakes, overrun
+
+H > M
+
+Permission-scoped AI; approval before actions; quality tests,
+usage limits and per-user cost monitoring.
+
+AI lead
++ Finance
+
+*Qualitative judgement, not an audit: High before controls; Medium target only after evidence is accepted. Residual risk remains.
+
+A Johannesburg account is a foundation, not a security or POPIA guarantee.
+
+Meridian still owns access, devices, data governance and incident response; external processing and regional recovery need review.
+
+Shared responsibility [4]
+
+Information Regulator: POPIA [5]
+
+Controls and owners are proposed, not certified
+
+NEXUS  /  OWNERSHIP & FIELD OPERATIONS
+
+CEO & MD  |  09 SEPTEMBER 2026
+
+Approve the capability, not an unconditional rebuild
+
+Recommended: Meridian-led development plus contracted cloud/security support. Keep suppliers where they deliver proven value.
+
+CONFIDENTIAL
+
+3 / 3
+
+OPERATING OPTION
+
+BENEFIT
+
+DISADVANTAGE
+
+ASSESSMENT
+
+Meridian team only
+
+Maximum delivery control
+
+Recruitment + on-call burden
+
+Conditional
+
+Meridian + specialist support
+
+Control with backup expertise
+
+Internal team + support cost
+
+Preferred
+
+Geo Rep-led delivery
+
+Potential delivery/support capacity
+
+Contract, API and exit dependence
+
+Quote + proof
+
+COST: COMPARE THE FULL 36 MONTHS
+
+Setup / migration + 36 x monthly operating cost
+
+Include people, support, cloud, supplier/API fees, devices,
+AI, image recognition and WhatsApp usage.
+
+R10,000/month difference = R360,000 over 3 years.
+
+No verified quotes or workload estimate: savings are unproven.
+Track cost per active field user, accepted order and visit.
+
+90-DAY ASSURANCE PLAN / PROPOSED
+
+01
+
+Days 0-30
+
+Confirm platform, team cover and budget;
+prove access controls and backup recovery.
+
+02
+
+Days 31-60
+
+Pilot field sync, supplier feeds and orders;
+reconcile data and test rollback.
+
+03
+
+Days 61-90
+
+Expand after business acceptance; stage
+IR and WhatsApp behind separate gates.
+
+APPROVE: Meridian-led Nexus, named backup and funded support. Retain suppliers until replacements pass.
+
+Cost tools: Azure [6]
+
+Google Cloud [7]
+
+Phases are a proposal, not a migration or feature-delivery promise

@@ -2,18 +2,81 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    function temporaryAccessIsActive() {
-      return request.time < timestamp.date(2026, 7, 20);
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.get('admin', false) == true
+        && request.auth.token.get('chatClient', false) != true
+        && request.auth.token.get('nexusRole', '') != 'client'
+        && activeAdminProfile();
+    }
+    function activeAdminProfile() {
+      let p = get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data;
+      return p.get('role', '') == 'admin' && p.get('disabled', false) != true
+        && p.get('accountType', '') != 'client'
+        && p.get('chatAccess', {}).get('audience', '') != 'external'
+        && p.get('chatAccess', {}).get('workRole', '') != 'Client';
     }
 
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+    function canReadAttendance() {
+      let p = get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data;
+      return request.auth != null
+        && (request.auth.token.get('nexusRole', '') == 'normal' || request.auth.token.get('operator', false) == true)
+        && request.auth.token.get('chatClient', false) != true
+        && request.auth.token.get('nexusRole', '') != 'client'
+        && p.get('role', '') == 'normal' && p.get('disabled', false) != true
+        && p.get('accountType', '') != 'client'
+        && p.get('chatAccess', {}).get('audience', '') != 'external'
+        && p.get('chatAccess', {}).get('workRole', '') != 'Client'
+        && 'attendance' in p.get('permissions', {}).get('allowedNavigationIds', []);
+    }
+
+    function chatProfile() {
+      return get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data;
+    }
+    function chatEnabled() {
+      let p = chatProfile();
+      return request.auth != null && p.get('disabled', false) != true
+        && request.auth.token.get('chatClient', false) != true
+        && request.auth.token.get('nexusRole', '') != 'client'
+        && p.get('permissions', {}).get('chatEnabled', true) != false
+        && p.get('accountType', '') != 'client' && p.get('role', '') != 'client'
+        && p.get('chatAccess', {}).get('audience', '') != 'external'
+        && p.get('chatAccess', {}).get('workRole', '') != 'Client'
+        && (p.get('accountType', '') == 'staff' || p.get('role', '') in ['admin', 'normal']);
+    }
+    function assignedChat(room) {
+      let p = chatProfile();
+      return chatEnabled() && request.auth.uid in room.memberIds
+        && (p.get('chatAccess', {}).get('audience', '') != 'external'
+          || (room.type == 'client' && room.clientId == p.chatAccess.clientId));
+    }
+    match /meridianChatRooms/{roomId} {
+      allow get: if assignedChat(resource.data);
+      allow list: if request.query.limit <= 100 && assignedChat(resource.data);
+      allow write: if false;
+      match /messages/{messageId} {
+        allow get: if assignedChat(get(/databases/$(database)/documents/meridianChatRooms/$(roomId)).data);
+        allow list: if request.query.limit <= 100 && assignedChat(get(/databases/$(database)/documents/meridianChatRooms/$(roomId)).data);
+        allow write: if false;
+      }
+      match /receipts/{uid} {
+        allow read: if assignedChat(get(/databases/$(database)/documents/meridianChatRooms/$(roomId)).data);
+        allow write: if false;
+      }
+    }
+    match /meridianChatReads/{uid}/rooms/{roomId} {
+      allow read: if chatEnabled() && request.auth.uid == uid;
+      allow write: if false;
+    }
+    match /meridianChatTasks/{taskId} {
+      allow get: if assignedChat(get(/databases/$(database)/documents/meridianChatRooms/$(resource.data.roomId)).data);
+      allow list, write: if false;
     }
 
     match /files/{fileId} {
-      allow read, delete: if temporaryAccessIsActive();
+      allow read, delete: if isAdmin();
 
-      allow create: if temporaryAccessIsActive()
+      allow create: if isAdmin()
         && request.resource.data.keys().hasOnly([
           'name', 'size', 'type', 'storagePath', 'createdAt'
         ])
@@ -65,14 +128,14 @@ service cloud.firestore {
     }
 
     match /dashboardClients/{clientId} {
-      allow read: if temporaryAccessIsActive();
-      allow create, update: if temporaryAccessIsActive() && isAdmin() && validDashboardClient(clientId);
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() && validDashboardClient(clientId);
       allow delete: if false;
     }
 
     match /dashboardUploads/{uploadId} {
-      allow read: if temporaryAccessIsActive();
-      allow create: if temporaryAccessIsActive() && isAdmin()
+      allow read: if isAdmin();
+      allow create: if isAdmin()
         && request.resource.data.keys().hasOnly([
           'clientId', 'clientName', 'dashboardType', 'sourceName', 'size',
           'rowCount', 'storagePath', 'status', 'createdAt'
@@ -91,6 +154,46 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Stock Fix sources are processed by Cloud Functions. Administrators may
+    // inspect the publishing audit, but browser clients never write the
+    // weekly snapshots or task data directly.
+    match /stockFixUploads/{uploadId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /stockFixWeeks/{week} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /stockFixPipelineRuns/{runId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Nexus Stock Fix operational data is read and written through callable
+    // functions so assignment checks, capture validation and audit events
+    // cannot be bypassed by a browser client.
+    match /stockFixOperationalWeeks/{week} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /stockFixOperationalRoster/{uid} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /stockFixOperationalTasks/{taskId} {
+      allow read: if isAdmin();
+      allow write: if false;
+      match /captureEvents/{eventId} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
     match /retailers/{retailerId} {
       allow read: if isAdmin();
       allow write: if false;
@@ -101,7 +204,112 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /geoRepStoreMasters/{masterId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /geoRepFormIntakes/{intakeId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /geoRepBlueprints/{blueprintId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /geoRepBlueprintFolders/{folderId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /salesStoreMasters/{masterId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /salesDashboardConfig/{configId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /salesTransactionImports/{importId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /salesTransactions/{transactionId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /salesDashboardSnapshots/{snapshotId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /geoRepAttendanceConfig/{configId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /attendanceStoreMasters/{masterId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /geoRepAttendanceDashboard/{snapshotId} {
+      allow read: if isAdmin() || canReadAttendance();
+      allow write: if false;
+    }
+
+    match /geoRepAttendanceCoverage/{audience}/{kind}/{documentId} {
+      allow read: if (isAdmin() || canReadAttendance()) && kind in ['stores', 'visits'];
+      allow write: if false;
+    }
+
+    match /attendanceBlueprintUpdates/{updateId} {
+      allow read: if isAdmin() || canReadAttendance();
+      allow write: if false;
+    }
+
+    match /salesforceAttendanceWorkbookSnapshots/{snapshotId} {
+      allow read: if isAdmin() || canReadAttendance();
+      allow write: if false;
+      match /rows/{chunkId} {
+        allow read: if isAdmin() || canReadAttendance();
+        allow write: if false;
+      }
+    }
+
+    match /salesforceAttendanceMasters/{masterId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /salesforceAttendanceConfig/{configId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /salesforceDisplayComplianceConfig/{configId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Controlled source-file catalogue. Browser clients use admin callables
+    // for CRUD so metadata, Storage paths and audit events are validated.
+    match /portalResources/{resourceId} {
+      allow read, write: if false;
+    }
+
     match /adminUsers/{userId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /accessAuditLogs/{eventId} {
       allow read: if isAdmin();
       allow write: if false;
     }
@@ -110,21 +318,37 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    match /retailerPortalProfiles/{profileId} {
-      allow read: if isAdmin();
-      allow write: if false;
-    }
-
-    match /extractionBatches/{batchId} {
-      allow read: if isAdmin();
-      allow write: if false;
-    }
-
     match /extractionRuns/{runId} {
-      allow read: if temporaryAccessIsActive();
+      allow read: if isAdmin();
       allow write: if false;
     }
 
+    match /automationPrompts/{promptId} {
+      // Owners need an immediate listener for their own MFA prompt. They can
+      // never read a different user's prompt or write any prompt data.
+      allow read: if isAdmin()
+        || (request.auth != null && resource.data.ownerUid == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /fileDropRooms/{roomId} {
+      allow read, write: if false;
+    }
+
+    match /fileDrops/{fileId} {
+      // Legacy link-based sharing is retired. Use the controlled Resources catalogue.
+      allow read, write: if false;
+    }
+
+    // Chat media, device tokens, reminder dispatch and private AI memory are
+    // server-only, including for administrators using a browser SDK.
+    match /meridianChatAttachments/{id} { allow read, write: if false; }
+    match /meridianChatUploadQuota/{id} { allow read, write: if false; }
+    match /meridianChatDevices/{id} { allow read, write: if false; }
+    match /meridianChatReminders/{id} { allow read, write: if false; }
+    match /meridianChatDeliveries/{id} { allow read, write: if false; }
+    match /meridianAssistantSessions/{id} { allow read, write: if false; }
+    match /nexusSecurity/{id} { allow read, write: if false; }
     match /{document=**} {
       allow read, write: if false;
     }

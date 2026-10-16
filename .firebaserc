@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "meridain-nexus"
-  }
+  },
+  "targets": {
+    "meridain-nexus": {
+      "hosting": {
+        "app": [
+          "meridian-nexus"
+        ],
+        "drop": [
+          "meridian-nexus-drop"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

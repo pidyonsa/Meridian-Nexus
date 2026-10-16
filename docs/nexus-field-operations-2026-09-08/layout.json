@@ -1,0 +1,658 @@
+[
+  {
+    "page": 1,
+    "text": "NEXUS  /  FIELD OPERATIONS",
+    "x": 2.4,
+    "y": 0.24,
+    "w": 5.25,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "CEO & MD  |  08 SEPTEMBER 2026",
+    "x": 9.18,
+    "y": 0.24,
+    "w": 3.65,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Meridian Nexus, built around the store visit",
+    "x": 0.48,
+    "y": 0.97,
+    "w": 12.37,
+    "h": 0.46
+  },
+  {
+    "page": 1,
+    "text": "Sales reps and merchandisers are the primary users. Managers and clients use the evidence to guide action.",
+    "x": 0.5,
+    "y": 1.54,
+    "w": 12.2,
+    "h": 0.42
+  },
+  {
+    "page": 1,
+    "text": "CONFIDENTIAL  |  1. NEXUS TARGET ARCHITECTURE",
+    "x": 0.5,
+    "y": 7.2,
+    "w": 10.8,
+    "h": 0.18
+  },
+  {
+    "page": 1,
+    "text": "1 / 3",
+    "x": 12.1,
+    "y": 7.15,
+    "w": 0.74,
+    "h": 0.25
+  },
+  {
+    "page": 1,
+    "text": "MERIDIAN NEXUS  |  AWS, GEO REP-OPERATED",
+    "x": 3.12,
+    "y": 2.22,
+    "w": 5.36,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "FIELD AGENTS",
+    "x": 0.65,
+    "y": 2.5,
+    "w": 1.73,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Geo Rep mobile + API\nNexus Field proposed",
+    "x": 0.65,
+    "y": 2.85,
+    "w": 1.73,
+    "h": 0.46
+  },
+  {
+    "page": 1,
+    "text": "OFFICE + CLIENTS",
+    "x": 0.65,
+    "y": 3.94,
+    "w": 1.73,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Nexus web dashboards\nExisting sidebar retained",
+    "x": 0.65,
+    "y": 4.27,
+    "w": 1.73,
+    "h": 0.48
+  },
+  {
+    "page": 1,
+    "text": "Secure APIs + sign-in",
+    "x": 3.31,
+    "y": 2.98,
+    "w": 2.16,
+    "h": 0.22
+  },
+  {
+    "page": 1,
+    "text": "Workflows + background jobs",
+    "x": 6.04,
+    "y": 2.98,
+    "w": 2.31,
+    "h": 0.22
+  },
+  {
+    "page": 1,
+    "text": "Orders + tasks",
+    "x": 3.2399999999999998,
+    "y": 3.89,
+    "w": 1.48,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Operational database",
+    "x": 3.2399999999999998,
+    "y": 4.18,
+    "w": 1.48,
+    "h": 0.19
+  },
+  {
+    "page": 1,
+    "text": "Photos + files",
+    "x": 5.08,
+    "y": 3.89,
+    "w": 1.48,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Amazon S3",
+    "x": 5.08,
+    "y": 4.18,
+    "w": 1.48,
+    "h": 0.19
+  },
+  {
+    "page": 1,
+    "text": "Sales + inventory",
+    "x": 6.92,
+    "y": 3.89,
+    "w": 1.48,
+    "h": 0.23
+  },
+  {
+    "page": 1,
+    "text": "Analytics data layer",
+    "x": 6.92,
+    "y": 4.18,
+    "w": 1.48,
+    "h": 0.19
+  },
+  {
+    "page": 1,
+    "text": "Client isolation  |  Monitoring  |  Backups  |  Protected credentials",
+    "x": 3.15,
+    "y": 4.68,
+    "w": 5.35,
+    "h": 0.19
+  },
+  {
+    "page": 1,
+    "text": "What field teams need",
+    "x": 9.04,
+    "y": 2.14,
+    "w": 3.73,
+    "h": 0.33
+  },
+  {
+    "page": 1,
+    "text": "SALES REPS",
+    "x": 9.05,
+    "y": 2.67,
+    "w": 3.73,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Call cycle and store context;\nquotes, orders and returns;\nclear approval and fulfilment status.",
+    "x": 9.05,
+    "y": 3.02,
+    "w": 3.73,
+    "h": 0.73
+  },
+  {
+    "page": 1,
+    "text": "MERCHANDISERS",
+    "x": 9.05,
+    "y": 3.91,
+    "w": 3.73,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Attendance, shelf availability,\nprice and promotion checks;\nStock Fix tasks with photo proof.",
+    "x": 9.05,
+    "y": 4.24,
+    "w": 3.73,
+    "h": 0.73
+  },
+  {
+    "page": 1,
+    "text": "FIELD VALUE",
+    "x": 0.65,
+    "y": 5.279999999999999,
+    "w": 3.82,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Accepted orders, verified shelf work\nand clear ownership of follow-ups.\nMeasure coverage, availability\nand task closure.",
+    "x": 0.65,
+    "y": 5.66,
+    "w": 3.8,
+    "h": 1
+  },
+  {
+    "page": 1,
+    "text": "NON-NEGOTIABLE",
+    "x": 4.890000000000001,
+    "y": 5.279999999999999,
+    "w": 3.7199999999999998,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Offline capture, reliable photo sync,\none sign-in and client/store access.\nAbout 1,000 total users; field, office\nand client licence split to confirm.",
+    "x": 4.890000000000001,
+    "y": 5.66,
+    "w": 3.6999999999999997,
+    "h": 1
+  },
+  {
+    "page": 1,
+    "text": "HOSTING DECISION",
+    "x": 9.110000000000001,
+    "y": 5.279999999999999,
+    "w": 3.6999999999999997,
+    "h": 0.24
+  },
+  {
+    "page": 1,
+    "text": "Move Nexus to AWS with Geo Rep.\nMeridian-owned account recommended;\ncontrolled provider access. Account\nownership and operating scope: TBC.",
+    "x": 9.110000000000001,
+    "y": 5.66,
+    "w": 3.6799999999999997,
+    "h": 1
+  },
+  {
+    "page": 1,
+    "text": "Target architecture, not a completed migration. AWS SA Region: Cape Town (af-south-1); Geo Rep region to confirm. [1]",
+    "x": 0.51,
+    "y": 6.85,
+    "w": 11.72,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "NEXUS  /  FIELD OPERATIONS",
+    "x": 2.4,
+    "y": 0.24,
+    "w": 5.25,
+    "h": 0.23
+  },
+  {
+    "page": 2,
+    "text": "CEO & MD  |  08 SEPTEMBER 2026",
+    "x": 9.18,
+    "y": 0.24,
+    "w": 3.65,
+    "h": 0.23
+  },
+  {
+    "page": 2,
+    "text": "Geo Rep should run the field experience",
+    "x": 0.48,
+    "y": 0.97,
+    "w": 12.37,
+    "h": 0.46
+  },
+  {
+    "page": 2,
+    "text": "Build on the existing product; accept the mobile-to-Nexus workflow only after a representative field pilot.",
+    "x": 0.5,
+    "y": 1.54,
+    "w": 12.2,
+    "h": 0.42
+  },
+  {
+    "page": 2,
+    "text": "CONFIDENTIAL  |  2. GEO REP DELIVERY AND ACCEPTANCE",
+    "x": 0.5,
+    "y": 7.2,
+    "w": 10.8,
+    "h": 0.18
+  },
+  {
+    "page": 2,
+    "text": "2 / 3",
+    "x": 12.1,
+    "y": 7.15,
+    "w": 0.74,
+    "h": 0.25
+  },
+  {
+    "page": 2,
+    "text": "FIELD MOBILE APP",
+    "x": 0.91,
+    "y": 2.82,
+    "w": 2.6,
+    "h": 0.25
+  },
+  {
+    "page": 2,
+    "text": "Offline visits, photos and orders\nNexus Field branding proposed",
+    "x": 0.91,
+    "y": 3.19,
+    "w": 2.6,
+    "h": 0.39
+  },
+  {
+    "page": 2,
+    "text": "EXTERNAL GEO REP  |  AWS",
+    "x": 4.43,
+    "y": 2.45,
+    "w": 4,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Field records and mobile sync\nVisits, attendance, forms, tasks, orders",
+    "x": 4.43,
+    "y": 2.96,
+    "w": 4,
+    "h": 0.58
+  },
+  {
+    "page": 2,
+    "text": "Existing product; Meridian API scope to confirm",
+    "x": 4.43,
+    "y": 3.73,
+    "w": 4,
+    "h": 0.18
+  },
+  {
+    "page": 2,
+    "text": "API",
+    "x": 8.69,
+    "y": 2.79,
+    "w": 0.44,
+    "h": 0.18
+  },
+  {
+    "page": 2,
+    "text": "MERIDIAN NEXUS  |  AWS",
+    "x": 9.4,
+    "y": 2.83,
+    "w": 3,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Exceptions, Insights and client evidence",
+    "x": 9.4,
+    "y": 3.21,
+    "w": 3,
+    "h": 0.36
+  },
+  {
+    "page": 2,
+    "text": "Task / order write-back\nAPI access to prove",
+    "x": 8.76,
+    "y": 3.69,
+    "w": 2.02,
+    "h": 0.38
+  },
+  {
+    "page": 2,
+    "text": "Geo Rep advertises offline field capture and sales [2]. API access, LMS feeds, SSO and white-label rights require confirmation.",
+    "x": 0.52,
+    "y": 4.47,
+    "w": 12.2,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "BENEFIT / DISADVANTAGE",
+    "x": 0.65,
+    "y": 4.9799999999999995,
+    "w": 3.77,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Reuse established field workflows.\nReduce duplicate capture and app\nswitching. Trade-off: dependence\non the supplier, its API and licences.",
+    "x": 0.65,
+    "y": 5.36,
+    "w": 3.75,
+    "h": 1.06
+  },
+  {
+    "page": 2,
+    "text": "PILOT ACCEPTANCE",
+    "x": 4.890000000000001,
+    "y": 4.9799999999999995,
+    "w": 3.77,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Capture offline for a full shift.\nRecover photo queues after restart.\nRetry without duplicate orders.\nTest speed on actual field devices.",
+    "x": 4.890000000000001,
+    "y": 5.36,
+    "w": 3.75,
+    "h": 1.06
+  },
+  {
+    "page": 2,
+    "text": "SECURITY + SERVICE",
+    "x": 9.110000000000001,
+    "y": 4.9799999999999995,
+    "w": 3.6999999999999997,
+    "h": 0.24
+  },
+  {
+    "page": 2,
+    "text": "Client isolation; encrypted device data.\nLost-device controls; scoped GPS use.\nNamed support and incident SLAs.\nProve backups and restoration.",
+    "x": 9.110000000000001,
+    "y": 5.36,
+    "w": 3.6799999999999997,
+    "h": 1.06
+  },
+  {
+    "page": 2,
+    "text": "Geo Rep operates the service; Meridian retains product decisions, data access and release acceptance.",
+    "x": 0.68,
+    "y": 6.69,
+    "w": 11.98,
+    "h": 0.23
+  },
+  {
+    "page": 3,
+    "text": "NEXUS  /  FIELD OPERATIONS",
+    "x": 2.4,
+    "y": 0.24,
+    "w": 5.25,
+    "h": 0.23
+  },
+  {
+    "page": 3,
+    "text": "CEO & MD  |  08 SEPTEMBER 2026",
+    "x": 9.18,
+    "y": 0.24,
+    "w": 3.65,
+    "h": 0.23
+  },
+  {
+    "page": 3,
+    "text": "Catalyst data must drive action in store",
+    "x": 0.48,
+    "y": 0.97,
+    "w": 12.37,
+    "h": 0.46
+  },
+  {
+    "page": 3,
+    "text": "Retailer sales and inventory identify the issue; the field visit verifies it, resolves it and provides evidence.",
+    "x": 0.5,
+    "y": 1.54,
+    "w": 12.2,
+    "h": 0.42
+  },
+  {
+    "page": 3,
+    "text": "3 / 3",
+    "x": 12.1,
+    "y": 7.15,
+    "w": 0.74,
+    "h": 0.25
+  },
+  {
+    "page": 3,
+    "text": "RETAILERS",
+    "x": 0.66,
+    "y": 2.77,
+    "w": 2.08,
+    "h": 0.25
+  },
+  {
+    "page": 3,
+    "text": "Clicks, Shoprite + others\nSales + inventory exports",
+    "x": 0.66,
+    "y": 3.23,
+    "w": 2.08,
+    "h": 0.44
+  },
+  {
+    "page": 3,
+    "text": "CATALYST  |  AWS",
+    "x": 3.44,
+    "y": 2.77,
+    "w": 2.27,
+    "h": 0.25
+  },
+  {
+    "page": 3,
+    "text": "External service provider\nAPI access pending",
+    "x": 3.44,
+    "y": 3.23,
+    "w": 2.27,
+    "h": 0.44
+  },
+  {
+    "page": 3,
+    "text": "NEXUS  |  AWS",
+    "x": 6.41,
+    "y": 2.77,
+    "w": 2.52,
+    "h": 0.25
+  },
+  {
+    "page": 3,
+    "text": "Validate store / product data\nInsights + Stock Fix priorities",
+    "x": 6.41,
+    "y": 3.23,
+    "w": 2.52,
+    "h": 0.44
+  },
+  {
+    "page": 3,
+    "text": "FIELD EXECUTION",
+    "x": 9.63,
+    "y": 2.77,
+    "w": 3.0700000000000003,
+    "h": 0.25
+  },
+  {
+    "page": 3,
+    "text": "Task, shelf check and photo proof\nManager confirms closure",
+    "x": 9.63,
+    "y": 3.23,
+    "w": 3.0700000000000003,
+    "h": 0.44
+  },
+  {
+    "page": 3,
+    "text": "RETAILER SOURCE",
+    "x": 0.51,
+    "y": 2.16,
+    "w": 2.7,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "SUPPLIER BOUNDARY",
+    "x": 3.29,
+    "y": 2.16,
+    "w": 2.75,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "MERIDIAN BUSINESS RULES",
+    "x": 6.26,
+    "y": 2.16,
+    "w": 3,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "GEO REP MOBILE / NEXUS FIELD",
+    "x": 9.48,
+    "y": 2.16,
+    "w": 3.37,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "Completion evidence returns to Nexus",
+    "x": 8.53,
+    "y": 4.3,
+    "w": 4.04,
+    "h": 0.23
+  },
+  {
+    "page": 3,
+    "text": "Retailer sell-out is not rep-captured orders. Show source dates; daily feeds are not real-time.",
+    "x": 0.53,
+    "y": 4.45,
+    "w": 7.72,
+    "h": 0.37
+  },
+  {
+    "page": 3,
+    "text": "BENEFITS + RISKS",
+    "x": 0.65,
+    "y": 5,
+    "w": 3.76,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "Focus visits on stock and sales gaps.\nRisk: stale feeds, retailer access\nchanges and incorrect SKU mapping.\nRetain source lineage and retry alerts.",
+    "x": 0.65,
+    "y": 5.380000000000001,
+    "w": 3.7399999999999998,
+    "h": 1.04
+  },
+  {
+    "page": 3,
+    "text": "COSTS: QUOTE REQUIRED",
+    "x": 4.890000000000001,
+    "y": 5,
+    "w": 3.77,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "36-month total: AWS + field licences\n+ support + retailer feeds + migration\n+ AI, image recognition and WhatsApp.\nTrack cost per field user / store visit.",
+    "x": 4.890000000000001,
+    "y": 5.380000000000001,
+    "w": 3.75,
+    "h": 1.04
+  },
+  {
+    "page": 3,
+    "text": "APPROVAL GATES",
+    "x": 9.110000000000001,
+    "y": 5,
+    "w": 3.6999999999999997,
+    "h": 0.24
+  },
+  {
+    "page": 3,
+    "text": "1  Pilot Stock Fix; retain current service.\n2  Reconcile feeds and test recovery.\n3  Prove ordering, then AI / IR / WhatsApp.\nReplace Catalyst only after acceptance.",
+    "x": 9.110000000000001,
+    "y": 5.380000000000001,
+    "w": 3.6799999999999997,
+    "h": 1.04
+  },
+  {
+    "page": 3,
+    "text": "Approve a scoped Geo Rep-managed AWS pilot, not an unconditional platform handover.",
+    "x": 0.7,
+    "y": 6.69,
+    "w": 11.94,
+    "h": 0.25
+  },
+  {
+    "page": 3,
+    "text": "AWS consumption is usage-priced [3]; supplier fees, volumes and an approved budget remain unconfirmed.",
+    "x": 0.53,
+    "y": 7.19,
+    "w": 10.9,
+    "h": 0.24
+  }
+]

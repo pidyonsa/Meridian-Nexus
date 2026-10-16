@@ -1,0 +1,53 @@
+{
+  "edition": "Azure: syndicated attendance and Franchise Orders only",
+  "files": [
+    {
+      "source": "functions/attendance-analytics.js",
+      "destination": "server/domain/attendance.cjs",
+      "sourceSha256": "e054d9738e1db737ccacd46da5b682ee2309f7837d2eb71dfc99ee0003a900ce",
+      "sha256": "015849731abd0e99ce29f0759c7cfa054249dcb957b5d35090961c1cb81d1b16"
+    },
+    {
+      "source": "functions/franchise-orders.js",
+      "destination": "server/domain/orders.cjs",
+      "sourceSha256": "0aea88504ffefdcedbc73a170e6f9d5d5d6f98865f43c80e650fb122660a06ec",
+      "sha256": "f7d2ffadafe77658a4db33327cd33d0db0fc7427b28791915b0520e311947f6e"
+    },
+    {
+      "source": "public/attendance-analytics.js",
+      "destination": "public/attendance.js",
+      "sourceSha256": "3cae4ebdd38904f9be6865f800177e33de8a1c36df199f2a61bc6a390c490c11",
+      "sha256": "3cae4ebdd38904f9be6865f800177e33de8a1c36df199f2a61bc6a390c490c11"
+    },
+    {
+      "source": "public/attendance-analytics.css",
+      "destination": "public/attendance.css",
+      "sourceSha256": "834ecf028e1eb005429f839697f1af9e7199f1f1d887eb03183acf2c4cb5f591",
+      "sha256": "a4ea78878a4fe83a257058a5de6fe7aa80b1768499bab076b30bea6557008858"
+    },
+    {
+      "source": "public/styles.css",
+      "destination": "public/attendance-base.css",
+      "sourceSha256": "7e38243c4646663eaff6454121cd9680af8a4743cd585a2a057406e041e5eb80",
+      "sha256": "f6b91f0f3de93f01c9f7657431b0780834eb124e263b846ddbe4aa40e78a6ae5"
+    },
+    {
+      "source": "public/franchise-orders.js",
+      "destination": "public/orders.js",
+      "sourceSha256": "c922d85d77829f0b6951dbfb565a631533eaa411347f4009ccd49426235c194a",
+      "sha256": "8fbb20cd79a12eb212f6ea5152bd3eccc1dc102b8f4b628a85694b0d8193c9a1"
+    },
+    {
+      "source": "public/franchise-orders.css",
+      "destination": "public/orders.css",
+      "sourceSha256": "d799c821df6db7a44e6596334cc9c32591b97857c4bd60aa500fcfbc47284aae",
+      "sha256": "18e0d0176dd0808d36ab7b8218133b61be6e715e126d7e80f42430f829a2df8f"
+    },
+    {
+      "source": "public/sales-insights-source/assets/meridian-logo-white.png",
+      "destination": "public/assets/meridian-logo.png",
+      "sourceSha256": "a30b8d98cdc9f19263983fe0476502b6d1838811ba43dfb2dfe5ba36aa40f7c2",
+      "sha256": "a30b8d98cdc9f19263983fe0476502b6d1838811ba43dfb2dfe5ba36aa40f7c2"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "meridian-public-dashboards-tools",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "test:filters": "node tests/order-filters.cjs",
+    "test:all-filters": "node tests/all-filters-browser.cjs",
+    "test:navigation": "node tests/portal-navigation.cjs",
+    "browser": "node tests/browser.cjs"
+  },
+  "devDependencies": {"acorn": "8.15.0"}
+}

@@ -9,31 +9,21 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "headers": [
-      {
-        "source": "**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, must-revalidate"
-          }
-        ]
-      }
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  },
+  "hosting": [
+    {
+      "target": "app",
+      "public": "public",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [{ "source": "**", "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }] }],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "drop",
+      "public": "public-drop",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [{ "source": "**", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }]
+    }
+  ],
   "storage": {
     "rules": "storage.rules"
   }

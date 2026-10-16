@@ -1,0 +1,444 @@
+NEXUS  /  DATA & APPLICATION OWNERSHIP
+
+CEO & MD  |  13 SEPTEMBER 2026
+
+Choose the data home and the application operator
+
+Three operating models for one Nexus portal. Around 1,000 users: field teams, office teams and authorised client viewers.
+
+CONFIDENTIAL
+
+1 / 5
+
+SECTION: Decision
+
+01
+
+CATALYST HOLDS THE DATA
+
+Continuity option
+
+Retailer sales + inventory
+
+Catalyst extraction + supplier data
+
+Existing service; exact hosting unconfirmed
+
+Meridian integrates Nexus
+
+Carin's handover still needs integration
+
+BENEFIT
+
+Retain current feeds and supplier knowledge; avoid an immediate data cutover.
+
+TRADE-OFF
+
+API/export limits and supplier dependency remain. The quoted retainer is not a complete Nexus integration service.
+
+02
+
+GEO REP HOLDS THE DATA
+
+Managed integration option
+
+Retailer feeds + Geo field data
+
+Geo Rep data + integration services
+
+Proposed AWS model; scope and quote needed
+
+Geo integrates + hosts one Nexus
+
+Carin's scripts + current Nexus capabilities
+
+BENEFIT
+
+Potentially one accountable integration and hosting partner, aligned with field operations.
+
+TRADE-OFF
+
+Data, hosting and field services concentrate in one supplier. Firebase migration and retailer ETL must be priced and proven.
+
+03
+
+MERIDIAN HOLDS THE DATA
+
+Recommended strategic destination
+
+Authorised supplier feeds + files
+
+Meridian lake on Google Cloud
+
+Johannesburg | Meridian-controlled account
+
+Meridian integrates + hosts Nexus
+
+Continue the existing Firebase integration
+
+BENEFIT
+
+Reuse Nexus work; control data access and priorities for mobile, AI and client reporting.
+
+TRADE-OFF
+
+Meridian owns integration, security and support obligations. A cloud bill does not fund the people or replace retailer extraction.
+
+Basis: Meridian brief + E1 supplier email
+
+H1/H2: Carin handovers
+
+Google Cloud locations
+
+Geo product claims
+
+NEXUS  /  DATA & APPLICATION OWNERSHIP
+
+CEO & MD  |  13 SEPTEMBER 2026
+
+Carin's handover is a product integration programme
+
+Require the same complete acceptance scope from Geo Rep and the in-house team. Moving HTML files alone does not complete it.
+
+CONFIDENTIAL
+
+2 / 5
+
+SECTION: Integration
+
+WORKSTREAM
+
+WHAT MUST WORK IN ONE NEXUS
+
+COST / MIGRATION IMPLICATION
+
+Insights + inventory
+
+All source tabs, filters, charts, drilldowns and exports; verified retail sales and inventory totals.
+
+Keep proven calculations. Inventory every sales/DuckDB query and data source before changing storage.
+
+Stock Fix end to end
+
+Inventory refresh, roster import, task generation, field capture and reporting; durable job status.
+
+H2 describes separate operational Postgres and reporting DuckDB. Migrating one does not migrate both.
+
+Call Cycle + attendance
+
+Master building, coverage, hierarchy, approvals, refresh jobs and rep/merchandiser attendance.
+
+H1 describes a manual three-file master build. Preserve human review; automatic extraction is separate scope.
+
+One application shell
+
+One sign-in, Nexus sidebar, consistent roles, client isolation, deep links and mobile layouts.
+
+Geo must price Firebase auth, database/rules, files, functions and current chat/tasks/notifications parity.
+
+Production operations
+
+Scheduled jobs, retries, audit logs, rollback, alerts, secrets, backups and a named support owner.
+
+H2 reports jobs lasting 55-75 minutes. Use durable workers, not long browser requests or laptop processes.
+
+GEO REP: QUOTE THE WHOLE HANDOVER
+
+Discovery + code integration + any AWS replatforming + data transfer + parallel testing + training + ongoing support. Separate one-off and recurring fees.
+
+MERIDIAN: COST THE REMAINING WORK
+
+Reuse Firebase. Integration cost = remaining engineering/test days x approved internal rate, plus operating cover. Existing staff time is not free.
+
+Acceptance: source-design parity + reconciled data + all workflows in one portal, not separate embedded applications.
+
+H1: Call Cycle handover
+
+H2: Stock Fix handover, 6 Sep 2026
+
+Source designs + current Nexus: scope baseline, not a fresh audit
+
+NEXUS  /  DATA & APPLICATION OWNERSHIP
+
+CEO & MD  |  13 SEPTEMBER 2026
+
+Compare the costs without hiding integration effort
+
+Catalyst: supplier email. Geo Rep: no quote. Meridian: Google Cloud infrastructure allowance only, not a total project price.
+
+CONFIDENTIAL
+
+3 / 5
+
+SECTION: Costs
+
+CATALYST | QUOTED
+
+R25,000 / month
+
+Retainer: 2-4 days expected effort; operations, fixes and some small changes. Reviewed periodically.
+
+R60,000 once-off, excl VAT
+
+API: 5-8 workdays; full raw history/export not confirmed. Nexus configuration excluded.
+
+GEO REP | QUOTE REQUIRED
+
+Not yet priced
+
+Request a fixed scope for integrating Carin + Nexus, retailer ETL, data migration and hosting.
+
+Separate monthly charges
+
+Hosting, support/SLA, API and field licences; identify overlap with current Geo fees.
+
+MERIDIAN | CLOUD ONLY
+
+R6,000-15,000 / month
+
+Indicative infrastructure budget; R72,000-180,000 per year at the same usage. Excludes VAT.
+
+Integration is additional effort
+
+Existing staff capacity, not free work. Finance must value the remaining backlog and support cover.
+
+FIRST-YEAR COMPARISON: NO CLAIM OF SAVINGS
+
+Catalyst: R300k retainer; R360k with API.*
+Meridian lake + Catalyst kept for 12 months + API:
+R432k-540k, before other excluded costs.*
+
+*Assumes the R25k retainer is ex VAT (not stated in email), unchanged for 12 months; API purchased once. Confirm tax, hosting inclusions and outstanding project fees.
+
+Meridian excludes labour, migration, paid support, source/API fees, AI/IR, WhatsApp, devices and regional-disaster failover. These are not zero-cost items.
+
+GOOGLE CLOUD: MONTHLY PLANNING ALLOWANCES
+
+Lake files, history and backup storage
+
+R600-R1 500
+
+BigQuery storage and analytical queries
+
+R1 000-R3 000
+
+APIs, ETL jobs and operational data
+
+R1 800-R4 000
+
+Logs, secrets and security services
+
+R600-R1 500
+
+Network, serving and fixed outbound IP
+
+R1 000-R2 500
+
+Subtotal R5,000-12,500 + 20% reserve = R6,000-15,000
+
+Planning range, not a regional quote. Validate page-5 sizing with actual usage.
+
+E1: RE Info Needed.msg, 8 Sep 2026
+
+Storage rates
+
+BigQuery rates
+
+Cloud Run rates
+
+Firestore rates
+
+Calculator
+
+NEXUS  /  DATA & APPLICATION OWNERSHIP
+
+CEO & MD  |  13 SEPTEMBER 2026
+
+Risk follows control, evidence and operating capacity
+
+Provisional pre-control exposure, not an audit or provider score. H = material gap / decision gate; M = manageable exposure requiring evidence.
+
+CONFIDENTIAL
+
+4 / 5
+
+SECTION: Risks
+
+RISK
+
+CATALYST
+
+GEO REP
+
+MERIDIAN
+
+CONTROL / ACCOUNTABLE OWNER
+
+Feed / ETL continuity
+
+M | existing feeds
+
+H | new pipeline
+
+H | new imports
+
+Parallel daily + monthly reconciliation; preserve source rights. BI + integration lead.
+
+Handover / parity
+
+H | not in quote
+
+H | scope unpriced
+
+M | reuse, then test
+
+Module register; one-portal regression and field workflow tests. Software & AI lead.
+
+Data / IP lock-in
+
+H | export unclear
+
+H | concentrated
+
+M | direct control
+
+Raw/history export rights; code assignments; tested exit. Legal + executive sponsor.
+
+Security / privacy
+
+H | unverified
+
+H | unverified
+
+H | configuration
+
+Admin MFA, client isolation, secret rotation, operator agreements. IT + Information Officer.
+
+Outage / recovery
+
+H | SLA unmeasured
+
+H | SLA unknown
+
+H | single region
+
+Restore proof, recovery targets and region-outage response. IT + service operator.
+
+Support / key person
+
+M | retainer limits
+
+H | combined reliance
+
+H | staff dependence
+
+Named deputy, incident cover, release controls and runbooks. Delivery owner.
+
+Freshness / cost drift
+
+M | reviewable fee
+
+H | quote + tests due
+
+M | usage exposure
+
+Freshness/latency tests, spend monitoring, quotas and price scope. BI + Finance.
+
+OWNERSHIP IS A CONTRACT + CONTROL, NOT A HOSTING LABEL
+
+Meridian-controlled billing, repositories and recovery access; written rights to custom code, historical data, mappings and exports. Supplier and open-source IP remains subject to its licence.
+
+SECURITY GATES APPLY TO ALL THREE
+
+Read-only APIs can still leak data. Keep keys server-side; review AI-generated code and enforce user-scoped AI access. Hosting in JHB is not a POPIA guarantee.
+
+Residual risks must be re-rated after evidence. Local backups do not eliminate a Johannesburg-wide outage.
+
+POPIA: ss. 19-22, 72
+
+Google shared responsibility
+
+Cloud terms: IP, section 5.1
+
+E1 + H1/H2: scope evidence
+
+NEXUS  /  DATA & APPLICATION OWNERSHIP
+
+CEO & MD  |  13 SEPTEMBER 2026
+
+Build Meridian ownership in controlled stages
+
+Recommendation: keep useful supplier feeds, retain one Nexus app, and make the Meridian-owned lake the strategic destination.
+
+CONFIDENTIAL
+
+5 / 5
+
+SECTION: Architecture and Roadmap
+
+MERIDIAN GOOGLE CLOUD  |  JOHANNESBURG: africa-south1
+
+Incoming: authorised Catalyst / Geo feeds + retailer files + masters
+
+INGEST + VALIDATE
+
+Cloud Run jobs
+
+RAW + CLEAN DATA
+
+Cloud Storage
+
+CURATED REPORTING
+
+BigQuery
+
+Nexus APIs + dashboards  |  Firestore: operational data, not the data lake
+
+Google operates infrastructure; Meridian controls the account, data access and application.
+
+JOHANNESBURG, IN PLAIN LANGUAGE
+
+A controlled library of raw and cleaned data, stored in the selected Johannesburg cloud region. No office server is needed.
+
+Lake storage, analytics and workers are region-bound. Sign-in, delivery networks and external APIs/AI need separate location reviews.
+
+Keep proven calculations during relocation. Change queries/storage only after parity tests. BigQuery is a proposed target, not a completed rewrite.
+
+INDICATIVE PLAN AFTER APPROVAL + ACCESS
+
+Weeks 1-2
+
+Inventory Carin + Nexus; confirm data rights, quotations, backlog and cloud sizing.
+
+Weeks 3-4
+
+Secure JHB foundation; first authorised feed and one end-to-end module pilot.
+
+Weeks 5-8
+
+Integrate agreed modules; compare daily/monthly totals, jobs, exports and roles.
+
+Weeks 9-12
+
+Controlled rollout only after restore, parity and support acceptance; retain rollback.
+
+APPROVE NOW / RELEASE LATER
+
+Approve discovery and Meridian ownership. Get a comparable Geo quote and firm Catalyst API acceptance terms before committing the full programme.
+
+No internal cover? Keep Catalyst while procuring managed support. Do not switch off a feed until two complete reporting cycles reconcile and business owners sign off.
+
+Cloud sizing assumption: 0.5-2 TiB files incl. backups; 0.1-0.5 TiB analytical tables; 5-20 TiB scans/month; daily feeds; 100 concurrent users.
+Not measured demand or a delivery promise. All-script scope, full retailer replacement, mobile ordering, IR and WhatsApp need separate estimates.
+
+Storage
+
+BigQuery
+
+Cloud Run
+
+Firestore
+
+Firebase location limits
+
+Plan + estimates: Meridian assumptions

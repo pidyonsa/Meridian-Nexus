@@ -1,0 +1,116 @@
+.user-management-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.user-management-summary article {
+  min-height: 86px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(150deg, rgba(11, 39, 70, .8), rgba(6, 24, 45, .86));
+  box-shadow: var(--shadow-card);
+}
+
+.user-management-summary span {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.user-management-summary strong {
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.user-management-grid {
+  display: grid;
+  grid-template-columns: minmax(290px, .72fr) minmax(0, 1.28fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.user-search {
+  margin-top: 18px;
+}
+
+.user-search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  outline: 0;
+  color: #fff;
+  background: rgba(4, 22, 43, .82);
+  font: 600 11px Manrope, sans-serif;
+}
+
+.user-search input:focus {
+  border-color: rgba(117, 203, 251, .5);
+  box-shadow: 0 0 0 3px rgba(117, 203, 251, .08);
+}
+
+.user-management-list {
+  max-height: 560px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.user-management-list button {
+  display: block;
+  width: 100%;
+}
+
+.user-editor-panel .management-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.user-editor-panel .access-profile-field {
+  grid-column: 1 / -1;
+}
+
+.user-editor-panel select[multiple] {
+  min-height: 148px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: #fff;
+  background: rgba(4, 22, 43, .82);
+  font: 600 11px Manrope, sans-serif;
+}
+
+.user-editor-panel small {
+  color: var(--muted-soft);
+  font-size: 9px;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+@media (max-width: 900px) {
+  .user-management-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .user-management-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .user-management-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .user-editor-panel .management-fields {
+    grid-template-columns: 1fr;
+  }
+}

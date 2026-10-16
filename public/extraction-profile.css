@@ -1,0 +1,15 @@
+#retailerForm > header { flex-wrap: wrap; }
+#retailerForm > header > div { min-width: 0; }
+#retailerForm > header button { flex: 0 0 auto; width: auto; min-width: 100px; padding: 0 12px; white-space: nowrap; }
+#retailerForm .form-actions { flex-wrap: wrap; }
+#retailerForm .form-actions button { flex: 0 0 auto; width: auto; padding: 0 14px; white-space: normal; min-width: 0; }
+#retailerForm .linked-profile-row button { min-width: 100px; }
+#retailerSalesProcedure { margin-top: 16px; }
+#retailerSalesProcedure summary { cursor: pointer; font-size: 12px; font-weight: 700; }
+#retailerSalesProcedure ol { padding-left: 20px; font-size: 11px; line-height: 1.7; }
+#retailerSalesProcedure li + li { margin-top: 6px; }
+@media (max-width: 540px) {
+  #retailerForm .form-actions { flex-direction: column-reverse; align-items: stretch; }
+  #retailerForm .form-actions button { width: 100%; }
+  #retailerForm .linked-profile-row button { justify-self: stretch; }
+}

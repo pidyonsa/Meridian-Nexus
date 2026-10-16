@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const before=require('../.tmp/remove-public-exclusion-list-20260916/source/vendor/attendance.cjs');
+const after=require('../firebase-dashboards/backend/vendor/attendance.cjs');
+const rows=Array.from({length:400},(_,i)=>({name:`Rep ${i}`,manager:`Manager ${i%40}`,regionalManager:`Regional ${i%8}`,head:'Head',region:'Gauteng',assignment:'syndicated'}));
+const sourceRows=Array.from({length:2800},(_,i)=>({userName:`Merch ${i}`,userCode:String(i),manager:`Rep ${i%400}`,role:'Merchandiser',region:'Gauteng',scheduled:14,onSchedule:13}));
+const visits=Array.from({length:39200},(_,i)=>({...sourceRows[i%2800],storeCode:`Store ${i%4200}`,storeName:`Store ${i%4200}`,date:`2026-09-${String(i%14+1).padStart(2,'0')}`,week:`Week ${i%2+1}`,result:i%14?'Visited':'Not Visited'}));
+const dataset=before.buildDataset({visits,sourceRows,hierarchy:{rows,sourceName:'Synthetic performance fixture',sha256:'benchmark'},audience:'merchandiser',version:'benchmark'});
+const start=performance.now(),old=before.dashboard(dataset),oldMs=performance.now()-start;
+const next=performance.now(),current=after.dashboard(dataset),newMs=performance.now()-next;
+assert.deepEqual(current,old,'Performance changes must preserve every dashboard value and row');
+const result={at:new Date().toISOString(),synthetic:true,visits:visits.length,staff:sourceRows.length,hierarchy:rows.length,beforeMs:Math.round(oldMs),afterMs:Math.round(newMs),improvement:Math.round(oldMs/newMs*10)/10,identicalResults:true};
+const out=path.resolve(__dirname,'../.tmp/dashboard-performance-clients-20260916/attendance-benchmark.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));

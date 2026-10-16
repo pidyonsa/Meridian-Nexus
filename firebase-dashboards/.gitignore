@@ -1,0 +1,6 @@
+node_modules/
+backend/node_modules/
+dist/
+.firebase/
+firebase-debug.log
+test-results/
