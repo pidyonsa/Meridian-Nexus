@@ -23,13 +23,15 @@ properties:
   template:
     containers:
       - name: dispatcher
-        image: acrnexusautop2fzlrpwgvno2.azurecr.io/georep-worker:pab-00446-r6
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/georep-worker:pab-00448-r7
         resources:
           cpu: 0.5
           memory: 1Gi
         env:
           - name: RUNNER_MODE
             value: dispatch
+          - name: MAX_PARALLEL
+            value: '4'
           - name: WORKER_JOB_ID
             value: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourceGroups/rg-meridian-nexus-automations/providers/Microsoft.App/jobs/job-georep-worker
           - name: RUN_ID

@@ -66,7 +66,16 @@ async function main() {
     const { getFirestore, FieldValue } = require("firebase-admin/firestore");
     require("./index.js");
     const db = getFirestore();
-    const reserved = await db.collection("extractionRuns").where("status", "==", "azure-reserved").limit(10).get();
+    // Keep at most MAX_PARALLEL Azure runs active (Google ran 4 at a time), so a 200-run batch does not hit
+    // the Geo Rep API all at once. Only runs with recent activity hold a slot, so a crashed run cannot block.
+    const maxParallel = Math.max(1, Number(env.MAX_PARALLEL || 4)), recent = Date.now() - 20 * 60 * 1000;
+    const busy = (await Promise.all(["azure-dispatching", "running"].map(s => db.collection("extractionRuns").where("status", "==", s).limit(200).get())))
+      .flatMap(q => q.docs).filter(d => d.get("executor") === "azure" && (d.get("lastActivityAt")?.toMillis?.() || 0) > recent).length;
+    const slots = Math.max(0, maxParallel - busy);
+    const pending = (await db.collection("extractionRuns").where("status", "==", "azure-reserved").limit(300).get()).docs
+      .sort((a, b) => (a.get("createdAt")?.toMillis?.() || 0) - (b.get("createdAt")?.toMillis?.() || 0));
+    const reserved = { docs: pending.slice(0, slots), size: pending.length };
+    console.log(JSON.stringify({ event: "azure-dispatcher-capacity", busy, slots, waiting: pending.length }));
     const t = await fetch(`${env.IDENTITY_ENDPOINT}?api-version=2019-08-01&resource=${encodeURIComponent("https://management.azure.com/")}&client_id=${env.AZURE_CLIENT_ID}`, { headers: { "X-IDENTITY-HEADER": env.IDENTITY_HEADER } });
     if (!t.ok) throw new Error(`Azure management token ${t.status}`);
     const arm = (await t.json()).access_token, job = `https://management.azure.com${env.WORKER_JOB_ID}`;
