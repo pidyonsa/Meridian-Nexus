@@ -32,6 +32,23 @@ into it; people outside the tenant cannot.
 - The `verify-*.cjs` live scripts call the site anonymously and now get 401.
 - Rollback: set `REQUIRE_MS_LOGIN=false` and disable App Service Authentication (both are needed).
 
+Later on 19 October, after the user was signed in silently (single sign-on from their
+browser) and asked for a visible sign-in and tighter access:
+
+- **Sign-in page every time:** `prompt=login` on the Entra provider, so Microsoft always asks
+  for the account and password instead of signing in silently.
+- **Sessions:** fixed 8 hours (`cookieExpiration` FixedTime 08:00:00), then sign in again.
+- **Everyone signed out:** new `WEBSITE_AUTH_ENCRYPTION_KEY` and `WEBSITE_AUTH_SIGNING_KEY` app settings
+  (random 256-bit, hex; values not recorded anywhere else), then a restart. Every session issued
+  before is no longer accepted. Rotate both again to sign everyone out in future.
+- **Access levels** (`server/main.cjs`): every Meridian account sees Syndicated Attendance (Reps and
+  Merchandisers), Franchise Orders and their static files. Anything else on this site is the full
+  Nexus and needs the Entra app role `Nexus.Admin`, held only by `jpinto@meridiangroup.co.za`; others
+  get 403. Today the site has no other pages, so this applies as more of Nexus moves to Azure.
+  Tests: 80 of 80 pass.
+- Live checks signed out on both host names: every page and file 401, `/healthz` 200; the sign-in
+  request carries `prompt=login` and Microsoft shows its sign-in page.
+
 ## Store Missed Dates, 30 September
 
 Client request: show on which days each store was missed on Attendance by Store,

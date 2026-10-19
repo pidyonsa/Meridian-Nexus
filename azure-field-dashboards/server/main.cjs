@@ -12,6 +12,12 @@ const PAGE_ROUTE = /^(?:\/|\/attendance(?:\/(?:rep|merchandiser)(?:\/(?:overview
 const MAX_RESPONSE = 9 * 1024 * 1024;
 const MERIDIAN_TENANT = 'cbe83df2-b350-4dab-8d5f-f78d21fe7d27';
 const TENANT_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/tenantid', 'tid']);
+const ROLE_CLAIMS = new Set(['roles', 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+// Entra app role (registration "Meridian Nexus Azure") for the full Nexus; assigned to jpinto@ only for now.
+const ADMIN_ROLE = 'Nexus.Admin';
+// What every Meridian account may open: Syndicated Attendance (Reps and Merchandisers), Franchise Orders and their
+// static files. Anything else on this site is the full Nexus and needs ADMIN_ROLE.
+const everyoneMayOpen = (req, assets) => PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || API_ROUTES.has(req.path);
 
 // Microsoft sign-in is done by App Service Authentication (Entra ID, Meridian tenant). It passes the signed-in
 // user in X-MS-CLIENT-PRINCIPAL and strips that header from incoming requests, so a caller cannot supply it.
@@ -20,8 +26,11 @@ function signedInUser(req) {
   if (!header || header.length > 16384) return null;
   try {
     const principal = JSON.parse(Buffer.from(header, 'base64').toString('utf8'));
-    const tenant = principal?.claims?.find(claim => TENANT_CLAIMS.has(claim.typ))?.val;
-    return principal.auth_typ === 'aad' && tenant === MERIDIAN_TENANT ? {name: req.get('x-ms-client-principal-name') || ''} : null;
+    const claims = Array.isArray(principal?.claims) ? principal.claims : [];
+    const tenant = claims.find(claim => TENANT_CLAIMS.has(claim.typ))?.val;
+    if (principal.auth_typ !== 'aad' || tenant !== MERIDIAN_TENANT) return null;
+    const roles = new Set(claims.filter(claim => ROLE_CLAIMS.has(claim.typ) || claim.typ === principal.role_typ).map(claim => claim.val));
+    return {name: req.get('x-ms-client-principal-name') || '', admin: roles.has(ADMIN_ROLE)};
   } catch { return null; }
 }
 
@@ -51,8 +60,11 @@ function createApp({fetchImpl = fetch, now = Date.now, enabled = () => process.e
   // visitors to Microsoft sign-in before they reach the app; this refuses anything that arrives without one, so
   // the dashboards stay locked even if platform sign-in were switched off.
   app.use((req, res, next) => {
-    if (!requireLogin() || signedInUser(req)) return next();
-    res.status(401).json({error: 'Sign in with your Meridian Microsoft account to view the dashboards.'});
+    if (!requireLogin()) return next();
+    const user = signedInUser(req);
+    if (!user) return res.status(401).json({error: 'Sign in with your Meridian Microsoft account to view the dashboards.'});
+    if (!user.admin && !everyoneMayOpen(req, assets)) return res.status(403).json({error: 'Your account can view Syndicated Attendance and Franchise Orders only.'});
+    next();
   });
   app.use('/api', (req, res, next) => {
     if (!enabled()) return res.status(503).json({error: 'The public dashboards are currently unavailable.'});

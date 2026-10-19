@@ -2,7 +2,7 @@
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const {createApp, MERIDIAN_TENANT} = require('../server/main.cjs');
-const principal = (tenant, authType = 'aad') => Buffer.from(JSON.stringify({auth_typ: authType, claims: [{typ: 'http://schemas.microsoft.com/identity/claims/tenantid', val: tenant}, {typ: 'name', val: 'Test User'}]})).toString('base64');
+const principal = (tenant, authType = 'aad', roles = []) => Buffer.from(JSON.stringify({auth_typ: authType, role_typ: 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role', claims: [{typ: 'http://schemas.microsoft.com/identity/claims/tenantid', val: tenant}, {typ: 'name', val: 'Test User'}, ...roles.map(val => ({typ: 'roles', val}))]})).toString('base64');
 async function host(t, requireLogin) {
   const reportProvider = {kind: 'test', request: async () => ({status: 200, data: {rows: []}})};
   const server = createApp({enabled: () => true, requireLogin: () => requireLogin, reportProvider}).listen(0, '127.0.0.1');
@@ -35,4 +35,21 @@ test('a signed-in Meridian user reaches pages and reports', async t => {
 test('login can be switched off only through configuration', async t => {
   const get = await host(t, false);
   assert.equal((await get('/attendance')).status, 200);
+});
+
+test('every Meridian account sees Syndicated Attendance and Franchise Orders; the rest of Nexus needs Nexus.Admin', async t => {
+  const get = await host(t, true);
+  const staff = {'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', ['Nexus.Reader'])};
+  const admin = {'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', ['Nexus.Admin'])};
+  for (const headers of [staff, admin]) {
+    for (const route of ['/', '/attendance/rep/daily', '/attendance/merchandiser/stores', '/franchise-orders/regions', '/viewer.js', '/api/health']) assert.equal((await get(route, headers)).status, 200, route);
+    for (const route of ['/api/attendance', '/api/orders']) assert.equal((await get(route, headers, 'POST')).status, 200, route);
+  }
+  // Anything outside the two dashboards is the full Nexus: refused for staff, passed through for the admin
+  // (this site has no such page yet, so the admin gets "not found").
+  for (const route of ['/admin', '/files', '/api/etl']) {
+    assert.equal((await get(route, staff)).status, 403, route);
+    assert.equal((await get(route, admin)).status, 404, route);
+  }
+  assert.equal((await get('/api/import', staff, 'POST')).status, 403);
 });
