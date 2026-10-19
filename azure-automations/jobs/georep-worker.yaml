@@ -22,7 +22,7 @@ properties:
   template:
     containers:
       - name: worker
-        image: acrnexusautop2fzlrpwgvno2.azurecr.io/georep-worker:pab-00448-r7
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/georep-worker:pab-00448-r8
         resources:
           cpu: 2
           memory: 4Gi

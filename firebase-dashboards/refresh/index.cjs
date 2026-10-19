@@ -21,10 +21,13 @@ const repo={
   async publish(metadata,owner){return db.runTransaction(async tx=>{const current=(await tx.get(pointer)).data(),lock=(await tx.get(state)).data();if(lock?.owner!==owner)throw Error('Publisher lease changed; existing dashboard retained.');if(!newer(metadata,current))return false;tx.set(pointer,metadata);return true;});},
   async finish(owner,result){return db.runTransaction(async tx=>{const current=(await tx.get(state)).data();if(current?.owner===owner)tx.set(state,{...result,leaseUntil:null,...(result.status==='published'?{lastSuccessAt:result.publishedAt}:{}),...(result.status!=='failed'?{message:null}:{})},{merge:true});});}
 };
+// Shared by the Google function and the Azure publisher job.
+const runRefresh=()=>refresh({repo,ExcelJS,download:async path=>{const file=getStorage().bucket().file(path),[meta]=await file.getMetadata();if(Number(meta.size)>40*1024*1024)throw Error('Workbook exceeds the 40 MB limit.');return (await file.download())[0];}});
+exports.runRefresh=runRefresh;
 exports.refreshPublicFranchiseOrders=onRequest({timeoutSeconds:300,memory:'1GiB',cpu:1,maxInstances:1,concurrency:1,invoker:'private'},async(req,res)=>{
   if(req.method!=='POST')return res.status(405).send('Method not allowed');
   try{
-    const result=await refresh({repo,ExcelJS,download:async path=>{const file=getStorage().bucket().file(path),[meta]=await file.getMetadata();if(Number(meta.size)>40*1024*1024)throw Error('Workbook exceeds the 40 MB limit.');return (await file.download())[0];}});
+    const result=await runRefresh();
     console.log(JSON.stringify(result));res.json(result);
   }catch(error){console.error('Public order snapshot refresh failed:',error.message);res.status(500).json({error:'The source could not be published. The previous verified snapshot is retained.'});}
 });

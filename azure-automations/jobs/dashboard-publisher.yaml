@@ -1,0 +1,42 @@
+# Azure dashboard publisher: replaces the Google schedulers public-franchise-orders-publisher and
+# azure-attendance-publisher. Orders snapshot refresh, then Attendance + Orders publish to the private
+# dashboard-data container. Google access: keyless as georep-worker@ (id-nexus-georep, federation pool).
+# Blob writes: the existing attendance-publisher identity (read/write-only role on dashboard-data).
+location: southafricanorth
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-georep: {}
+    /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-field-dashboards/providers/Microsoft.ManagedIdentity/userAssignedIdentities/attendance-publisher: {}
+properties:
+  environmentId: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourceGroups/rg-meridian-nexus-automations/providers/Microsoft.App/managedEnvironments/cae-nexus-automations
+  workloadProfileName: Consumption
+  configuration:
+    triggerType: Schedule
+    replicaTimeout: 600
+    replicaRetryLimit: 0
+    scheduleTriggerConfig:
+      cronExpression: '*/5 * * * *'
+      parallelism: 1
+      replicaCompletionCount: 1
+    registries:
+      - server: acrnexusautop2fzlrpwgvno2.azurecr.io
+        identity: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-georep
+  template:
+    containers:
+      - name: publisher
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/dashboard-publisher:p4-r2-2
+        resources:
+          cpu: 1
+          memory: 2Gi
+        env:
+          - name: PUBLISHER_CLIENT_ID
+            value: b3a970dc-0587-4c54-9fb7-3bda2cbd8a48
+          - name: AZURE_CLIENT_ID
+            value: c3fbaa7c-edb9-442c-b5ed-b3038d6d29d5
+          - name: AUDIENCE
+            value: api://95e8953c-64bf-4a17-a65d-e5d531ef7837
+          - name: GOOGLE_PROVIDER
+            value: //iam.googleapis.com/projects/730011371323/locations/global/workloadIdentityPools/azure-nexus-automations/providers/entra
+          - name: GOOGLE_SERVICE_ACCOUNT
+            value: georep-worker@meridain-nexus.iam.gserviceaccount.com

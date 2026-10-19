@@ -90,7 +90,10 @@ async function main() {
       if (!claimed) continue;
       try {
         const def = await (await fetch(`${job}?api-version=2024-03-01`, { headers: { Authorization: `Bearer ${arm}` } })).json();
-        const containers = def.properties.template.containers.map(c => ({ ...c, env: (c.env || []).map(e => e.name === "RUN_ID" ? { name: "RUN_ID", value: doc.id } : e.name === "RUNNER_MODE" ? { name: "RUNNER_MODE", value: "run" } : e) }));
+        // SharePoint tracker updates hold the whole workbook in memory (8 GiB on Google): give them the largest
+        // consumption size; every other run keeps the job's default size.
+        const tracker = /tracker/.test(String(doc.get("workflowMode") || ""));
+        const containers = def.properties.template.containers.map(c => ({ ...c, ...(tracker ? { resources: { cpu: 4, memory: "8Gi" } } : {}), env: (c.env || []).map(e => e.name === "RUN_ID" ? { name: "RUN_ID", value: doc.id } : e.name === "RUNNER_MODE" ? { name: "RUNNER_MODE", value: "run" } : e) }));
         const r = await fetch(`${job}/start?api-version=2024-03-01`, { method: "POST", headers: { Authorization: `Bearer ${arm}`, "Content-Type": "application/json" }, body: JSON.stringify({ containers }) });
         if (!r.ok) throw new Error(`start ${r.status}`);
         const started = await r.json();

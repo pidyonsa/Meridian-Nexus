@@ -1,0 +1,44 @@
+# Queues due retailer downloads (Google: runScheduledExtractions, every minute). Due if within 15 min of the
+# schedule time; the transactional lastRunKey stops duplicates.
+# Image nexus-scheduled (azure-automations/scheduled): the function's deployed Google bundle, unchanged.
+# Google access: keyless as georep-worker@ (federation pool). Cron is UTC.
+location: southafricanorth
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-georep: {}
+properties:
+  environmentId: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourceGroups/rg-meridian-nexus-automations/providers/Microsoft.App/managedEnvironments/cae-nexus-automations
+  workloadProfileName: Consumption
+  configuration:
+    triggerType: Manual
+    replicaTimeout: 120
+    replicaRetryLimit: 0
+    manualTriggerConfig:
+      parallelism: 1
+      replicaCompletionCount: 1
+    registries:
+      - server: acrnexusautop2fzlrpwgvno2.azurecr.io
+        identity: /subscriptions/02b268fe-e01a-453e-b287-eec83ccc0676/resourcegroups/rg-meridian-nexus-automations/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-nexus-georep
+  template:
+    containers:
+      - name: scheduled
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/nexus-scheduled:s58-r1
+        resources:
+          cpu: 0.25
+          memory: 0.5Gi
+        env:
+          - name: FUNCTIONS
+            value: runScheduledExtractions
+          - name: SCHEDULE
+            value: '* * * * *'
+          - name: AZURE_CLIENT_ID
+            value: c3fbaa7c-edb9-442c-b5ed-b3038d6d29d5
+          - name: AUDIENCE
+            value: api://95e8953c-64bf-4a17-a65d-e5d531ef7837
+          - name: GOOGLE_PROVIDER
+            value: //iam.googleapis.com/projects/730011371323/locations/global/workloadIdentityPools/azure-nexus-automations/providers/entra
+          - name: GOOGLE_SERVICE_ACCOUNT
+            value: georep-worker@meridain-nexus.iam.gserviceaccount.com
+          - name: KEY_VAULT_URL
+            value: https://kv-nexusauto-p2fzlrpwgvn.vault.azure.net

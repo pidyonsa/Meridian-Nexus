@@ -23,7 +23,7 @@ properties:
   template:
     containers:
       - name: dispatcher
-        image: acrnexusautop2fzlrpwgvno2.azurecr.io/georep-worker:pab-00448-r7
+        image: acrnexusautop2fzlrpwgvno2.azurecr.io/georep-worker:pab-00448-r8
         resources:
           cpu: 0.5
           memory: 1Gi

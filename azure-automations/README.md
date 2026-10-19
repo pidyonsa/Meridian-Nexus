@@ -133,6 +133,55 @@ removed after the test; the one-off metadata job was deleted.
 - Scheduled Azure runs since the switch: 5 and 6 October Attendance 11:30 and Orders 12:00 all completed
   on Azure; trackers updated on Google; dashboards current.
 
+## Firebase retirement, Phase A (16 October)
+
+Plan: `docs/firebase-retirement-plan-20261016.md`.
+
+- Blueprint batch (`geo-rep`, ~200 runs at 06:00) switched to `executor: "azure"`; the dispatcher keeps at
+  most `MAX_PARALLEL=4` Azure runs active. First Azure batch 17 October. Test run
+  `azure-canary-blueprint-mvalj00c` matched Google (23 answer rows).
+- Trackers: the dispatcher gives tracker runs 4 vCPU / 8 GiB (image `georep-worker:pab-00448-r8`). Test
+  `azure-canary-tracker-mvam8deu` (Merchandiser T&A) completed in 1 min with the same result as Google's
+  15 October run (2,899 Strike Rate and 41,480 Scheduled Attendance rows; the Excel Online formula-refresh
+  size warning appears on Google too). Hand-off v2 (`scripts/release-georep-handoff-trackers-20261016.cjs`)
+  removes the tracker exclusion; prepared on `processextraction-00448-kes`, deploy is run by the user.
+- Dashboard publishers moved: `job-dashboard-publisher` (`jobs/dashboard-publisher.yaml`, every 5 min,
+  image `dashboard-publisher:p4-r2-2` built by `dashboard-publisher/build-context.cjs` from the deployed
+  `publishAzureAttendance` and `refreshPublicFranchiseOrders` bundles) runs the Orders snapshot refresh,
+  then the Attendance and Orders publish. Google access as `georep-worker@`; blob writes as the existing
+  `attendance-publisher` identity (no new permissions). The only code change makes the token source a
+  parameter (`publishAll`, `runRefresh`). First run: both dashboards already current. Google schedulers
+  `public-franchise-orders-publisher` and `azure-attendance-publisher` PAUSED (state saved in
+  `.tmp/publisher-move-20261016/`). Rollback: resume both Google schedulers and set the Azure job to manual.
+- Scheduled functions moved: image `nexus-scheduled:s58-r1` (`scheduled/`, built by `scheduled/build-context.cjs`
+  from the deployed bundles: four code sets, each unchanged with its own lock file; `scheduled-runner.cjs` calls
+  the onSchedule handler; secrets from Key Vault only where Google mounts them). Moved one at a time with
+  `scripts/move-scheduled.cjs pause|run|enable|resume <job>` (Google scheduler paused first, because two retries
+  and one scheduler path are not safe to run twice at once):
+
+  | Azure job (cron UTC) | Google function(s) | First Azure run |
+  | --- | --- | --- |
+  | `job-nexus-run-scheduler` (`* * * * *`, 0.25 vCPU) | runScheduledExtractions | ok, 3.6 s (35 s with image pull) |
+  | `job-nexus-stalled-runs` (`*/2`) | detectStalledExtractionRuns | ok, 4 s |
+  | `job-nexus-retries` (`*/15`) | the three retry* functions | ok |
+  | `job-nexus-geo-api-sync` (`5 * * * *`, 1 vCPU / 2 GiB, 55 min) | runScheduledGeoRepOpenApiSync | see below |
+  | `job-nexus-sales-api-import` (`0 6 * * *` = 08:00 SAST) | runScheduledGeoRepSalesDashboardApiImport | ok; "no-data" for October, same as Google's 08:00 run |
+
+  Differences on Azure (audit 16 October): the Geo API functions try Google Secret Manager first, get 403 and
+  use the Key Vault values, so keys rotated in the portal must also be updated in Key Vault. The sales import
+  reports errors in `integrationHealth/geo-rep-sales-api`, not the exit code.
+- Geo Rep API sync: on Google every run was cut off after ~24 min, so form submissions (since 6 Oct), answers
+  (since 20 Aug) and EPODs never completed. One Azure catch-up run (6 h limit, 16 Oct 07:53–13:46 UTC) synced
+  975,231 records across all 8 groups. A normal run (24 h overlap) then took 35 min, longer than the 30-min
+  interval, so the job runs hourly at :05 with a 55-min limit (enabled 19 October; it was left on manual from
+  16 October, so the first run catches up those days).
+- Left on Google until Phase C: `deliverMeridianChatReminders` (needs Firebase Auth and FCM; under
+  `georep-worker@` reminders would be dropped silently) and `cleanupMeridianSupportUploads` (deletes
+  `support-ticket-attachments/`). Both are replaced when the portal leaves Firebase.
+- DataOrbis: never run, both retailers' schedules off. Reads inputs from `dataorbis-inputs/`, so
+  `georep-worker@` needs read access there before `executor: "azure"` is set on `dataorbis-game-sales` and
+  `dataorbis-makro-sales`.
+
 ## Tidy-ups (4 October)
 
 - Deleted three malformed `retailers` documents (ids starting `updateMask.fieldPaths=` /

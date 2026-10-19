@@ -31,7 +31,8 @@ function decode(v) {
 async function metadata(path) {
   return (await request('http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/' + path, {headers:{'Metadata-Flavor':'Google'}}, 32768)).bytes.toString();
 }
-async function dependencies() {
+// On Google: the function's own service account, federated to the Azure publisher identity.
+async function googleHostedTokens() {
   const googleToken = JSON.parse(await metadata('token')).access_token;
   const assertion = await metadata('identity?audience=' + encodeURIComponent('api://AzureADTokenExchange'));
   if (!/^[a-f0-9-]{36}$/.test(process.env.AZURE_PUBLISHER_CLIENT_ID || '')) throw Error('Publisher identity is not configured');
@@ -41,6 +42,11 @@ async function dependencies() {
       client_assertion_type:'urn:ietf:params:oauth:client-assertion-type:jwt-bearer', client_assertion:assertion
     }).toString()
   }, 32768)).bytes).access_token;
+  return {googleToken, token};
+}
+// The Azure job passes its own token source (managed identities; Google through Workload Identity Federation).
+async function dependencies(tokens = googleHostedTokens) {
+  const {googleToken, token} = await tokens();
   if (!googleToken || !token) throw Error('Publisher identity token is missing');
   const google = async (url, max) => request(url, {headers:{Authorization:'Bearer ' + googleToken}}, max);
   const googlePost = async (url, body, max) => request(url, {method:'POST', headers:{Authorization:'Bearer ' + googleToken, 'content-type':'application/json'}, body:JSON.stringify(body)}, max);
@@ -183,13 +189,12 @@ async function dependencies() {
   }
   return {source, blobs, verifyReports, orders:{source:ordersSource, blobs, verifyReports:verifyOrders}};
 }
-exports.publishAzureAttendance = async (req, res) => {
-  if (req.method !== 'POST') return res.status(405).json({error:'POST required'});
+async function publishAll(tokens) {
   let deps;
-  try { deps = await dependencies(); }
+  try { deps = await dependencies(tokens); }
   catch (error) {
     console.error(JSON.stringify({event:'azure-attendance-publisher-failed', error:error.message, status:error.status, retainedPreviousSnapshot:true}));
-    return res.status(503).json({error:'Publisher identity unavailable; previous verified reports retained.'});
+    return {status:503, body:{error:'Publisher identity unavailable; previous verified reports retained.'}};
   }
   // Attendance and Orders publish independently: one failing never blocks the other.
   const result = {}, failed = [];
@@ -207,8 +212,14 @@ exports.publishAzureAttendance = async (req, res) => {
     failed.push('Orders');
     console.error(JSON.stringify({event:'azure-orders-publisher-failed', error:error.message, status:error.status, retainedPreviousSnapshot:true}));
   }
-  if (failed.length) return res.status(503).json({...result, error:failed.join(' and ') + ' publication failed; previous verified report retained.'});
-  return res.status(200).json(result);
+  if (failed.length) return {status:503, body:{...result, error:failed.join(' and ') + ' publication failed; previous verified report retained.'}};
+  return {status:200, body:result};
+}
+exports.publishAzureAttendance = async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({error:'POST required'});
+  const {status, body} = await publishAll();
+  return res.status(status).json(body);
 };
+exports.publishAll = publishAll;
 module.exports.decode = decode;
 module.exports.ATTENDANCE_WORKBOOK = ATTENDANCE_WORKBOOK;
