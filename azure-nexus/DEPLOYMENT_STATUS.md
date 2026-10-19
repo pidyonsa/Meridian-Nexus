@@ -37,11 +37,15 @@ Created and read back in Meridian Group:
 | Enterprise application object ID | `63942481-5a74-4ad5-be7e-a61b1ce0ed12` |
 | Audience | Single tenant, `AzureADMyOrg` |
 | Roles | `Nexus.Reader`, `Nexus.Admin` from `infra/entra-roles.json` |
-| Assignment required | Yes |
+| Assignment required | No since 19 October (any Meridian account may sign in; was Yes) |
 | Staff/group assignments | `jpinto@meridiangroup.co.za` assigned `Nexus.Admin`; company-wide Reader configuration pending |
 | Named application owners | None; awaiting approved technical owners |
-| Requested API permissions | None |
-| Credentials and redirect URI | Not created/configured; complete during Key Vault and callback setup |
+| Requested API permissions | Microsoft Graph `openid`, `profile`, `email` (delegated), consented for the organisation on 19 October |
+| Credentials and redirect URI | No secret. Web callbacks `https://nexus.meridiangroup.co.za/.auth/login/aad/callback` and `https://meridian-field-dashboards.azurewebsites.net/.auth/login/aad/callback` (19 October) |
+
+On 19 October this registration became the Microsoft sign-in for the Azure dashboards at
+nexus.meridiangroup.co.za (App Service Authentication on `meridian-field-dashboards`); see
+`../azure-field-dashboards/DEPLOYMENT_STATUS.md`. The full Nexus portal will use the same registration.
 
 These identifiers are not credentials. Never store client secrets, access tokens, MFA codes or Geo API keys in this document. App roles are not Azure subscription administrator permissions. Confirm named technical ownership rather than assuming all dashboard administrators should control the app registration.
 

@@ -10,8 +10,22 @@ const UPSTREAM = 'https://meridian-field-dashboards.web.app';
 const API_ROUTES = new Set(['/api/attendance', '/api/orders']);
 const PAGE_ROUTE = /^(?:\/|\/attendance(?:\/(?:rep|merchandiser)(?:\/(?:overview|daily|users|stores))?)?\/?|\/franchise-orders(?:\/(?:overview|trend|regions|products|stores|reps|orders))?\/?)$/;
 const MAX_RESPONSE = 9 * 1024 * 1024;
+const MERIDIAN_TENANT = 'cbe83df2-b350-4dab-8d5f-f78d21fe7d27';
+const TENANT_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/tenantid', 'tid']);
 
-function createApp({fetchImpl = fetch, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
+// Microsoft sign-in is done by App Service Authentication (Entra ID, Meridian tenant). It passes the signed-in
+// user in X-MS-CLIENT-PRINCIPAL and strips that header from incoming requests, so a caller cannot supply it.
+function signedInUser(req) {
+  const header = req.get('x-ms-client-principal');
+  if (!header || header.length > 16384) return null;
+  try {
+    const principal = JSON.parse(Buffer.from(header, 'base64').toString('utf8'));
+    const tenant = principal?.claims?.find(claim => TENANT_CLAIMS.has(claim.typ))?.val;
+    return principal.auth_typ === 'aad' && tenant === MERIDIAN_TENANT ? {name: req.get('x-ms-client-principal-name') || ''} : null;
+  } catch { return null; }
+}
+
+function createApp({fetchImpl = fetch, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
   const app = express();
   const limits = new Map();
   const pending = new Map();
@@ -33,6 +47,13 @@ function createApp({fetchImpl = fetch, now = Date.now, enabled = () => process.e
     next();
   });
   app.get('/healthz', (req, res) => res.json({status: 'ok', edition: 'azure-field-dashboards', readOnly: true, dataService: reportProvider?.kind || 'existing-public-viewer', publicAccessEnabled: enabled()}));
+  // Everything except the App Service health check needs a signed-in Meridian user. App Service sends signed-out
+  // visitors to Microsoft sign-in before they reach the app; this refuses anything that arrives without one, so
+  // the dashboards stay locked even if platform sign-in were switched off.
+  app.use((req, res, next) => {
+    if (!requireLogin() || signedInUser(req)) return next();
+    res.status(401).json({error: 'Sign in with your Meridian Microsoft account to view the dashboards.'});
+  });
   app.use('/api', (req, res, next) => {
     if (!enabled()) return res.status(503).json({error: 'The public dashboards are currently unavailable.'});
     if (req.path !== '/health' && !API_ROUTES.has('/api' + req.path)) return res.status(404).json({error: 'This viewer contains Attendance and Franchise Orders only.'});
@@ -160,4 +181,4 @@ if (require.main === module) {
   const reportProvider = mode === 'azure-snapshot' ? require('./azure-reports.cjs').createAzureReports() : null;
   createApp({reportProvider}).listen(port, process.env.HOST || '0.0.0.0', () => console.log(`Azure field dashboards listening on ${port}; data mode: ${mode}.`));
 }
-module.exports = {createApp, UPSTREAM};
+module.exports = {createApp, UPSTREAM, MERIDIAN_TENANT};

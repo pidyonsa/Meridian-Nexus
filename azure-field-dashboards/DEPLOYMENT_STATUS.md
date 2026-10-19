@@ -6,6 +6,32 @@ On 21 September the user approved moving both report APIs and their verified
 source snapshot to Azure. Attendance automatic publishing was restored on
 22 September; source extraction still runs in the existing Google project.
 
+## Microsoft Sign-In Required, 19 October
+
+At the user's request the dashboards are no longer public: everything on
+https://nexus.meridiangroup.co.za (and the `azurewebsites.net` name) needs a Meridian
+Microsoft account. Any account in the Meridian tenant can sign in, including guests invited
+into it; people outside the tenant cannot.
+
+- **App Service Authentication** (`authsettingsV2`): Microsoft Entra ID with the existing
+  registration `Meridian Nexus Azure` (`748c496f-5033-415d-9d3f-f2bb85de1d71`, single tenant,
+  issuer `login.microsoftonline.com/cbe83df2-…/v2.0`), require authentication, signed-out
+  browsers go to Microsoft sign-in, HTTPS only, token store on. No client secret (ID-token sign-in).
+  Only `/healthz` is excluded (the App Service health check; it returns status only).
+- **Registration changes:** callback URLs for both host names, ID tokens on, assignment no
+  longer required (any Meridian account), `openid profile email` consented for the organisation.
+  The `Nexus.Reader` / `Nexus.Admin` roles are kept for the later full-portal move.
+- **App-side lock** (`server/main.cjs`, app setting `REQUIRE_MS_LOGIN=true`): every request except
+  `/healthz` must carry App Service's signed-in principal from the Meridian tenant, otherwise 401.
+  App Service strips that header from incoming requests, and the app stays locked even if platform
+  sign-in were switched off. Tests: `tests/login.test.cjs` (79 of 79 pass).
+- Live checks while signed out, both host names: pages, scripts, `asset-manifest.json` and both
+  report APIs return 401 (browsers are redirected to Microsoft sign-in); a forged principal header is
+  refused; HTTP redirects to HTTPS; `/healthz` 200. Microsoft accepts the sign-in request (correct
+  tenant, client and callback).
+- The `verify-*.cjs` live scripts call the site anonymously and now get 401.
+- Rollback: set `REQUIRE_MS_LOGIN=false` and disable App Service Authentication (both are needed).
+
 ## Store Missed Dates, 30 September
 
 Client request: show on which days each store was missed on Attendance by Store,
