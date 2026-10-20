@@ -9,16 +9,25 @@ async function host(t, requireLogin) {
   await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
   const url = `http://127.0.0.1:${server.address().port}`;
-  return (route, headers = {}, method = 'GET') => fetch(url + route, {method, headers: {'content-type': 'application/json', ...headers}, ...(method === 'POST' ? {body: '{}'} : {})});
+  return (route, headers = {}, method = 'GET') => fetch(url + route, {method, redirect: 'manual', headers: {'content-type': 'application/json', ...headers}, ...(method === 'POST' ? {body: '{}'} : {})});
 }
 
 test('with Microsoft login required, every page, report and asset is refused without a signed-in Meridian user', async t => {
   const get = await host(t, true);
-  for (const route of ['/', '/attendance', '/franchise-orders/regions', '/viewer.js', '/asset-manifest.json', '/api/health']) assert.equal((await get(route)).status, 401, route);
+  // Pages and files go to Microsoft sign-in and come back to the same address; nothing is served.
+  for (const route of ['/', '/attendance', '/franchise-orders/regions?from=2026-10-01', '/viewer.js', '/asset-manifest.json']) {
+    const response = await get(route);
+    assert.equal(response.status, 302, route);
+    assert.equal(response.headers.get('location'), '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(route), route);
+    assert.ok(!/<html|function|"files"/i.test(await response.text()), route);
+  }
+  // Reports are refused outright (a script can't follow a sign-in redirect).
+  assert.equal((await get('/api/health')).status, 401);
   for (const route of ['/api/orders', '/api/attendance']) assert.equal((await get(route, {}, 'POST')).status, 401, route);
   // Another tenant, another sign-in provider or a malformed header is not a Meridian sign-in.
   for (const header of [principal('00000000-0000-0000-0000-000000000000'), principal(MERIDIAN_TENANT, 'google'), 'not-base64-json']) {
-    assert.equal((await get('/attendance', {'x-ms-client-principal': header})).status, 401);
+    assert.equal((await get('/attendance', {'x-ms-client-principal': header})).status, 302);
+    assert.equal((await get('/api/orders', {'x-ms-client-principal': header}, 'POST')).status, 401);
   }
   // The App Service health check stays reachable and returns no report data.
   const health = await get('/healthz');

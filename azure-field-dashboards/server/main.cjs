@@ -49,19 +49,35 @@ function createApp({fetchImpl = fetch, now = Date.now, enabled = () => process.e
     defaultSrc: ["'self'"], scriptSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'"],
     imgSrc: ["'self'", 'data:', 'blob:'], fontSrc: ["'self'"], connectSrc: ["'self'"],
     objectSrc: ["'none'"], frameAncestors: ["'none'"], baseUri: ["'self'"], formAction: ["'none'"]
-  }}, referrerPolicy: {policy: 'no-referrer'}}));
+  }}, referrerPolicy: {policy: 'same-origin'}}));
+  // 'same-origin', not 'no-referrer': under no-referrer browsers send "Origin: null" on the report POSTs, and App Service
+  // Authentication refuses those with 403 for signed-in users (20 October: no report loaded behind sign-in until this).
   app.use((req, res, next) => {
     res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
     res.set('Cache-Control', 'no-store');
     next();
   });
   app.get('/healthz', (req, res) => res.json({status: 'ok', edition: 'azure-field-dashboards', readOnly: true, dataService: reportProvider?.kind || 'existing-public-viewer', publicAccessEnabled: enabled()}));
-  // Everything except the App Service health check needs a signed-in Meridian user. App Service sends signed-out
-  // visitors to Microsoft sign-in before they reach the app; this refuses anything that arrives without one, so
-  // the dashboards stay locked even if platform sign-in were switched off.
+  // One log line per refused or failed request (no names or emails), so a 401/403 can be told apart from App Service's.
+  app.use((req, res, next) => {
+    res.on('finish', () => {
+      if (res.statusCode < 400) return;
+      const user = signedInUser(req);
+      console.warn(JSON.stringify({event: 'dashboard-request-refused', status: res.statusCode, method: req.method, path: req.path,
+        principal: Boolean(req.get('x-ms-client-principal')), signedIn: Boolean(user), admin: user ? user.admin : null}));
+    });
+    next();
+  });
+  // Everything except the App Service health check needs a signed-in Meridian user. App Service Authentication sends
+  // signed-out visitors to Microsoft sign-in and passes signed-in users in X-MS-CLIENT-PRINCIPAL. This also holds if
+  // platform sign-in is switched off or set to allow anonymous requests: signed-out page and file requests go to
+  // Microsoft sign-in, anything else without a Meridian user is refused.
   app.use((req, res, next) => {
     if (!requireLogin()) return next();
     const user = signedInUser(req);
+    if (!user && ['GET', 'HEAD'].includes(req.method) && !req.path.startsWith('/api/')) {
+      return res.redirect(302, '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(req.originalUrl));
+    }
     if (!user) return res.status(401).json({error: 'Sign in with your Meridian Microsoft account to view the dashboards.'});
     if (!user.admin && !everyoneMayOpen(req, assets)) return res.status(403).json({error: 'Your account can view Syndicated Attendance and Franchise Orders only.'});
     next();

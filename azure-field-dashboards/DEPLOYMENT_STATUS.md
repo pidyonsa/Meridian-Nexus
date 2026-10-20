@@ -23,8 +23,21 @@ unavailable service.
   are `no-store`, so a reload picks up the fix.
 - **Downtime:** an extra `az webapp restart` sent right after the deploy stopped the site while the
   new container was starting (`ContainerStartupFailure` 10:23:24 UTC); it was back at 10:25:23 UTC.
-  While stopped, App Service answers every request with 403 ("web app is stopped"), which users saw as
-  `/api/orders` 403. `az webapp deploy` already restarts the app; do not restart again after it.
+  `az webapp deploy` already restarts the app; do not restart again after it.
+- **Then 403 on every report:** with the cookie sent, App Service Authentication answered the signed-in
+  report POSTs with 403 (non-JSON, so the viewer again said "unavailable"); none reached the app. Cause: the
+  app sent `Referrer-Policy: no-referrer`, under which browsers send `Origin: null` on POST, and App Service
+  Authentication refuses those. `server/main.cjs` now sends `same-origin`. Deployed 11:24 UTC (deployment
+  `c0bc7f93-e411-434b-9208-684415299a1a`); at 11:27:49 UTC the first report since sign-in went live loaded
+  (`azure-dashboard-source-loaded`), with no refusals logged. Earlier, at 11:11 UTC (deployment
+  `84178ed2-e982-417b-abb6-d01b31a16196`), the app began logging every response of 400 or above
+  (`dashboard-request-refused`: status, method, path, whether a signed-in Meridian user came through, admin;
+  no names). That is how the 403s were shown to come from App Service and not the app.
+- **App-side sign-in redirect** (same release): if platform sign-in is ever switched off or set to allow
+  anonymous requests, signed-out page and file requests now go to `/.auth/login/aad` and return to the same
+  address; report calls without a Meridian user stay 401. Platform sign-in is unchanged and still redirects
+  first. `tests/login.test.cjs` covers both; 80 of 80 tests pass. The live `server/main.cjs` differs from the
+  committed one only in two comments.
 
 ## Microsoft Sign-In Required, 19 October
 
