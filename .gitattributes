@@ -1,0 +1,2 @@
+# Exact copy of the live Nexus portal, checked by hash when packaging: never convert line endings.
+azure-field-dashboards/nexus-portal/** -text
