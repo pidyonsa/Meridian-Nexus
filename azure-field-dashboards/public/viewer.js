@@ -25,7 +25,10 @@ const attendanceDates={rep:'',merchandiser:''};
 const attendanceRosterQueries={rep:'',merchandiser:''};
 const attendanceStoreSelections={rep:{},merchandiser:{}};
 async function fetchReport(path,body){
-  const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(65000)});
+  // The site is behind Microsoft sign-in (App Service Authentication cookie), so report calls must send it.
+  const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'same-origin',redirect:'manual',cache:'no-store',signal:AbortSignal.timeout(65000)});
+  // Signed out or the 8-hour session ended: App Service answers 401 or redirects to Microsoft sign-in.
+  if(response.type==='opaqueredirect'||response.status===401)throw Error('Your Microsoft sign-in has ended. Reload the page to sign in again.');
   let result;try{result=await response.json();}catch{throw Error('The report service is unavailable. Please try again shortly.');}
   if(!response.ok)throw Error(result.error||'The report could not be loaded.');
   return result;

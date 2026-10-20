@@ -6,6 +6,26 @@ On 21 September the user approved moving both report APIs and their verified
 source snapshot to Azure. Attendance automatic publishing was restored on
 22 September; source extraction still runs in the existing Google project.
 
+## Reports Load Again Behind Sign-In, 20 October
+
+After Microsoft sign-in went live, signed-in users saw "Report unavailable: The report service is
+unavailable" on Attendance and Franchise Orders. `ui/viewer.js` still sent report calls with
+`credentials:'omit'`, so the App Service session cookie never reached `/api/attendance` or
+`/api/orders`; App Service answered 401 with an empty body, and the viewer reported that as an
+unavailable service.
+
+- **Fix** (`ui/viewer.js`, copied to `public/` by the build): report calls send the session
+  (`credentials:'same-origin'`, `redirect:'manual'`). A 401 or a redirect to Microsoft sign-in (the 8-hour
+  session ended) now says "Your Microsoft sign-in has ended. Reload the page to sign in again."
+- Tests 80 of 80 pass. Deployed the 1,058,140-byte ZIP (54 allowlisted files), deployment
+  `80ca8040-004a-41a3-9a63-87a7fbb70385`, 10:22 UTC; the live `public/viewer.js` and `server/main.cjs`
+  match the package. `/healthz` 200; signed-out requests on both host names still 401. Pages and scripts
+  are `no-store`, so a reload picks up the fix.
+- **Downtime:** an extra `az webapp restart` sent right after the deploy stopped the site while the
+  new container was starting (`ContainerStartupFailure` 10:23:24 UTC); it was back at 10:25:23 UTC.
+  While stopped, App Service answers every request with 403 ("web app is stopped"), which users saw as
+  `/api/orders` 403. `az webapp deploy` already restarts the app; do not restart again after it.
+
 ## Microsoft Sign-In Required, 19 October
 
 At the user's request the dashboards are no longer public: everything on

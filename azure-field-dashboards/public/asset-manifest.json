@@ -51,7 +51,7 @@
     },
     {
       "path": "viewer.js",
-      "sha256": "22b420264cbf6a0bb99c9da002bda707fc1e0beef0ef086187a915d4c233243e",
+      "sha256": "e7755dd88c18d726d65828852e65f99c22c20d3436e334364560222a30be4397",
       "sourceSha256": "c4d41d4cbd0f4400b723b9c957c1900e721427c968496a07f5dba1690c37a945",
       "adapter": "dashboard-only-shell"
     },
