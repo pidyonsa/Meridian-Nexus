@@ -5,19 +5,21 @@ const compression = require('compression');
 const fs = require('node:fs');
 const path = require('node:path');
 const {setTimeout: sleep} = require('node:timers/promises');
+const {renderLanding} = require('./landing.cjs');
+const {mountNexusPortal} = require('./nexus-portal.cjs');
 
 const UPSTREAM = 'https://meridian-field-dashboards.web.app';
 const API_ROUTES = new Set(['/api/attendance', '/api/orders']);
-const PAGE_ROUTE = /^(?:\/|\/attendance(?:\/(?:rep|merchandiser)(?:\/(?:overview|daily|users|stores))?)?\/?|\/franchise-orders(?:\/(?:overview|trend|regions|products|stores|reps|orders))?\/?)$/;
+const PAGE_ROUTE = /^(?:\/attendance(?:\/(?:rep|merchandiser)(?:\/(?:overview|daily|users|stores))?)?\/?|\/franchise-orders(?:\/(?:overview|trend|regions|products|stores|reps|orders))?\/?)$/;
 const MAX_RESPONSE = 9 * 1024 * 1024;
 const MERIDIAN_TENANT = 'cbe83df2-b350-4dab-8d5f-f78d21fe7d27';
 const TENANT_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/tenantid', 'tid']);
 const ROLE_CLAIMS = new Set(['roles', 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
 // Entra app role (registration "Meridian Nexus Azure") for the full Nexus; assigned to jpinto@ only for now.
 const ADMIN_ROLE = 'Nexus.Admin';
-// What every Meridian account may open: Syndicated Attendance (Reps and Merchandisers), Franchise Orders and their
-// static files. Anything else on this site is the full Nexus and needs ADMIN_ROLE.
-const everyoneMayOpen = (req, assets) => PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || API_ROUTES.has(req.path);
+// What every Meridian account may open: the landing page, Syndicated Attendance (Reps and Merchandisers), Franchise
+// Orders and their static files. Anything else on this site is the full Nexus (/nexus/) and needs ADMIN_ROLE.
+const everyoneMayOpen = (req, assets) => req.path === '/' || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || API_ROUTES.has(req.path);
 
 // Microsoft sign-in is done by App Service Authentication (Entra ID, Meridian tenant). It passes the signed-in
 // user in X-MS-CLIENT-PRINCIPAL and strips that header from incoming requests, so a caller cannot supply it.
@@ -34,7 +36,7 @@ function signedInUser(req) {
   } catch { return null; }
 }
 
-function createApp({fetchImpl = fetch, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
+function createApp({fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
   const app = express();
   const limits = new Map();
   const pending = new Map();
@@ -82,6 +84,8 @@ function createApp({fetchImpl = fetch, now = Date.now, enabled = () => process.e
     if (!user.admin && !everyoneMayOpen(req, assets)) return res.status(403).json({error: 'Your account can view Syndicated Attendance and Franchise Orders only.'});
     next();
   });
+  app.get('/', (req, res) => res.type('html').send(renderLanding(requireLogin() ? signedInUser(req) : null)));
+  mountNexusPortal(app, {fetchImpl: functionsFetch, ...(portalDir ? {portalDir} : {})});
   app.use('/api', (req, res, next) => {
     if (!enabled()) return res.status(503).json({error: 'The public dashboards are currently unavailable.'});
     if (req.path !== '/health' && !API_ROUTES.has('/api' + req.path)) return res.status(404).json({error: 'This viewer contains Attendance and Franchise Orders only.'});

@@ -24,7 +24,7 @@ test('Azure data mode serves both reports without Google fallback and keeps raw 
 test('serves dashboard deep links with isolated Attendance and Franchise sidebars', async t => {
   const {url} = await host(t);
   const html = fs.readFileSync(path.join(__dirname, '../public/index.html'), 'utf8');
-  for (const route of ['/', '/attendance', '/attendance/merchandiser/stores', '/attendance/rep/daily', '/franchise-orders', '/franchise-orders/trend']) {
+  for (const route of ['/attendance', '/attendance/merchandiser/stores', '/attendance/rep/daily', '/franchise-orders', '/franchise-orders/trend']) {
     const response = await fetch(url + route);
     assert.equal(response.status, 200);
     assert.equal(await response.text(), html);
@@ -32,7 +32,10 @@ test('serves dashboard deep links with isolated Attendance and Franchise sidebar
     assert.match(response.headers.get('content-security-policy'), /frame-ancestors 'none'/);
     assert.equal(response.headers.get('x-robots-tag'), 'noindex, nofollow, noarchive');
   }
-  assert.match(html, /https:\/\/meridian-group-za.github.io\/Meridian-Nexus\/portal.html/);
+  // Home goes to the Meridian Nexus landing page on this site.
+  assert.match(html, /<a href="\/" data-portal-home>/);
+  assert.match(html, /<a class="orders-brand" href="\/"/);
+  assert.doesNotMatch(html, /github\.io/);
   assert.match(html, /<aside id="attendance-sidebar"[^>]*hidden/);
   assert.match(html, /id="attendance-nav-toggle"/);
   assert.match(html, /id="report-tabs"/);

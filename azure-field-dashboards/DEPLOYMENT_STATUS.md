@@ -39,6 +39,40 @@ unavailable service.
   first. `tests/login.test.cjs` covers both; 80 of 80 tests pass. The live `server/main.cjs` differs from the
   committed one only in two comments.
 
+## Landing Page and the Full Nexus Portal, 20 October
+
+At the user's request nexus.meridiangroup.co.za now opens on a **Meridian Nexus landing page** and also
+carries the **whole old Nexus portal** (the Firebase Hosting site meridian-nexus.web.app).
+
+- **Landing page** (`/`, `server/landing.cjs`): every Meridian account sees Syndicated Attendance
+  (Reps, Merchandisers) and Franchise Orders. `Nexus.Admin` (jpinto@ only) also sees every workspace of
+  the full Nexus: Overview, Sales, Sales Insights, Time & Attendance, Call Cycle, Attendance jobs,
+  Stock Fix, Training, Report automation, ETLs, Franchise orders workspace, Resources, Chat, Support and
+  Admin. Shows the signed-in account and a Sign out link. The dashboards' Home links now point here
+  instead of the public GitHub Pages portal.
+- **Full Nexus portal** (`/nexus/`, `server/nexus-portal.cjs`, `Nexus.Admin` only; others get 403):
+  the exact live release (`sites/meridian-nexus/versions/9f9d0a3270041d7e`, released 29 September,
+  76 files) plus Firebase's 5 SDK scripts and `/__/firebase/init.js`, copied by
+  `scripts/fetch-nexus-portal.cjs` into `nexus-portal/` with a hash manifest. Its data, Nexus sign-in
+  (Firebase Auth) and Cloud Functions stay on Firebase, so the first visit asks for the Nexus account.
+  Changes to the live code, each asserted by the fetch script:
+  - Cloud Functions only accept browsers on the old Firebase addresses (CORS), so the portal calls them
+    through this site: `POST /nexus/__fn/<name>` is forwarded unchanged to
+    `us-central1-meridain-nexus.cloudfunctions.net/<name>`.
+  - App Service sign-in reads the `Authorization` header itself, so `azure-bridge.js` (added) sends the
+    Nexus token in `X-Firebase-Authorization`; the site restores it before calling the function.
+  - The offline service worker is not registered (its cache uses the old site's root paths).
+  - The portal ran without a content policy on Firebase; here it keeps `frame-ancestors 'none'`,
+    `base-uri 'self'`, `object-src 'none'`.
+- Checks: 83 of 83 unit tests (landing for staff and admin, portal and function calls admin-only,
+  token forwarding, name escaping). Local browser run in Edge: landing renders; the portal loads,
+  Firebase starts, Nexus "Sign in" shows, and a real function call through the site reaches Google
+  and returns its normal "Sign in to Nexus." Live, signed out: `/`, `/nexus/`, portal files and
+  function calls 401; `/healthz` 200. Signed-in use was not tested from here (no account).
+- Limits: App Service ends any request after 230 seconds, so a Nexus function that runs longer than
+  that fails here (it still finishes on Google). The portal on meridian-nexus.web.app is unchanged
+  for its 41 users. To refresh the copy after a Firebase Hosting release, rerun the fetch script.
+
 ## Microsoft Sign-In Required, 19 October
 
 At the user's request the dashboards are no longer public: everything on

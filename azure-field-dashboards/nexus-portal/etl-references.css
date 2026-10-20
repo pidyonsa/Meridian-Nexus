@@ -1,0 +1,16 @@
+#etlReferenceFiles { padding: 22px 0; border-block: 1px solid #294458; margin: 18px 0; min-width: 0; }
+#etlReferenceFiles * { box-sizing: border-box; letter-spacing: 0; }
+#etlReferenceFiles h2 { margin: 0 0 6px; font-size: 19px; }
+#etlReferenceFiles p { margin: 6px 0 12px; font-size: 13px; line-height: 1.6; }
+.etl-ref-heading, .etl-ref-actions { display: flex; gap: 10px; align-items: center; }
+.etl-ref-heading { justify-content: space-between; flex-wrap: wrap; margin-bottom: 16px; }
+.etl-ref-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; }
+.etl-ref-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; min-width: 0; }
+.etl-ref-row > label { grid-column: 1 / -1; font-size: 12px; font-weight: 600; }
+#etlReferenceFiles select { width: 100%; min-width: 0; height: 40px; padding: 8px 10px; border: 1px solid #37596f; border-radius: 5px; font: inherit; font-size: 13px; color: #e6eff5; background: #102c40; text-overflow: ellipsis; }
+#etlReferenceFiles .icon-button { width: 40px; height: 40px; flex: 0 0 40px; padding: 8px; }
+#etlReferenceFiles i { font-size: 19px; }
+#etlReferenceFiles .etl-ref-error { color: #ffb5a5; }
+#etlReferenceFiles button:disabled { opacity: .5; cursor: not-allowed; }
+#etlReferenceFiles :focus-visible { outline: 2px solid #e99240; outline-offset: 2px; }
+@media (max-width: 760px) { .etl-ref-grid { grid-template-columns: minmax(0, 1fr); } }

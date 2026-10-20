@@ -45,7 +45,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "b009e7b5811cfffdb206a376eddbd5ed080031ca8725a7dae53fac7b8e9cf28d",
+      "sha256": "eccda51f2696a630d0ad54954a502409cb6f4cdcf341f649bb27ad07576baf5b",
       "sourceSha256": "b3bf6e42eb3ca7b725ae410ef8d7451d5ef292ec03ce1f9289c0862a48efa7ff",
       "adapter": "dashboard-only-shell"
     },

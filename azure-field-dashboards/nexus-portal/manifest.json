@@ -1,0 +1,339 @@
+{
+  "source": "https://meridian-nexus.web.app (sites/meridian-nexus/versions/9f9d0a3270041d7e, released 2026-09-29T08:23:08.444Z)",
+  "fetchedAt": "2026-10-20T12:50:26.714Z",
+  "files": [
+    {
+      "path": "/__/firebase/12.15.0/firebase-app-compat.js",
+      "sha256": "836e69d5fce244f3469d43b00adc021dddf8c9a94f99cf52e9b0c3387bd4ab50"
+    },
+    {
+      "path": "/__/firebase/12.15.0/firebase-auth-compat.js",
+      "sha256": "961c9419300b0dd9daf65d6e62c5c237aa1efec73f2fe635449f6ee48cbe5a95"
+    },
+    {
+      "path": "/__/firebase/12.15.0/firebase-firestore-compat.js",
+      "sha256": "95acd67387dabdc3cd932a0fbf1aae1ebf445349f88c9db290f4c9cc96d5c586"
+    },
+    {
+      "path": "/__/firebase/12.15.0/firebase-functions-compat.js",
+      "sha256": "e5b5c9d015f83b746ff04cb72c43825c14f17dc73385af894d2321a4b3a5e251"
+    },
+    {
+      "path": "/__/firebase/12.15.0/firebase-storage-compat.js",
+      "sha256": "364fcffc0909576f4d5152358e9636415b437353a5311477ebb3acc376e61bf5"
+    },
+    {
+      "path": "/__/firebase/init.js",
+      "sha256": "92178ebd7ca3cabf19a2aa81bbe526c6d9a9e04cff2c5b836621df9fa76603ec"
+    },
+    {
+      "path": "/__/firebase/init.json",
+      "sha256": "649cd2331e619263321505d47372fd10db5277f91de25f464d4cc6f1536330b5"
+    },
+    {
+      "path": "/admin-profile-loader.js",
+      "sha256": "31ca8800fa495cfce45927041b891fc3bc7f25f85caff84b3842939746c3eb3b"
+    },
+    {
+      "path": "/app.js",
+      "sha256": "7796e05f143aad485af4bd84697829363fcd7cbd4b2c902fc91e65adb6853359",
+      "liveSha256": "246159d11208dc4a00642f649cc516673a6db87a082f053929176adf3686372b",
+      "patched": true
+    },
+    {
+      "path": "/assets/brand/app-logo.jpg",
+      "sha256": "9ffa88ab895c0855ecdd007d71975b8d5e8cf84b0b43c75f1cf29cfaeebb40c7"
+    },
+    {
+      "path": "/assets/callcycle/meridian.png",
+      "sha256": "a30b8d98cdc9f19263983fe0476502b6d1838811ba43dfb2dfe5ba36aa40f7c2"
+    },
+    {
+      "path": "/assets/callcycle/pg.png",
+      "sha256": "a9a04e12d3bc5d3437102292c60a344a1c34ff5422873ee4ad818fc95c8d4f5a"
+    },
+    {
+      "path": "/assets/callcycle/region-footprint.html",
+      "sha256": "bc3f7e83a542ca25076c33e811c0d7c766a4953a94c9beea337e41e53e7bdf40"
+    },
+    {
+      "path": "/assets/icons/apple-touch-icon.png",
+      "sha256": "fe799df1d1e6ab822a3b4ebe81883f88dc24aa8810474c871e72390524cbeb3a"
+    },
+    {
+      "path": "/assets/icons/favicon-32.png",
+      "sha256": "5f2070857be74a8c339f0a2f547383a65fdf0cbc6a973b085b458b79d3c4970e"
+    },
+    {
+      "path": "/assets/icons/icon-192.png",
+      "sha256": "40a59bb2b5d9f28881d9994fdb47e016f82a3d05588a43be26f04a0069d3e687"
+    },
+    {
+      "path": "/assets/icons/icon-512.png",
+      "sha256": "201ed3149d408c5993dadf4b5b36e330a91ef91b2f0a3358584f9fa69e1350b6"
+    },
+    {
+      "path": "/assets/sa-provinces.topo.json",
+      "sha256": "13ec057c50bb4bfd25984315a5310f008e0c0b53f0e9fd235da1c7ab65326dce"
+    },
+    {
+      "path": "/attendance-analytics.css",
+      "sha256": "834ecf028e1eb005429f839697f1af9e7199f1f1d887eb03183acf2c4cb5f591"
+    },
+    {
+      "path": "/attendance-analytics.js",
+      "sha256": "3cae4ebdd38904f9be6865f800177e33de8a1c36df199f2a61bc6a390c490c11"
+    },
+    {
+      "path": "/attendance-exclusions.css",
+      "sha256": "243c5f107e7db4a36d89175737ff359b6b4c3e9e0332f2f25927dbc29a52875e"
+    },
+    {
+      "path": "/attendance-exclusions.js",
+      "sha256": "5859d849104dc1a3be81f634a0d5ce4fe1d420e1e7a216bf6783f5825ad3731d"
+    },
+    {
+      "path": "/attendance-job-summaries.css",
+      "sha256": "72e1735013dd3cfd159487af3ed9b395313c3fa9c0f4ffb72c11e35f927264b0"
+    },
+    {
+      "path": "/chat-tools.js",
+      "sha256": "04955490cc46aa299cdc1f959e72d57018954e6da4027b340922d94d6a810d57"
+    },
+    {
+      "path": "/etl-portals.js",
+      "sha256": "23887c578d45b352ae6ebd6e620deb82ea740adbfa98001a3835e3d5d2d1651e"
+    },
+    {
+      "path": "/etl-references.css",
+      "sha256": "b6e4cd34f7588dc8d6a5b6f419325199f1d68eee79a64572b7d48bf2aa6b11df"
+    },
+    {
+      "path": "/etl-references.js",
+      "sha256": "cff527862dc3cd9ee5335e99c88ce115f5cbe79e6786ad3c085c9ebd17343de9"
+    },
+    {
+      "path": "/etls.css",
+      "sha256": "ef6b1dd6d97afe5e3d15b319bdfc97ad8c1b416a2a60df9bb0eb5ca63f9cf82c"
+    },
+    {
+      "path": "/etls.js",
+      "sha256": "ab872512e22410dcf08726ddf3009a22f62cd6f2eda4e5235d1668d95906ccf5"
+    },
+    {
+      "path": "/extraction-profile.css",
+      "sha256": "8c7e60f373869235df81c8fc47b394e23275a7e527ac3f26cc0a71541fa35c47"
+    },
+    {
+      "path": "/franchise-orders.css",
+      "sha256": "d799c821df6db7a44e6596334cc9c32591b97857c4bd60aa500fcfbc47284aae"
+    },
+    {
+      "path": "/franchise-orders.js",
+      "sha256": "c922d85d77829f0b6951dbfb565a631533eaa411347f4009ccd49426235c194a"
+    },
+    {
+      "path": "/index.html",
+      "sha256": "930ca4345d01be234de6f3bd7376e6d73f8ca28379ae2caa2df8e4247c3034b9",
+      "liveSha256": "6cc580a0955f412573b6059f80ae62f9902f481ae6bc4fe3d90cbe55e847fae1",
+      "patched": true
+    },
+    {
+      "path": "/job-status.css",
+      "sha256": "5b5b51fd80f2c728e0f9b2266e5cf2241b20bf44c4a33de3d88b125ebf24e6fb"
+    },
+    {
+      "path": "/job-status.js",
+      "sha256": "9d556f29b82f7aa28db738d8ecacd056c2da95b7a9b9394aed1484b8bc8d4266"
+    },
+    {
+      "path": "/manifest.webmanifest",
+      "sha256": "a1370f35e9f20f721542a11b34997426d753ddf22ad43c08d88946fad0f1eaf3"
+    },
+    {
+      "path": "/meridian-chat.css",
+      "sha256": "9e2c8285a8ca3a60bbf0d321364374463272a7721f055cf48adb9b2eeddcf89c"
+    },
+    {
+      "path": "/meridian-chat.js",
+      "sha256": "bd0e16e9a1e9ab7e768168947752bb52b79e50a79454282c28b82f1e900745d8"
+    },
+    {
+      "path": "/meridian-support.css",
+      "sha256": "8ff432fecd36d1ff8c77e316f4dca8626cdb630a63821fd253094a0d6898af1f"
+    },
+    {
+      "path": "/meridian-support.js",
+      "sha256": "80e7c2132270ed3e17006a42925d22f765fb59b1499155f84b000b0723323798"
+    },
+    {
+      "path": "/nexus-comms.css",
+      "sha256": "96d2840ed04b87c56dcdf0504054f0b5accd4f4adabc97d830b041a19d986a90"
+    },
+    {
+      "path": "/nexus-comms.js",
+      "sha256": "ba25ef0df350b857a502ccea07969b763481de87f54191e82ffb3ee808cd4e73"
+    },
+    {
+      "path": "/nexus-load-cache.js",
+      "sha256": "a8fe94d9978c31a4aaf2fb4ee3661a01d5a0160530524ca6625bc91dd64913c0"
+    },
+    {
+      "path": "/portal-bridge.js",
+      "sha256": "d957e3154dd73979f19ff66e4ec05ce20d5cb3257c04842be236987cf8fce9ba"
+    },
+    {
+      "path": "/portal.html",
+      "sha256": "88087acc8f1fd608922b51990ee37e3dbf13c786c3062fb58114090fdbab48c4"
+    },
+    {
+      "path": "/province-map.html",
+      "sha256": "4a07690644b94b480ffa7e90f732a4fa7789bb7a366a0013532e21c2f8a86cfd"
+    },
+    {
+      "path": "/sales-insights-source/assets/login-hero-bg.png",
+      "sha256": "95aedc27cde5f5a2753f75b3e3cc0da8d33f9344951148f411e4dda57c25db1b"
+    },
+    {
+      "path": "/sales-insights-source/assets/meridian-hexagon.png",
+      "sha256": "cf911b1a476dd9815e60835348578bb6502cba8d393310961c5d67cdd33bdc0d"
+    },
+    {
+      "path": "/sales-insights-source/assets/meridian-logo-white.png",
+      "sha256": "a30b8d98cdc9f19263983fe0476502b6d1838811ba43dfb2dfe5ba36aa40f7c2"
+    },
+    {
+      "path": "/sales-insights-source/assets/meridian-logo.png",
+      "sha256": "a30b8d98cdc9f19263983fe0476502b6d1838811ba43dfb2dfe5ba36aa40f7c2"
+    },
+    {
+      "path": "/sales-insights-source/assets/meridian-mark.png",
+      "sha256": "e4e1f386851f57ff773a3d77dcbc02c1af8251b09963075e7de51cad8b8aed8f"
+    },
+    {
+      "path": "/sales-insights-source/assets/sa-provinces.topo.json",
+      "sha256": "13ec057c50bb4bfd25984315a5310f008e0c0b53f0e9fd235da1c7ab65326dce"
+    },
+    {
+      "path": "/sales-insights-source/dashboard.dc.html",
+      "sha256": "e31a6f99eeeabc234a9686d39758e819c8f032f8b338a04ab40b8db1ae59017c"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/banner_bucket_summary.json",
+      "sha256": "b8938a04f063ddc46c7339ced9a9f94872639263b94069e5b1c0eb07407e2e42"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/brands.json",
+      "sha256": "e22d44c3c431b9aa3307f0407806630ddb088a72788b9353a5d1c9f781727118"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/bucket_summary.json",
+      "sha256": "67aa1e8d47efb53f6bb2203bbba9df5b6e7b034952b530ea8eaba4686bb6c59f"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/categories.json",
+      "sha256": "e177a88ba01006289f27a3f198c8029915f0fb384f0f53f0eb43414a711d9ad3"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/category_monthly.json",
+      "sha256": "c1a5439111dd572bfc18cf66fafe10de63dd16db15f7ac531652d7d4a50319ec"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/client_monthly.json",
+      "sha256": "238d8dc520a77a759738880dbe3f57535f341adfadd33f0520e27dad86a19788"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/dimension_banner.json",
+      "sha256": "4edcc53fa1981e9fc94be2aa339f84cb231ca3802a208243c36790f4c01dbc2b"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/dimension_brand.json",
+      "sha256": "bad3fb642b9b6e90f4db1eed956c99ccffd45792f341d30a99ff8de8cc4b6ce9"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/dimension_region.json",
+      "sha256": "3e27528add7a05343f6f9ada9305f131583b31a145096a61eea15ea0106dad49"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/insights_brands.json",
+      "sha256": "e22f027330806566fa5978d0c845bed328d9e9344bcd8dfd9da12ea6392f796e"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/insights_stores_at_risk.json",
+      "sha256": "e8cac32205d5cc91a03ba6426b676a9ec5de1eb61fb053d1eafb28c592295aa2"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/insights_stores_declining.json",
+      "sha256": "5c176b70ef195c4378fcb86c1d1ef86db9e1931d304484ec6e7d4f5c34ac906b"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/insights_stores_growing.json",
+      "sha256": "5fc2412925b7c6754852e20f4bb03772aa5654cf3c60fba10cb56e6d30426289"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/kpi_cards.json",
+      "sha256": "54843f18ef61119687d689992b9bf70aabeb29379bc5b312551b0150dae20e84"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/meta.json",
+      "sha256": "f7e7f280c269fc8fb024d514fa7baf690ea725a25fca487c13d32de469cd6db8"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/monthly_trend.json",
+      "sha256": "b3f105b6b4673f33aad3db86e31b2af017ac9b62a3310aa3b5ef4e210c7cfdfa"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/price_mix.json",
+      "sha256": "ff24f62752c8f6dde42b8cb09f490e3b185b340851b8a919046d96059ca3c0da"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/price_volume_bridge.json",
+      "sha256": "7a898bfcbb2193600eed0347b372fa80462409104776917dfdd58430193891ef"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/products.json",
+      "sha256": "ab0e48202816715d2c3164828ff081eb9a1d9271e9688c58a3e674fd3879ccad"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/province_monthly.json",
+      "sha256": "bd88b8f6518b87420b7050b3d5aa138afcb5367368908c2521a2637cc28733a7"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/regions.json",
+      "sha256": "61a798745540f9ec9a04e8a61de6a1098163d8e8ef5354f185d0b66a2fddda4d"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/rolling_summary.json",
+      "sha256": "66dd29aa26df56696f11eccebfd9abd7749a2f1ca7d8ac3174ad424399ce6a60"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/store_performance.json",
+      "sha256": "cc499d61371a777ffc727dfaabd206aa4798f1c58a59afc1d3e6ac963b33e613"
+    },
+    {
+      "path": "/sales-insights-source/mock-data/summary.json",
+      "sha256": "9b923b26d4804bf1616ce4509a44c00a048a66df7e0d89aac7dbdcd6d96ea202"
+    },
+    {
+      "path": "/sales-insights-source/province-map.html",
+      "sha256": "4a07690644b94b480ffa7e90f732a4fa7789bb7a366a0013532e21c2f8a86cfd"
+    },
+    {
+      "path": "/sales-insights-source/support.js",
+      "sha256": "0dcd2d98f1d087ff6ae8af8a8c6294c08be7232e3f6a63acc5645fec34cc03e8"
+    },
+    {
+      "path": "/styles.css",
+      "sha256": "7e38243c4646663eaff6454121cd9680af8a4743cd585a2a057406e041e5eb80"
+    },
+    {
+      "path": "/user-management.css",
+      "sha256": "0ed20cc41d3e6f21ac66d81e719732d04dd48dace23b423b11385ab2f1a5dc01"
+    },
+    {
+      "path": "/azure-bridge.js",
+      "sha256": "978a8738ab0c16f290e4639db7851ee975b38e4a9db2d42c9e9d2b1ed82bcbfe",
+      "added": true
+    }
+  ]
+}

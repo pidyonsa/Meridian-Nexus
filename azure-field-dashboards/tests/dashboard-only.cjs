@@ -2,7 +2,7 @@
 const {chromium}=require('../../azure-nexus/node_modules/@playwright/test');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const base=process.argv[2],directory=process.env.VIEWER_TEST_RESULTS_DIR;
-const portal='https://meridian-group-za.github.io/Meridian-Nexus/portal.html';
+const portal='/',portalUrl=new URL('/',base).href;
 const attendance={overview:'MTD Overview',daily:'Daily Visit Log',users:'Roster',stores:'Attendance Detail by Store'};
 const orders={overview:'Executive Overview',trend:'Trend Analysis',regions:'Regional Performance',products:'Product Performance',stores:'Store Performance',reps:'Rep Performance',orders:'Order Detail'};
 (async()=>{
@@ -15,7 +15,7 @@ const orders={overview:'Executive Overview',trend:'Trend Analysis',regions:'Regi
       page.on('response',r=>{if(r.url().includes('/api/'))responses.push({url:r.url(),status:r.status(),request:r.request().postDataJSON()});});
       page.on('requestfailed',r=>errors.push(`${r.method()} ${r.url()}: ${r.failure()?.errorText}`));
       page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
-      await page.route(portal,route=>route.fulfill({contentType:'text/html',body:'<!doctype html><link rel="icon" href="data:,"><title>Portal destination</title>'}));
+      await page.route(portalUrl,route=>route.fulfill({contentType:'text/html',body:'<!doctype html><link rel="icon" href="data:,"><title>Portal destination</title>'}));
       async function layout(){
         const isAttendance=new URL(page.url()).pathname.startsWith('/attendance');
         const sidebar=page.locator('#attendance-sidebar');
@@ -113,7 +113,7 @@ const orders={overview:'Executive Overview',trend:'Trend Analysis',regions:'Regi
       await page.goBack();assert.equal(new URL(page.url()).pathname,'/franchise-orders/reps');
       assert.equal((await page.locator('#report-tabs [aria-current="page"]').textContent()).trim(),'Reps');
       if(width<=760)await page.locator('#orders-nav-toggle').click();
-      await page.locator('[data-portal-home]').click();await page.waitForURL(portal);
+      await page.locator('[data-portal-home]').click();await page.waitForURL(portalUrl);
       checks.push(`${width}/history-and-home`);
       await page.close();
     }

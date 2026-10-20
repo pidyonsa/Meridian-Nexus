@@ -62,3 +62,61 @@ test('every Meridian account sees Syndicated Attendance and Franchise Orders; th
   }
   assert.equal((await get('/api/import', staff, 'POST')).status, 403);
 });
+
+const nexusHost = async (t, functionsFetch) => {
+  const reportProvider = {kind: 'test', request: async () => ({status: 200, data: {rows: []}})};
+  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch}).listen(0, '127.0.0.1');
+  await new Promise(resolve => server.once('listening', resolve));
+  t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
+  return (route, init = {}) => fetch(`http://127.0.0.1:${server.address().port}${route}`, {redirect: 'manual', ...init});
+};
+const as = roles => ({'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', roles), 'x-ms-client-principal-name': 'someone@meridiangroup.co.za'});
+
+test('landing page: dashboards for every Meridian account, the full Nexus only for Nexus.Admin', async t => {
+  const get = await nexusHost(t);
+  const staff = await (await get('/', {headers: as([])})).text(), admin = await (await get('/', {headers: as(['Nexus.Admin'])})).text();
+  for (const html of [staff, admin]) {
+    for (const href of ['/attendance/rep/overview', '/attendance/merchandiser/overview', '/franchise-orders/overview', '/.auth/logout?post_logout_redirect_uri=/']) assert.ok(html.includes(`href="${href}"`), href);
+    assert.ok(html.includes('someone@meridiangroup.co.za'));
+  }
+  assert.ok(!staff.includes('/nexus/'), 'staff must not see the full Nexus');
+  for (const hash of ['home', 'sales', 'insights', 'attendance', 'stockfix', 'automation', 'etls', 'admin']) assert.ok(admin.includes(`href="/nexus/#${hash}"`), hash);
+  // Names are escaped.
+  const odd = await (await get('/', {headers: {...as([]), 'x-ms-client-principal-name': '<b>x</b>'}})).text();
+  assert.ok(odd.includes('&lt;b&gt;x&lt;/b&gt;') && !odd.includes('<b>x</b>'));
+});
+
+test('full Nexus portal and its Firebase files: Nexus.Admin only; signed out goes to sign-in', async t => {
+  const get = await nexusHost(t);
+  for (const route of ['/nexus/', '/nexus/app.js', '/__/firebase/init.js']) {
+    assert.equal((await get(route)).status, 302, route);
+    assert.equal((await get(route, {headers: as(['Nexus.Reader'])})).status, 403, route);
+    const response = await get(route, {headers: as(['Nexus.Admin'])});
+    assert.equal(response.status, 200, route);
+    assert.doesNotMatch(response.headers.get('content-security-policy'), /script-src/);
+    assert.match(response.headers.get('content-security-policy'), /frame-ancestors 'none'/);
+  }
+  const page = await (await get('/nexus/', {headers: as(['Nexus.Admin'])})).text();
+  assert.match(page, /<script src="azure-bridge.js"><\/script>/);
+  assert.equal((await get('/nexus', {headers: as(['Nexus.Admin'])})).headers.get('location'), '/nexus/');
+  assert.equal((await get('/nexus/missing.js', {headers: as(['Nexus.Admin'])})).status, 404);
+  assert.equal((await get('/nexus/manifest.json', {headers: as(['Nexus.Admin'])})).status, 404);
+  assert.match(await (await get('/nexus/app.js', {headers: as(['Nexus.Admin'])})).text(), /functions\(window\.location\.origin \+ "\/nexus\/__fn"\)/);
+});
+
+test('Nexus function calls go to the Firebase function with the Nexus token, only for Nexus.Admin', async t => {
+  const calls = [];
+  const get = await nexusHost(t, async (url, init) => { calls.push({url, init}); return new Response(JSON.stringify({result: {ok: true}}), {status: 200, headers: {'content-type': 'application/json'}}); });
+  const call = (name, headers) => get(`/nexus/__fn/${name}`, {method: 'POST', headers: {'content-type': 'application/json', 'x-firebase-authorization': 'Bearer nexus-token', ...headers}, body: JSON.stringify({data: {q: 1}})});
+  assert.equal((await call('meridianEtl', as(['Nexus.Reader']))).status, 403);
+  assert.equal((await call('meridianEtl', {})).status, 401);
+  assert.equal(calls.length, 0);
+  const response = await call('meridianEtl', as(['Nexus.Admin']));
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {result: {ok: true}});
+  assert.equal(calls[0].url, 'https://us-central1-meridain-nexus.cloudfunctions.net/meridianEtl');
+  assert.equal(calls[0].init.headers.authorization, 'Bearer nexus-token');
+  assert.equal(calls[0].init.body.toString(), JSON.stringify({data: {q: 1}}));
+  assert.equal((await call('bad.name', as(['Nexus.Admin']))).status, 404);
+  assert.equal(calls.length, 1);
+});

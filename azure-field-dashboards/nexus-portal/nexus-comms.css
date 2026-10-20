@@ -1,0 +1,19 @@
+.nexus-chat-badge { display:inline-flex; align-items:center; justify-content:center; margin-left:auto; min-width:21px; height:21px; padding:0 4px; border-radius:50%; background:#ff7817; color:#07182d; font:800 11px/1 Manrope,sans-serif; flex:0 0 auto; }
+.nexus-chat-badge[hidden],.nexus-app-actions button[hidden] { display:none; }
+.nexus-app-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 0; }
+.nexus-app-actions button { display:inline-flex; gap:8px; align-items:center; min-height:36px; padding:6px 10px; border:1px solid #284861; border-radius:6px; background:#0a2038; color:#dceaf4; font:600 11px Manrope,sans-serif; cursor:pointer; }
+.nexus-app-actions i { font-size:18px; }
+.nexus-workspace-nav .nexus-app-actions [data-nexus-alerts] { flex:0 0 38px;width:38px;padding:0;justify-content:center; }
+.nexus-app-dialog { width:min(440px,calc(100% - 24px)); max-height:calc(100dvh - 32px); overflow:auto; border:1px solid #d6dee8; border-radius:8px; background:#fff; color:#20364d; padding:20px; }
+.nexus-app-dialog::backdrop { background:rgba(0,10,24,.55); }
+.nexus-app-dialog header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.nexus-app-dialog h2 { font-size:19px; margin:0; }
+.nexus-app-dialog button,.nexus-app-dialog select { min-height:36px; border:1px solid #cdd8e3; border-radius:6px; background:#f4f7fa; color:#20364d; padding:7px 10px; cursor:pointer; font:600 12px Manrope,sans-serif; }
+.nexus-app-dialog header button { width:36px; padding:0; font-size:18px; }
+.nexus-setting { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:17px 0; border-bottom:1px solid #e3e9ef; font-size:13px; }
+.nexus-setting input[type=checkbox] { accent-color:#f57920; width:19px; height:19px; }
+.nexus-setting input[type=range] { width:145px; accent-color:#e96f16; }
+.nexus-app-dialog p { font-size:12px; line-height:1.6; color:#576d83; }
+.nexus-app-dialog footer { display:flex; flex-wrap:wrap; gap:8px; }
+.nexus-app-dialog button:focus-visible,.nexus-app-actions button:focus-visible { outline:2px solid #f57920; outline-offset:3px; }
+@media(max-width:640px) { .nexus-app-actions { grid-column:1 / -1; } .nexus-chat-badge { min-width:18px; height:18px; font-size:10px; margin-left:3px; } }

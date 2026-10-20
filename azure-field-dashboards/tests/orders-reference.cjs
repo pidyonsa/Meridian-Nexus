@@ -2,7 +2,7 @@
 const {chromium}=require('../../azure-nexus/node_modules/@playwright/test');
 const ExcelJS=require('../../firebase-dashboards/backend/node_modules/exceljs');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const base=process.argv[2],directory=process.env.VIEWER_TEST_RESULTS_DIR,portal='https://meridian-group-za.github.io/Meridian-Nexus/portal.html';
+const base=process.argv[2],directory=process.env.VIEWER_TEST_RESULTS_DIR,portal='/',portalUrl=new URL('/',base).href;
 const views={overview:'Executive Overview',trend:'Trend Analysis',regions:'Regional Performance',products:'Product Performance',stores:'Store Performance',reps:'Rep Performance',orders:'Order Detail'};
 const cents=value=>Math.round(value*100);
 function verify(data,rows){
@@ -113,8 +113,8 @@ function verify(data,rows){
     }
     assert.ok(network.filter(url=>url.includes('/api/')).every(url=>url.startsWith(base+'/api/orders')),'Only the Geo orders endpoint is used');
     assert.ok(network.filter(url=>/\.js(?:\?|$)/.test(url)).every(url=>url.startsWith(base+'/')),'No source MSAL/DC runtime or external scripts');
-    await page.route(portal,route=>route.fulfill({contentType:'text/html',body:'<!doctype html><link rel="icon" href="data:,"><title>Home destination</title>'}));
-    await page.locator('#orders-nav-toggle').click();await page.locator('[data-portal-home]').click();await page.waitForURL(portal);checks.push('home');
+    await page.route(portalUrl,route=>route.fulfill({contentType:'text/html',body:'<!doctype html><link rel="icon" href="data:,"><title>Home destination</title>'}));
+    await page.locator('#orders-nav-toggle').click();await page.locator('[data-portal-home]').click();await page.waitForURL(portalUrl);checks.push('home');
     assert.deepEqual(errors,[]);fs.writeFileSync(path.join(directory,'verification.json'),JSON.stringify({at:new Date().toISOString(),base,checks,errors},null,2));console.log(`Passed ${checks.length} Franchise reference checks.`);
   }catch(error){if(page){await page.screenshot({path:path.join(directory,'failure.png')}).catch(()=>{});fs.writeFileSync(path.join(directory,'failure.json'),JSON.stringify({error:error.message,checks,errors},null,2));}throw error;}
   finally{await browser.close();}
