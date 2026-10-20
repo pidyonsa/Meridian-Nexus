@@ -19,4 +19,6 @@ const boundedStorage=()=>({bucket:()=>({file:storagePath=>{
 }})});
 const service=require('./service.cjs').createService({db:boundedDb,getStorage:boundedStorage,ExcelJS,HttpsError});
 exports.publicMeridianDashboards=onRequest({region:'us-central1',memory:'1GiB',cpu:1,timeoutSeconds:120,maxInstances:2,concurrency:4,
-  serviceAccount:'nexus-public-viewer@meridain-nexus.iam.gserviceaccount.com',invoker:'public',cors:false},require('./handler.cjs').createHandler(service));
+  serviceAccount:'nexus-public-viewer@meridain-nexus.iam.gserviceaccount.com',
+  // Locked 20 October: the dashboards are on Azure behind Microsoft sign-in and the old site redirects there.
+  invoker:'private',cors:false},require('./handler.cjs').createHandler(service));
