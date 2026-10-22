@@ -62,7 +62,7 @@ test('a signed-in user without a Nexus role is refused', () => serve({}, async b
 
 test('a reader gets their profile and the app shell; unknown APIs are 404', () => serve({}, async base => {
   const headers = {'x-ms-client-principal': header()};
-  assert.deepEqual(await (await fetch(`${base}/api/me`, {headers})).json(), {id: OID, email: 'staff@meridiangroup.co.za', name: 'Staff Member', admin: false, preview: false});
+  assert.deepEqual(await (await fetch(`${base}/api/me`, {headers})).json(), {id: OID, email: 'staff@meridiangroup.co.za', name: 'Staff Member', admin: false, preview: false, sections: ['automation', 'chat', 'support']});
   const shell = await fetch(`${base}/orders/regions`, {headers});
   assert.equal(shell.status, 200); assert.match(await shell.text(), /<title>Nexus<\/title>/);
   assert.equal((await fetch(`${base}/api/nope`, {headers})).status, 404);
@@ -79,6 +79,12 @@ test('errors carry a request id and never leak internals', () => serve({api: [ap
   const body = await res.json();
   assert.equal(res.status, 500); assert.equal(body.error.requestId, res.headers.get('x-request-id')); assert.doesNotMatch(JSON.stringify(body), /secret/);
 }));
+
+test('sections: admins see everything; staff get their permissions, never admin-only pages', () => {
+  const {sectionsFor, SECTIONS} = require('../server/access.cjs');
+  assert.deepEqual(sectionsFor({admin: true}), SECTIONS);
+  assert.deepEqual(sectionsFor({admin: false}, {allowedNavigationIds: ['attendance', 'admin', 'etls', 'stockfix'], chatEnabled: false}), ['attendance', 'callcycle', 'support']);
+});
 
 test('migrations are numbered, unique and split into batches', () => {
   const list = migrations();
