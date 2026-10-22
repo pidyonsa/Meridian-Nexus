@@ -1,6 +1,6 @@
 'use strict';
 // Assemble the image build context from the scheduled functions' bundles deployed on Google right now. Four distinct
-// code sets cover the nine functions; each is copied unchanged into fns/<set>/ and installed from its own lock file.
+// code sets cover the seven functions; each is copied unchanged into fns/<set>/ and installed from its own lock file.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {json,api,fnUrl,hash}=require('../../scripts/release-multi-admin.cjs'),Zip=require('../../functions/node_modules/jszip');
 const {FUNCTIONS}=require('./functions.cjs');

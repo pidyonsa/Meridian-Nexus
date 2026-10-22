@@ -83,7 +83,7 @@
   salesforceAttendanceMasterForm: document.querySelector("#salesforceAttendanceMasterForm"), salesforceAttendanceMasterId: document.querySelector("#salesforceAttendanceMasterId"), salesforceAttendanceMasterFile: document.querySelector("#salesforceAttendanceMasterFile"), salesforceAttendanceWeek: document.querySelector("#salesforceAttendanceWeek"), salesforceAttendanceAssignments: document.querySelector("#salesforceAttendanceAssignments"), salesforceAttendanceMasterStatus: document.querySelector("#salesforceAttendanceMasterStatus"), salesforceAttendanceMonthlyMasterForm: document.querySelector("#salesforceAttendanceMonthlyMasterForm"), salesforceAttendanceMonthlyMasterId: document.querySelector("#salesforceAttendanceMonthlyMasterId"), salesforceAttendanceMonthlyMasterFile: document.querySelector("#salesforceAttendanceMonthlyMasterFile"), salesforceAttendanceMonthlyMasterStatus: document.querySelector("#salesforceAttendanceMonthlyMasterStatus"), salesforceAttendanceMasterCount: document.querySelector("#salesforceAttendanceMasterCount"), salesforceAttendanceMasterDetails: document.querySelector("#salesforceAttendanceMasterDetails"), salesforceAttendanceBlueprintForm: document.querySelector("#salesforceAttendanceBlueprintForm"), salesforceAttendanceBlueprintUrl: document.querySelector("#salesforceAttendanceBlueprintUrl"), salesforceAttendanceBlueprintStatus: document.querySelector("#salesforceAttendanceBlueprintStatus"), salesforceAttendanceMonthlyPlanSetupForm: document.querySelector("#salesforceAttendanceMonthlyPlanSetupForm"), salesforceAttendanceMonthlyPlanTargetUrl: document.querySelector("#salesforceAttendanceMonthlyPlanTargetUrl"), salesforceAttendanceMonthlyPlanMasterUrl: document.querySelector("#salesforceAttendanceMonthlyPlanMasterUrl"), salesforceAttendanceMonthlyPlanEnabled: document.querySelector("#salesforceAttendanceMonthlyPlanEnabled"), salesforceAttendanceMonthlyPlanTime: document.querySelector("#salesforceAttendanceMonthlyPlanTime"), salesforceAttendanceMonthlyPlanStatus: document.querySelector("#salesforceAttendanceMonthlyPlanStatus"), runSalesforceAttendanceMonthlyPlanSetup: document.querySelector("#runSalesforceAttendanceMonthlyPlanSetup"), salesforceAttendanceMonthlyBlueprintProvisionForm: document.querySelector("#salesforceAttendanceMonthlyBlueprintProvisionForm"), salesforceAttendanceMonthlyBlueprintTemplateUrl: document.querySelector("#salesforceAttendanceMonthlyBlueprintTemplateUrl"), salesforceAttendanceMonthlyBlueprintFolderUrl: document.querySelector("#salesforceAttendanceMonthlyBlueprintFolderUrl"), salesforceAttendanceMonthlyBlueprintPrefix: document.querySelector("#salesforceAttendanceMonthlyBlueprintPrefix"), salesforceAttendanceMonthlyBlueprintMonth: document.querySelector("#salesforceAttendanceMonthlyBlueprintMonth"), salesforceAttendanceMonthlyBlueprintEnabled: document.querySelector("#salesforceAttendanceMonthlyBlueprintEnabled"), salesforceAttendanceMonthlyBlueprintTime: document.querySelector("#salesforceAttendanceMonthlyBlueprintTime"), salesforceAttendanceMonthlyBlueprintStatus: document.querySelector("#salesforceAttendanceMonthlyBlueprintStatus"), createSalesforceAttendanceMonthlyBlueprint: document.querySelector("#createSalesforceAttendanceMonthlyBlueprint"),
   displayComplianceChannelsForm: document.querySelector("#displayComplianceChannelsForm"), displayComplianceChannelName: document.querySelector("#displayComplianceChannelName"), displayComplianceChannelsCount: document.querySelector("#displayComplianceChannelsCount"), displayComplianceChannelsStatus: document.querySelector("#displayComplianceChannelsStatus"), displayComplianceChannelsList: document.querySelector("#displayComplianceChannelsList"), displayComplianceSmartSellMasterForm: document.querySelector("#displayComplianceSmartSellMasterForm"), displayComplianceSmartSellMasterId: document.querySelector("#displayComplianceSmartSellMasterId"), displayComplianceSmartSellMasterFile: document.querySelector("#displayComplianceSmartSellMasterFile"), displayComplianceSmartSellMasterStatus: document.querySelector("#displayComplianceSmartSellMasterStatus"), displayComplianceTemplateFolderForm: document.querySelector("#displayComplianceTemplateFolderForm"), displayComplianceTemplateFolderUrl: document.querySelector("#displayComplianceTemplateFolderUrl"), displayComplianceTemplateFolderStatus: document.querySelector("#displayComplianceTemplateFolderStatus"), displayComplianceReferenceTemplate: document.querySelector("#displayComplianceReferenceTemplate"), displayCompliancePhaseTwoAutoRun: document.querySelector("#displayCompliancePhaseTwoAutoRun"), displayCompliancePhaseTwoAutomationStatus: document.querySelector("#displayCompliancePhaseTwoAutomationStatus"), scanDisplayCompliancePhaseTwoInputs: document.querySelector("#scanDisplayCompliancePhaseTwoInputs"), runDisplayCompliancePhaseTwoTest: document.querySelector("#runDisplayCompliancePhaseTwoTest"), displayComplianceReadinessCount: document.querySelector("#displayComplianceReadinessCount"), displayComplianceReadinessList: document.querySelector("#displayComplianceReadinessList"), displayComplianceSourceCount: document.querySelector("#displayComplianceSourceCount"), displayComplianceSourceList: document.querySelector("#displayComplianceSourceList"),
   geoRepFormIntakeForm: document.querySelector("#geoRepFormIntakeForm"), geoRepFormIntakeName: document.querySelector("#geoRepFormIntakeName"), geoRepFormIntakeFile: document.querySelector("#geoRepFormIntakeFile"), geoRepFormIntakeStatus: document.querySelector("#geoRepFormIntakeStatus"), geoRepFormIntakeList: document.querySelector("#geoRepFormIntakeList"), geoRepFormIntakeCount: document.querySelector("#geoRepFormIntakeCount"),
-  geoRepBlueprintForm: document.querySelector("#geoRepBlueprintForm"), geoRepBlueprintId: document.querySelector("#geoRepBlueprintId"), geoRepBlueprintName: document.querySelector("#geoRepBlueprintName"), geoRepBlueprintFormIntake: document.querySelector("#geoRepBlueprintFormIntake"), geoRepBlueprintFormName: document.querySelector("#geoRepBlueprintFormName"), geoRepBlueprintSharePointUrl: document.querySelector("#geoRepBlueprintSharePointUrl"), geoRepBlueprintActive: document.querySelector("#geoRepBlueprintActive"), geoRepBlueprintStatus: document.querySelector("#geoRepBlueprintStatus"), geoRepBlueprintFormTitle: document.querySelector("#geoRepBlueprintFormTitle"), geoRepBlueprintList: document.querySelector("#geoRepBlueprintList"), geoRepBlueprintCount: document.querySelector("#geoRepBlueprintCount"), newGeoRepBlueprint: document.querySelector("#newGeoRepBlueprint"), geoRepBlueprintFolderForm: document.querySelector("#geoRepBlueprintFolderForm"), geoRepBlueprintFolderUrl: document.querySelector("#geoRepBlueprintFolderUrl"), geoRepBlueprintFolderStatus: document.querySelector("#geoRepBlueprintFolderStatus"), geoRepBlueprintExceptionPanel: document.querySelector("#geoRepBlueprintExceptionPanel"), geoRepBlueprintExceptionCount: document.querySelector("#geoRepBlueprintExceptionCount"), geoRepBlueprintExceptionList: document.querySelector("#geoRepBlueprintExceptionList"), geoRepFormReportImportForm: document.querySelector("#geoRepFormReportImportForm"), geoRepFormReportImportUrl: document.querySelector("#geoRepFormReportImportUrl"), geoRepFormReportImportStatus: document.querySelector("#geoRepFormReportImportStatus"),
+  geoRepFormReportImportForm: document.querySelector("#geoRepFormReportImportForm"), geoRepFormReportImportUrl: document.querySelector("#geoRepFormReportImportUrl"), geoRepFormReportImportStatus: document.querySelector("#geoRepFormReportImportStatus"),
   extractionSteps: document.querySelector("#extractionSteps"), addExtractionStep: document.querySelector("#addExtractionStep"), runRetailer: document.querySelector("#runRetailer"), runExtraction: document.querySelector("#runExtraction"), runRetailerDetails: document.querySelector("#runRetailerDetails"), runStartDate: document.querySelector("#runStartDate"), runEndDate: document.querySelector("#runEndDate"), runStartDateLabel: document.querySelector("#runStartDateLabel"), runEndDateLabel: document.querySelector("#runEndDateLabel"), runRangeNote: document.querySelector("#runRangeNote"), runMonthlyAttendanceFields: document.querySelector("#runMonthlyAttendanceFields"), runMonthlyActualWeek: document.querySelector("#runMonthlyActualWeek"), runMonthlyScheduleDay: document.querySelector("#runMonthlyScheduleDay"), runScheduleDateMode: document.querySelector("#runScheduleDateMode"), runScheduleDateModeField: document.querySelector("#runScheduleDateModeField"), runScheduleTime: document.querySelector("#runScheduleTime"), runScheduleDays: document.querySelectorAll("#runScheduleDays input"), runScheduleDaysField: document.querySelector("#runScheduleDaysField"), runScheduleComposer: document.querySelector("#runScheduleComposer"), runScheduleScopeNote: document.querySelector("#runScheduleScopeNote"), runScheduleSummary: document.querySelector("#runScheduleSummary"), runScheduleEnabled: document.querySelector("#runScheduleEnabled"), saveRunSchedule: document.querySelector("#saveRunSchedule"), retailerCount: document.querySelector("#retailerCount"), stepSetCount: document.querySelector("#stepSetCount"), adminRunState: document.querySelector("#adminRunState"), adminRunStateTitle: document.querySelector("#adminRunStateTitle"), adminRunStateCopy: document.querySelector("#adminRunStateCopy"), adminRunProgress: document.querySelector("#adminRunProgress"), adminRunStep: document.querySelector("#adminRunStep"), adminRunElapsed: document.querySelector("#adminRunElapsed"), adminRunProgressBar: document.querySelector("#adminRunProgressBar"), adminRunHealth: document.querySelector("#adminRunHealth"), abortExtraction: document.querySelector("#abortExtraction"), runStallActions: document.querySelector("#runStallActions"), runStallProblem: document.querySelector("#runStallProblem"), continueWaitingExtraction: document.querySelector("#continueWaitingExtraction"), restartStalledExtraction: document.querySelector("#restartStalledExtraction"), endStalledExtraction: document.querySelector("#endStalledExtraction"), openFilesFromAdmin: document.querySelector("#openFilesFromAdmin"),
   automationProfileCount: document.querySelector("#automationProfileCount"), automationProfileCaption: document.querySelector("#automationProfileCaption"), automationScheduleCount: document.querySelector("#automationScheduleCount"), automationScheduleCaption: document.querySelector("#automationScheduleCaption"), automationDeliveryState: document.querySelector("#automationDeliveryState"), automationDeliveryCaption: document.querySelector("#automationDeliveryCaption"), automationRunCount: document.querySelector("#automationRunCount"), automationRunCaption: document.querySelector("#automationRunCaption"), automationRunSummary: document.querySelector("#automationRunSummary"), automationRunHistory: document.querySelector("#automationRunHistory"), automationDeliveryHistory: document.querySelector("#automationDeliveryHistory"),
   adminReadyProfileCount: document.querySelector("#adminReadyProfileCount"), adminReadyProfileCaption: document.querySelector("#adminReadyProfileCaption"), adminScheduleCount: document.querySelector("#adminScheduleCount"), adminScheduleCaption: document.querySelector("#adminScheduleCaption"), adminDeliveryState: document.querySelector("#adminDeliveryState"), adminDeliveryCaption: document.querySelector("#adminDeliveryCaption"), adminUserCount: document.querySelector("#adminUserCount"), adminUserCaption: document.querySelector("#adminUserCaption"), adminProfileHealth: document.querySelector("#adminProfileHealth"), adminScheduleList: document.querySelector("#adminScheduleList"), adminRunSummary: document.querySelector("#adminRunSummary"), adminRunHistory: document.querySelector("#adminRunHistory"), adminRunDetail: document.querySelector("#adminRunDetail"), adminJobSearch: document.querySelector("#adminJobSearch"), adminJobStatus: document.querySelector("#adminJobStatus"), adminJobOwner: document.querySelector("#adminJobOwner"), adminJobSummary: document.querySelector("#adminJobSummary"), adminJobSummaryLabel: document.querySelector("#adminJobSummaryLabel"), adminJobAuditState: document.querySelector("#adminJobAuditState"), adminJobList: document.querySelector("#adminJobList"), adminJobDetail: document.querySelector("#adminJobDetail"), adminJobDetailEmpty: document.querySelector("#adminJobDetailEmpty"), adminClearJobFilters: document.querySelector("#adminClearJobFilters"), adminRefreshJobLogs: document.querySelector("#adminRefreshJobLogs"), adminEndAllActiveJobs: document.querySelector("#adminEndAllActiveJobs"), adminDeliverySummary: document.querySelector("#adminDeliverySummary"), adminDeliveryList: document.querySelector("#adminDeliveryList"),
@@ -194,8 +194,6 @@ const state = {
   extractionProfiles: [],
   geoRepStoreMasters: [],
   geoRepFormIntakes: [],
-  geoRepBlueprints: [],
-  geoRepBlueprintFolder: null,
   salesStoreMasters: [],
   salesDashboardConfig: null,
   geoRepOpenApiIntegration: null,
@@ -2651,18 +2649,6 @@ function renderGeoRepFormIntakes() {
     const forms = (intake.formNames || []).join("; ") || "No forms";
     return `<article class="management-list-item"><button type="button" data-intake-id="${escapeHtml(intake.id)}"><strong>${escapeHtml(intake.name || intake.sourceName || intake.id)}</strong><small>${escapeHtml(forms)} - ${Number(intake.questionCount || 0)} questions</small></button></article>`;
   }).join("") : `<p class="history-empty">No Form Intake uploaded.</p>`;
-  const current = elements.geoRepBlueprintFormIntake.value;
-  const options = [`<option value="">No linked Form Intake</option>`].concat(intakes.map((intake) => `<option value="${escapeHtml(intake.id)}">${escapeHtml(intake.name || intake.sourceName || intake.id)}</option>`));
-  elements.geoRepBlueprintFormIntake.innerHTML = options.join("");
-  if (intakes.some((intake) => intake.id === current)) elements.geoRepBlueprintFormIntake.value = current;
-}
-
-function applyGeoRepFormIntakeToBlueprint(intakeId) {
-  const intake = state.geoRepFormIntakes.find((item) => item.id === intakeId);
-  if (!intake) return;
-  const formNames = (intake.formNames || []).filter(Boolean);
-  if (formNames.length) elements.geoRepBlueprintFormName.value = formNames.join("; ");
-  elements.geoRepBlueprintStatus.textContent = `${formNames.length} configured form${formNames.length === 1 ? "" : "s"} and ${Number(intake.questionCount || 0)} questions loaded from ${intake.name || intake.sourceName || "the Form Intake"}.`;
 }
 
 async function saveGeoRepFormIntake(event) {
@@ -2690,9 +2676,7 @@ async function saveGeoRepFormIntake(event) {
       active: true
     });
     elements.geoRepFormIntakeForm.reset();
-    elements.geoRepBlueprintFormIntake.value = result.id;
-    if (Array.isArray(result.formNames) && result.formNames.length) elements.geoRepBlueprintFormName.value = result.formNames.join("; ");
-    elements.geoRepFormIntakeStatus.textContent = `${result.formCount} forms and ${result.questionCount} questions validated. Select this intake when saving the Blueprint.`;
+    elements.geoRepFormIntakeStatus.textContent = `${result.formCount} forms and ${result.questionCount} questions validated.`;
     showToast("Geo Rep Capture Form Intake saved.");
   } catch (error) {
     elements.geoRepFormIntakeStatus.textContent = friendlyError(error);
@@ -3263,115 +3247,14 @@ async function scanDisplayCompliancePhaseTwoInputs() {
   }
 }
 
-function resetGeoRepBlueprintForm() {
-  elements.geoRepBlueprintForm.reset();
-  elements.geoRepBlueprintId.value = "";
-  elements.geoRepBlueprintFormIntake.value = "";
-  elements.geoRepBlueprintActive.checked = true;
-  elements.geoRepBlueprintFormTitle.textContent = "Add Geo Rep Capture Blueprint";
-  elements.geoRepBlueprintStatus.textContent = "No separate Form Intake is required. New source workbooks use Survey Name plus Form report. Older blueprints can still use Survey Setup and Generated Report Blueprint.";
-  elements.geoRepBlueprintList.querySelectorAll("button[data-id]").forEach((button) => button.classList.remove("active"));
-}
-
-function editGeoRepBlueprint(id) {
-  const blueprint = state.geoRepBlueprints.find((item) => item.id === id);
-  if (!blueprint) return;
-  elements.geoRepBlueprintId.value = blueprint.id;
-  elements.geoRepBlueprintName.value = blueprint.name || "";
-  elements.geoRepBlueprintFormIntake.value = blueprint.formIntakeId || "";
-  elements.geoRepBlueprintFormName.value = (blueprint.sourceFormNames || []).join("; ");
-  elements.geoRepBlueprintSharePointUrl.value = blueprint.sharePoint?.sourceUrl || blueprint.sharePoint?.webUrl || "";
-  elements.geoRepBlueprintActive.checked = blueprint.active !== false;
-  elements.geoRepBlueprintFormTitle.textContent = blueprint.name || "Geo Rep Capture Blueprint";
-  const updated = formatDate(blueprint.updatedAt || blueprint.createdAt);
-  const sourceMode = blueprint.sourceFormMode === "blueprint-survey-setup" ? "all forms from Survey Setup" : `${(blueprint.sourceFormNames || []).length} selected form${(blueprint.sourceFormNames || []).length === 1 ? "" : "s"}`;
-  elements.geoRepBlueprintStatus.textContent = `${blueprint.blueprintRowCount || 0} Blueprint rows verified - Answer column ${blueprint.answerColumn || "V"} - ${sourceMode} - ${blueprint.active === false ? "Paused" : "Active"}${updated ? ` - ${updated}` : ""}.`;
-  elements.geoRepBlueprintList.querySelectorAll("button[data-id]").forEach((button) => button.classList.toggle("active", button.dataset.id === id));
-}
-
-function renderGeoRepBlueprints() {
-  const blueprints = state.geoRepBlueprints;
-  elements.geoRepBlueprintCount.textContent = `${blueprints.length} Blueprint${blueprints.length === 1 ? "" : "s"}`;
-  elements.geoRepBlueprintList.innerHTML = blueprints.length ? blueprints.map((blueprint) => {
-    const formNames = (blueprint.sourceFormNames || []).join("; ") || "No Form name";
-    const status = blueprint.active === false ? "Paused" : "Active";
-    const source = blueprint.managedFolderId ? "Folder" : "Individual";
-    return `<article class="management-list-item"><button type="button" data-id="${escapeHtml(blueprint.id)}"><strong>${escapeHtml(blueprint.name || blueprint.id)}</strong><small>${escapeHtml(status)} - ${escapeHtml(source)} - ${escapeHtml(formNames)}</small></button></article>`;
-  }).join("") : `<p class="history-empty">No Geo Rep Capture Blueprint configured.</p>`;
-}
-
-function renderGeoRepBlueprintFolder() {
-  const folder = state.geoRepBlueprintFolder;
-  if (document.activeElement !== elements.geoRepBlueprintFolderUrl) elements.geoRepBlueprintFolderUrl.value = folder?.sourceUrl || "";
-  elements.geoRepBlueprintFolderStatus.textContent = folder?.active
-    ? `${folder.name || "Blueprint folder"}: ${Number(folder.validBlueprintCount || 0)} valid of ${Number(folder.workbookCount || 0)} workbook${Number(folder.workbookCount || 0) === 1 ? "" : "s"} active. Last scanned ${formatDate(folder.lastSyncedAt || folder.updatedAt)}.`
-    : "Every source Blueprint workbook in this folder is checked before each Geo Rep Capture run. Nexus reads Survey Name, pulls that exact form from its start date to today, and overwrites Form report.";
-  const invalid = Array.isArray(folder?.invalidWorkbooks) ? folder.invalidWorkbooks : [];
-  elements.geoRepBlueprintExceptionCount.textContent = `${invalid.length} file${invalid.length === 1 ? "" : "s"}`;
-  elements.geoRepBlueprintExceptionList.innerHTML = invalid.length ? invalid.map((workbook) => {
-    const fileName = workbook.name || "Unnamed workbook";
-    const reason = workbook.message || "This workbook could not be validated.";
-    const modified = formatDate(workbook.lastModifiedDateTime);
-    const link = workbook.webUrl ? `<a class="text-action" href="${escapeHtml(workbook.webUrl)}" target="_blank" rel="noopener">Open in SharePoint</a>` : "";
-    return `<article class="management-list-item exception-list-item"><div><strong>${escapeHtml(fileName)}</strong><small>${escapeHtml(reason)}${modified ? ` - Modified ${escapeHtml(modified)}` : ""}</small></div>${link}</article>`;
-  }).join("") : `<p class="history-empty">No skipped Blueprint files.</p>`;
-  elements.geoRepBlueprintExceptionPanel.hidden = !folder?.active;
-}
-
-async function saveGeoRepBlueprintFolder(event) {
-  event.preventDefault();
-  const submit = event.submitter;
-  submit.disabled = true;
-  elements.geoRepBlueprintFolderStatus.textContent = "Resolving the folder and validating every Blueprint workbook...";
-  try {
-    const result = await callFunction("saveGeoRepBlueprint", { folderMode: true, sharePointUrl: elements.geoRepBlueprintFolderUrl.value });
-    const invalid = Array.isArray(result.invalidWorkbooks) && result.invalidWorkbooks.length ? ` ${result.invalidWorkbooks.length} workbook${result.invalidWorkbooks.length === 1 ? "" : "s"} needs attention.` : "";
-    elements.geoRepBlueprintFolderStatus.textContent = `${result.blueprints.length} Blueprint workbook${result.blueprints.length === 1 ? "" : "s"} validated and active.${invalid}`;
-    showToast("Geo Rep Capture Blueprint folder saved.");
-  } catch (error) {
-    elements.geoRepBlueprintFolderStatus.textContent = friendlyError(error);
-    showToast(friendlyError(error), true);
-  } finally {
-    submit.disabled = false;
-  }
-}
-
-async function saveGeoRepBlueprint(event) {
-  event.preventDefault();
-  const submit = event.submitter;
-  submit.disabled = true;
-  elements.geoRepBlueprintStatus.textContent = "Resolving SharePoint and validating the Blueprint workbook...";
-  try {
-    const result = await callFunction("saveGeoRepBlueprint", {
-      id: elements.geoRepBlueprintId.value,
-      name: elements.geoRepBlueprintName.value,
-      formIntakeId: elements.geoRepBlueprintFormIntake.value,
-      sourceFormNames: elements.geoRepBlueprintFormName.value,
-      sharePointUrl: elements.geoRepBlueprintSharePointUrl.value,
-      active: elements.geoRepBlueprintActive.checked
-    });
-    elements.geoRepBlueprintId.value = result.id;
-    elements.geoRepBlueprintFormTitle.textContent = elements.geoRepBlueprintName.value.trim() || "Geo Rep Capture Blueprint";
-    elements.geoRepBlueprintStatus.textContent = result.workflowContract === "form-report-tab"
-      ? `${(result.sourceFormNames || []).join("; ")} verified from Survey Name. Future runs overwrite the ${result.worksheet} tab from ${result.formStartDate || "the configured start date"} to today.`
-      : `${result.blueprintRowCount} rows verified in ${result.worksheet}; ${(result.sourceFormNames || []).length} forms were read from ${result.sourceFormMode === "blueprint-survey-setup" ? "Survey Setup" : "the selected filter"}. Future raw Form Reports update Answer column ${result.answerColumn} and deliver Detail/Summary reporting to SharePoint.`;
-    showToast("Geo Rep Capture Blueprint validated and saved.");
-  } catch (error) {
-    elements.geoRepBlueprintStatus.textContent = friendlyError(error);
-    showToast(friendlyError(error), true);
-  } finally {
-    submit.disabled = false;
-  }
-}
-
 async function importGeoRepFormReport(event) {
   event.preventDefault();
   const submit = event.submitter;
   submit.disabled = true;
-  elements.geoRepFormReportImportStatus.textContent = "Validating the SharePoint Form Report and queueing its Blueprint updates...";
+  elements.geoRepFormReportImportStatus.textContent = "Validating the SharePoint Form Report...";
   try {
     const result = await callFunction("importGeoRepFormReport", { sharePointUrl: elements.geoRepFormReportImportUrl.value });
-    elements.geoRepFormReportImportStatus.textContent = "Import queued. Nexus will validate the source report and update every matching active Blueprint.";
+    elements.geoRepFormReportImportStatus.textContent = "Import queued. Nexus will validate the source report and store one verified copy.";
     showToast("Geo Rep Capture Form Report import queued.");
     state.selectedExecutionRunId = result.runId || state.selectedExecutionRunId;
   } catch (error) {
@@ -3764,7 +3647,6 @@ function runStatus(run) {
   if (["queued", "running", "waiting_otp", "waiting_for_otp", "waiting_approval"].includes(run?.status)) return { label: "Running", className: "running" };
   if (run?.status === "cancelling") return { label: "Stopping", className: "running" };
   if (run?.status === "cancelled") return { label: "Aborted", className: "skipped" };
-  if (run?.geoRepBlueprint?.noData) return { label: "No matching answers", className: "no-data" };
   if (run?.status === "completed_no_data") return { label: "No data", className: "no-data" };
   if (run?.status === "skipped_duplicate") return { label: "Duplicate skipped", className: "skipped" };
   if (run?.status === "failed") return { label: "Needs attention", className: "failed" };
@@ -3983,7 +3865,7 @@ function operationRunBelongsToCurrentUser(run) {
 function operationRunFilterStatus(run) {
   if (isActiveOperationRun(run)) return "active";
   if (run?.status === "completed") return "completed";
-  if (run?.status === "completed_no_data" || run?.geoRepBlueprint?.noData) return "no-data";
+  if (run?.status === "completed_no_data") return "no-data";
   if (run?.status === "cancelled" || run?.status === "skipped_duplicate") return "aborted";
   return "attention";
 }
@@ -8271,12 +8153,11 @@ function clearAdminSubscriptions({ preserveAdmin = false } = {}) {
   adminUnsubscribers.forEach((unsubscribe) => unsubscribe()); adminUnsubscribers = [];
   // Refreshing admin listeners must not revoke the already verified admin session.
   if (!preserveAdmin) state.isAdmin = false;
-  state.retailers = []; state.extractionProfiles = []; state.geoRepStoreMasters = []; state.geoRepFormIntakes = []; state.geoRepBlueprints = []; state.geoRepBlueprintFolder = null; state.salesStoreMasters = []; state.salesDashboardConfig = null; state.geoRepOpenApiIntegration = null; state.salesTransactionImports = []; state.geoRepAttendanceConfig = null; state.attendanceStoreMasters = []; state.salesforceAttendanceConfig = null; state.displayCompliancePhaseTwoConfig = null; state.sharePointInventoryData = null; state.sharePointInventoryLoading = false; state.sharePointInventoryScanning = false; state.localCodeContractsPreparing = false; state.adminUsers = []; state.extractionRuns = []; state.adminJobRuns = []; state.adminJobHistoryLoaded = false; state.adminJobHistoryError = ""; state.adminJobFiltersInitialised = false; state.selectedExecutionRunId = ""; state.selectedAdminJobRunId = ""; state.operationsRunDetail = null; state.adminJobDetail = null; state.activeExtractionRunId = ""; state.activeExtractionRun = null; state.activeAutomationPrompt = null; state.handledPromptIds.clear();
+  state.retailers = []; state.extractionProfiles = []; state.geoRepStoreMasters = []; state.geoRepFormIntakes = []; state.salesStoreMasters = []; state.salesDashboardConfig = null; state.geoRepOpenApiIntegration = null; state.salesTransactionImports = []; state.geoRepAttendanceConfig = null; state.attendanceStoreMasters = []; state.salesforceAttendanceConfig = null; state.displayCompliancePhaseTwoConfig = null; state.sharePointInventoryData = null; state.sharePointInventoryLoading = false; state.sharePointInventoryScanning = false; state.localCodeContractsPreparing = false; state.adminUsers = []; state.extractionRuns = []; state.adminJobRuns = []; state.adminJobHistoryLoaded = false; state.adminJobHistoryError = ""; state.adminJobFiltersInitialised = false; state.selectedExecutionRunId = ""; state.selectedAdminJobRunId = ""; state.operationsRunDetail = null; state.adminJobDetail = null; state.activeExtractionRunId = ""; state.activeExtractionRun = null; state.activeAutomationPrompt = null; state.handledPromptIds.clear();
   if (elements.automationPromptDialog.open) elements.automationPromptDialog.close();
   renderRetailers();
   renderExtractionProfiles();
   renderGeoRepStoreMasters();
-  renderGeoRepBlueprints();
   renderSalesDashboardAdmin();
   renderGeoRepAttendanceAdmin();
   renderSalesforceAttendanceMaster();
@@ -8478,14 +8359,6 @@ function subscribeAdminData() {
     state.geoRepFormIntakes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => compareText(a, b, "name", "id"));
     renderGeoRepFormIntakes();
   }, (error) => showToast(`Could not load Geo Rep Capture Form Intakes: ${friendlyError(error)}`, true)));
-  adminUnsubscribers.push(database.collection("geoRepBlueprints").onSnapshot((snapshot) => {
-    state.geoRepBlueprints = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => compareText(a, b, "name", "id"));
-    renderGeoRepBlueprints();
-  }, (error) => showToast(`Could not load Geo Rep Capture Blueprints: ${friendlyError(error)}`, true)));
-  adminUnsubscribers.push(database.collection("geoRepBlueprintFolders").doc("current").onSnapshot((snapshot) => {
-    state.geoRepBlueprintFolder = snapshot.exists ? snapshot.data() : null;
-    renderGeoRepBlueprintFolder();
-  }, (error) => showToast(`Could not load Geo Rep Capture Blueprint folder: ${friendlyError(error)}`, true)));
   adminUnsubscribers.push(database.collection("salesforceAttendanceConfig").doc("current").onSnapshot((snapshot) => {
     state.salesforceAttendanceConfig = snapshot.exists ? snapshot.data() : null;
     renderSalesforceAttendanceMaster();
@@ -9804,7 +9677,6 @@ document.querySelectorAll("[data-open-admin-tab]").forEach((button) => button.ad
 elements.newRetailer.addEventListener("click", resetRetailerForm);
 elements.newExtractionProfile.addEventListener("click", resetExtractionProfileForm);
   elements.newGeoRepStoreMaster.addEventListener("click", resetGeoRepStoreMasterForm);
-  elements.newGeoRepBlueprint.addEventListener("click", resetGeoRepBlueprintForm);
   elements.geoRepStoreMasterForm.addEventListener("submit", saveGeoRepStoreMaster);
   elements.salesStoreMasterForm.addEventListener("submit", saveGeoRepSalesStoreMaster);
   elements.setupGeoRepSalesDashboard.addEventListener("click", setupGeoRepSalesDashboard);
@@ -9829,7 +9701,6 @@ elements.newExtractionProfile.addEventListener("click", resetExtractionProfileFo
   elements.geoRepAttendanceStoreMasterForm.addEventListener("submit", saveGeoRepAttendanceStoreMaster);
   elements.rebuildGeoRepAttendanceStoreCoverage?.addEventListener("click", rebuildGeoRepAttendanceStoreCoverage);
   elements.geoRepFormIntakeForm.addEventListener("submit", saveGeoRepFormIntake);
-  elements.geoRepBlueprintFolderForm.addEventListener("submit", saveGeoRepBlueprintFolder);
   elements.salesforceAttendanceMasterForm.addEventListener("submit", saveSalesforceAttendanceSmartSellMaster);
   elements.salesforceAttendanceMonthlyMasterForm.addEventListener("submit", saveSalesforceAttendanceMonthlySmartSellMaster);
   elements.salesforceAttendanceBlueprintForm.addEventListener("submit", saveSalesforceAttendanceBlueprint);
@@ -9844,24 +9715,12 @@ elements.displayComplianceTemplateFolderForm.addEventListener("submit", saveDisp
 elements.displayCompliancePhaseTwoAutoRun.addEventListener("change", setDisplayCompliancePhaseTwoAutomation);
 elements.scanDisplayCompliancePhaseTwoInputs.addEventListener("click", scanDisplayCompliancePhaseTwoInputs);
 elements.runDisplayCompliancePhaseTwoTest.addEventListener("click", startDisplayCompliancePhaseTwoReferenceValidation);
-  elements.geoRepBlueprintForm.addEventListener("submit", saveGeoRepBlueprint);
-  elements.geoRepBlueprintFormIntake.addEventListener("change", () => applyGeoRepFormIntakeToBlueprint(elements.geoRepBlueprintFormIntake.value));
   elements.geoRepFormReportImportForm?.addEventListener("submit", importGeoRepFormReport);
 elements.geoRepStoreMasterList.addEventListener("click", (event) => {
   const edit = event.target.closest("button[data-id]");
   if (edit) { editGeoRepStoreMaster(edit.dataset.id); return; }
   if (event.target.closest("[data-rebuild-master]")) buildLatestGeoRepPowerBiReport();
 });
-  elements.geoRepBlueprintList.addEventListener("click", (event) => {
-    const edit = event.target.closest("button[data-id]");
-    if (edit) editGeoRepBlueprint(edit.dataset.id);
-  });
-  elements.geoRepFormIntakeList.addEventListener("click", (event) => {
-    const intake = event.target.closest("button[data-intake-id]");
-    if (!intake) return;
-    elements.geoRepBlueprintFormIntake.value = intake.dataset.intakeId;
-    applyGeoRepFormIntakeToBlueprint(intake.dataset.intakeId);
-  });
 elements.addExtractionStep.addEventListener("click", () => { readStepsFromEditor(); state.extractionSteps.push(newStep()); renderExtractionSteps(); });
 elements.extractionSteps.addEventListener("input", readStepsFromEditor);
 elements.extractionSteps.addEventListener("click", (event) => { const button = event.target.closest(".remove-step"); if (!button) return; readStepsFromEditor(); const id = button.closest(".extraction-step").dataset.stepId; state.extractionSteps = state.extractionSteps.filter((step) => step.id !== id); renderExtractionSteps(); });

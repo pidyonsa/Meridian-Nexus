@@ -167,7 +167,7 @@ function handlerHarness({ monthlyRun = false, sourceError = null, duplicate = fa
     } },
     getStorage: () => ({ bucket: () => ({ upload: async () => [{ getMetadata: async () => [{ size: "100" }], delete: noop }] }) }),
     queueSalesforceAttendanceBlueprintUpdate: async value => { calls.push(["blueprint", value]); return { updateRunId: "update1" }; },
-    queueGeoRepSalesTransactionImport: noop, queueGeoRepBlueprintPopulation: noop, queueGeoRepCompanionRuns: noop,
+    queueGeoRepSalesTransactionImport: noop, queueGeoRepCompanionRuns: noop,
     queueGeoRepAttendanceTrackerUpdate: noop, queueGeoRepDerivedRedelivery: noop,
     updateReportDelivery: noop, clearNoDataRetry: noop, releaseSalesforceBrowserLease: noop,
     console: { error() {} }, salesforceSessionWasInvalidated: forbidden("session-invalidation"),

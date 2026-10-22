@@ -2,17 +2,14 @@
 
 // Curated from the deployed Nexus automation handlers and approved operating rules.
 // These playbooks are deliberately free of credentials, SharePoint URLs, and raw data.
-const PLAYBOOK_VERSION = "2026-09-09-attendance-latest-completed";
+const PLAYBOOK_VERSION = "2026-10-22-geo-rep-form-report";
 
 const PLAYBOOKS = {
   "geo-rep-capture": {
-    title: "Geo Rep Capture Form Report and Blueprint population",
+    title: "Geo Rep Capture Form Report",
     rules: [
       "Use the requested date range; for the standard monthly run use the first day of the current month through today.",
       "Download the Geo Rep Form Report and read answer-level values from the Submission Answers worksheet, not only Summary.",
-      "Match campaigns/forms by canonical Form Name and questions by approved blueprint mapping. Do not guess a match.",
-      "Queue every eligible workbook in the configured Blueprint folder independently. Record and skip a workbook whose structure or required mapping is invalid.",
-      "Keep an image link and issue-tracking question beside the matching yes/no answer only where the approved blueprint contains the mapping.",
       "Preserve formulas, tables, pivots, formatting, and unrelated worksheets. Empty mapped values remain blank rather than invented."
     ]
   },
@@ -106,7 +103,7 @@ function playbookKeyForRun(run = {}) {
   const extractionName = String(run.extractionName || run.retailerName || "").toLowerCase();
   if (workflowMode === "salesforce-attendance-blueprint-update" && run.attendanceReportType === "Rep Attendance Monthly") return "salesforce-attendance-monthly";
   if (workflowMode === "salesforce-attendance-blueprint-update" && run.attendanceReportType === "Rep Attendance Daily") return "salesforce-attendance-daily";
-  if (retailerId === "geo-rep" || workflowMode.includes("geo-rep-blueprint") || workflowMode === "geo-rep-form-report-import") return "geo-rep-capture";
+  if (retailerId === "geo-rep" || workflowMode === "geo-rep-form-report-import") return "geo-rep-capture";
   if (retailerId === "geo-rep-sales-transactions" || retailerId === "geo-rep-orders" || workflowMode.includes("geo-rep-sales-transactions")) return "geo-rep-sales-transactions";
   if (retailerId === "geo-rep-attendance-for-reps" || workflowMode.includes("geo-rep-rep-attendance")) return "geo-rep-attendance-reps";
   if (retailerId === "sales-force-p-g-monthly" || workflowMode.includes("monthly-attendance") || /attendance.*monthly|monthly.*attendance/.test(extractionName)) return "salesforce-attendance-monthly";

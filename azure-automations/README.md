@@ -190,6 +190,34 @@ Plan: `docs/firebase-retirement-plan-20261016.md`.
 - `azure-field-dashboards/scripts/verify-live.cjs` and `verify-azure-live.cjs` now check the
   Azure snapshot service and live consistency instead of fixed 21 September totals; both pass.
 
+## Cost changes (21–22 October, user-approved)
+
+Jobs are not in `infra/main.bicep`; these are live settings. Pre-change job definitions were saved before
+the update (`az containerapp job show` output).
+
+- Blueprint batch (`retailers/geo-rep`) runs Mondays 06:00 only: `daysOfWeek: [1]` via
+  `../scripts/blueprint-weekly-20261021.cjs` (`rollback` argument restores all seven days). Runs fetch
+  month-to-date, so days after the last Monday of a month are not captured.
+- 22 October: Geo Rep blueprint feature retired (user decision). Schedule disabled
+  (`../scripts/blueprint-off-20261022.cjs`); `job-nexus-retries` now runs only
+  `retryLockedGeoRepCampaignDetails`; Google functions `saveGeoRepBlueprint`,
+  `generateGeoRepBlueprintPopulation`, `retry{Failed,Locked}GeoRepBlueprintUpdates` and their two schedulers
+  deleted. Data archived then deleted (`../scripts/blueprint-archive-20261022.cjs`): 339 `geoRepBlueprints`,
+  373 `geoRepBlueprintUpdates`, 1 `geoRepBlueprintFolders`, 10,814 blueprint `extractionRuns`, 92 `files`
+  records. Archive (raw Firestore docs + the 92 storage objects, 63 MB):
+  `stnexusautop2fzlrpwgvno2/archive/blueprint-archive-20261022.tar.gz` (private; MD5
+  `MU8aKfUawxhO28w+iqYkPw==`). The 92 objects are still in the Firebase bucket.
+- `job-georep-worker`: `NODE_OPTIONS=--max-old-space-size=3072` (size unchanged, 2 CPU / 4Gi). 17–21 Oct,
+  21–23 blueprint folder-refresh runs a day died with "JavaScript heap out of memory" and were left
+  "running". Do not shrink the worker: on Consumption 1 CPU forces 2Gi. Tracker runs (4 CPU / 8Gi
+  override) inherit the same 3 GB heap; raise it for them in the dispatcher if trackers move here.
+- `job-georep-dispatcher`: every 5 minutes (was every 2). A pass takes ~30 s; Attendance/Orders may start
+  up to 5 min after they are queued.
+- `job-nexus-geo-api-sync`: 0.5 CPU / 1Gi (was 1 / 2Gi); peak use ~0.1 CPU / 250 MB, normal run ~15 min.
+
+Rollback: `az containerapp job update -g rg-meridian-nexus-automations -n <job>` with
+`--remove-env-vars NODE_OPTIONS`, `--cron-expression "*/2 * * * *"` or `--cpu 1 --memory 2Gi`.
+
 Redeploy or review changes:
 
 ```powershell

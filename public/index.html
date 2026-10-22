@@ -1144,32 +1144,11 @@
                   <aside class="management-panel list-panel" hidden><div class="panel-heading"><div><p class="eyebrow">Validated inputs</p><h2>Saved Form Intakes</h2></div><span class="count-badge" id="geoRepFormIntakeCount">0 intakes</span></div><div id="geoRepFormIntakeList" class="management-list"><p class="history-empty">No Form Intake uploaded.</p></div></aside>
                 </section>
                 <section class="automation-grid">
-                  <form class="management-panel" id="geoRepBlueprintFolderForm">
-                    <header><div><p class="eyebrow">Managed source</p><h2>Geo Rep Capture Blueprint folder</h2></div></header>
-                    <div class="management-fields"><label class="full-width"><span>SharePoint Blueprint folder link</span><input id="geoRepBlueprintFolderUrl" type="url" maxlength="2000" placeholder="https://meridiangroupza.sharepoint.com/sites/.../Capture/Test%20Blueprints" required /></label></div>
-                    <p class="management-note" id="geoRepBlueprintFolderStatus">Every source Blueprint workbook in this folder is checked before each Geo Rep Capture run. Nexus reads the first tab named Survey Name, downloads that exact Geo Rep form from its start date to today, and overwrites the workbook's Form report tab.</p>
-                    <div class="form-actions"><button class="primary-action" type="submit">Save and scan Blueprint folder</button></div>
-                  </form>
-                  <aside class="management-panel list-panel" id="geoRepBlueprintExceptionPanel">
-                    <div class="panel-heading"><div><p class="eyebrow">Review required</p><h2>Skipped Blueprint files</h2></div><span class="count-badge" id="geoRepBlueprintExceptionCount">0 files</span></div>
-                    <p class="management-note">These files were skipped. They do not stop the valid Blueprints from running. Correct or remove the listed workbook, then scan the folder again.</p>
-                    <div id="geoRepBlueprintExceptionList" class="management-list"><p class="history-empty">No skipped Blueprint files.</p></div>
-                  </aside>
-                  <form class="management-panel" id="geoRepBlueprintForm" hidden>
-                    <header><div><p class="eyebrow">Form report answer updates</p><h2 id="geoRepBlueprintFormTitle">Add Geo Rep Capture Blueprint</h2></div><button class="secondary-button" id="newGeoRepBlueprint" type="button">New Blueprint</button></header>
-                    <input id="geoRepBlueprintId" type="hidden" />
-                    <div class="management-fields"><label><span>Blueprint name</span><input id="geoRepBlueprintName" type="text" maxlength="160" placeholder="Geo Rep Capture Survey Blueprint" required /></label><label hidden><span>Linked Form Intake</span><select id="geoRepBlueprintFormIntake"><option value="">No linked Form Intake</option></select></label><label class="full-width"><span>Geo Rep Capture Form names (optional filter)</span><input id="geoRepBlueprintFormName" type="text" maxlength="1000" placeholder="Leave blank to use every form in Survey Setup" /></label><label class="full-width"><span>SharePoint Blueprint workbook link</span><input id="geoRepBlueprintSharePointUrl" type="url" maxlength="2000" placeholder="https://meridiangroupza.sharepoint.com/:x:/s/..." required /></label><label class="toggle-field"><input id="geoRepBlueprintActive" type="checkbox" checked /> Update this Blueprint after each Geo Rep Capture Form Report</label></div>
-                    <p class="management-note" id="geoRepBlueprintStatus">No separate Form Intake is required. New source workbooks use Survey Name plus Form report. Older blueprints can still use Survey Setup and Generated Report Blueprint.</p>
-                    <div class="form-actions"><button class="primary-action" type="submit">Validate and save Blueprint</button></div>
-                  </form>
-                  <aside class="management-panel list-panel"><div class="panel-heading"><div><p class="eyebrow">Active answer automations</p><h2>Geo Rep Capture Blueprints</h2></div><span class="count-badge" id="geoRepBlueprintCount">0 Blueprints</span></div><div id="geoRepBlueprintList" class="management-list"><p class="history-empty">No Geo Rep Capture Blueprint configured.</p></div></aside>
-                </section>
-                <section class="automation-grid">
                   <form class="management-panel" id="geoRepFormReportImportForm">
                     <header><div><p class="eyebrow">Manual source intake</p><h2>Import Geo Rep Capture Form Report</h2></div></header>
                     <div class="management-fields"><label class="full-width"><span>SharePoint Form Report link</span><input id="geoRepFormReportImportUrl" type="url" maxlength="2000" placeholder="https://meridiangroupza.sharepoint.com/:x:/s/..." required /></label></div>
-                    <p class="management-note" id="geoRepFormReportImportStatus">Nexus validates the Form Report, stores one verified source copy, and queues all matching active Blueprints.</p>
-                    <div class="form-actions"><button class="primary-action" type="submit">Import and update Blueprints</button></div>
+                    <p class="management-note" id="geoRepFormReportImportStatus">Nexus validates the Form Report and stores one verified source copy.</p>
+                    <div class="form-actions"><button class="primary-action" type="submit">Import Form Report</button></div>
                   </form>
                 </section>
               </section>

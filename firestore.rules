@@ -214,16 +214,6 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    match /geoRepBlueprints/{blueprintId} {
-      allow read: if isAdmin();
-      allow write: if false;
-    }
-
-    match /geoRepBlueprintFolders/{folderId} {
-      allow read: if isAdmin();
-      allow write: if false;
-    }
-
     match /salesStoreMasters/{masterId} {
       allow read: if isAdmin();
       allow write: if false;

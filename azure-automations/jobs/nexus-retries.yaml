@@ -1,5 +1,5 @@
-# Re-queues Blueprint and Campaign updates blocked by a locked SharePoint workbook or failed earlier
-# (Google: the three retry* functions, every 15 minutes).
+# Re-queues Geo Rep Campaign Detail updates blocked by a locked SharePoint workbook
+# (Google: retryLockedGeoRepCampaignDetails, every 15 minutes).
 # Image nexus-scheduled (azure-automations/scheduled): the function's deployed Google bundle, unchanged.
 # Google access: keyless as georep-worker@ (federation pool). Cron is UTC.
 location: southafricanorth
@@ -29,7 +29,7 @@ properties:
           memory: 0.5Gi
         env:
           - name: FUNCTIONS
-            value: retryLockedGeoRepBlueprintUpdates,retryFailedGeoRepBlueprintUpdates,retryLockedGeoRepCampaignDetails
+            value: retryLockedGeoRepCampaignDetails
           - name: SCHEDULE
             value: '*/15 * * * *'
           - name: AZURE_CLIENT_ID
