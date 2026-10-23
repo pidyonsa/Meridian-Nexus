@@ -114,6 +114,19 @@ test('NEXUS_CANONICAL_ORIGIN sends page requests to the one Nexus address', () =
   assert.equal(await (await fetch(`${base}/healthz`)).text(), 'ok');
 }));
 
+test('every browser script parses as a module (a syntax slip would blank the whole workspace)', () => {
+  const {execFileSync} = require('node:child_process');
+  const dir = path.join(__dirname, '..', 'public', 'app');
+  const files = fs.readdirSync(dir, {recursive: true}).filter(f => f.endsWith('.js'));
+  assert.ok(files.length >= 8);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-check-'));
+  for (const f of files) {
+    const copy = path.join(tmp, f.replace(/[\\/]/g, '_').replace(/\.js$/, '.mjs'));
+    fs.copyFileSync(path.join(dir, f), copy);
+    execFileSync(process.execPath, ['--check', copy], {stdio: 'pipe'});
+  }
+});
+
 test('migrations are numbered, unique and split into batches', () => {
   const list = migrations();
   assert.ok(list.length >= 1);

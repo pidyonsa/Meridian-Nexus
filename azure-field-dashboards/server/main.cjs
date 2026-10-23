@@ -25,7 +25,9 @@ const ADMIN_ROLE = 'Nexus.Admin';
 const WORKSPACE_ROUTE = /^\/(?:modules\/[a-z-]{2,40}\/?)?$/;
 // Sections (server/access.cjs in azure-portal): admins open everything; everyone else Syndicated Attendance and
 // Franchise Orders only (user decision, 23 October 2026).
-const ALL_SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'automation', 'etls', 'resources', 'chat', 'support', 'admin'];
+const ALL_SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'gaps', 'automation', 'etls', 'resources', 'chat', 'support', 'admin'];
+// Client gap trackers (Sir Fruit): workspace pages and API, Nexus.Admin only for now (not in everyoneMayOpen).
+const GAP_PAGES = /^\/insights\/sir-fruit(?:\/upload)?\/?$/;
 const STAFF_SECTIONS = ['attendance', 'franchiseorder'];
 const everyoneMayOpen = (req, assets) => WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
 
@@ -47,7 +49,7 @@ function signedInUser(req) {
   } catch { return null; }
 }
 
-function createApp({fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
+function createApp({gapStore = null, fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
   const app = express();
   const limits = new Map();
   const pending = new Map();
@@ -102,6 +104,20 @@ function createApp({fetchImpl = fetch, functionsFetch = fetch, portalDir, now = 
     res.json({email: user.name.toLowerCase(), name: user.displayName, admin: user.admin, preview: false, sections: user.admin ? ALL_SECTIONS : STAFF_SECTIONS});
   });
   app.get(WORKSPACE_ROUTE, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
+  app.get(GAP_PAGES, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
+  // Gap trackers (code shared with the Nexus portal, server/shared/). Admin-only: the sign-in check above already
+  // refuses everyone else; allow() repeats it so the API is safe on its own.
+  const {gapRoutes} = require('./shared/gap/routes.cjs');
+  const {AppError} = require('./shared/errors.cjs');
+  const store = gapStore || (require('./shared/db.cjs').sqlConfig() ? require('./shared/gap/store.cjs').sqlGapStore(() => require('./shared/db.cjs').pool()) : require('./shared/gap/store.cjs').memoryGapStore());
+  gapRoutes({store, allow: req => Boolean(signedInUser(req)?.admin), who: req => signedInUser(req)?.name || 'unknown'})(app);
+  app.use('/api/gaps', (error, req, res, next) => {
+    if (res.headersSent) return next(error);
+    if (error instanceof AppError) return res.status(error.status).json({error: {code: error.code, message: error.message}});
+    if (error.type === 'entity.too.large') return res.status(413).json({error: {code: 'resource-exhausted', message: 'The file is too large.'}});
+    console.error(JSON.stringify({event: 'gap-request-failed', path: req.path, error: String(error?.stack || error).slice(0, 1500)}));
+    res.status(500).json({error: {code: 'internal', message: 'The gap tracker could not complete this request. Try again.'}});
+  });
   mountNexusPortal(app, {fetchImpl: functionsFetch, ...(portalDir ? {portalDir} : {})});
   app.use('/api', (req, res, next) => {
     if (!enabled()) return res.status(503).json({error: 'The public dashboards are currently unavailable.'});

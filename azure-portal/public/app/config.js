@@ -2,7 +2,7 @@
 // (azure-field-dashboards/scripts/build.cjs writes the nexus.meridiangroup.co.za version).
 export const CONFIG = {
   // Tools that work on this site.
-  built: ['admin-overview', 'admin-users'],
+  built: ['admin-overview', 'admin-users', 'sirfruit-gaps', 'sirfruit-upload'],
   // Where tools that have not moved yet still run.
   currentNexus: 'https://meridain-nexus.web.app/',
   // true: open those tools directly (same site); false: show a "moving" page with a link first.

@@ -13,14 +13,21 @@
     "package": "node scripts/package.cjs"
   },
   "dependencies": {
+    "@azure/identity": "^4.14.0",
     "compression": "^1.8.1",
     "exceljs": "4.4.0",
     "express": "^5.1.0",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "mssql": "^12.7.11"
   },
   "devDependencies": {
     "archiver": "^7.0.1",
     "d3-geo": "3.1.1",
     "topojson-client": "3.1.0"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^11.1.1"
+    }
   }
 }

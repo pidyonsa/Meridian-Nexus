@@ -198,12 +198,12 @@
     },
     {
       "path": "app/main.js",
-      "sha256": "d43d9f623e9f04f9643146a6e2d6ea26780d99df87f0a4a35a24507d0548a8c9",
+      "sha256": "71b3b1798c70faf6c7bde356e334c80523ff1deb58fb44eafa06f305b230d063",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/nav.js",
-      "sha256": "898cdf5f237caf11b9fb4e5b9c5cfb13a911abfbfd7b40076bec03bc6fbe88f6",
+      "sha256": "71dbb5b4169017a85364cede179962bdc4ec2f709f8914fa277d55fbc51a60bc",
       "adapter": "nexus-workspace"
     },
     {
@@ -219,6 +219,11 @@
     {
       "path": "app/views/admin.js",
       "sha256": "e04ea3fff54480ff05583af21ebad71cc8e674ef74d30726dde36aa76ff6016b",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/views/gaps.js",
+      "sha256": "4f8bdffafd6c98e11e17b3cf0e169dd4c0bd325a17493010a17af0e5fc7acba0",
       "adapter": "nexus-workspace"
     },
     {
@@ -238,7 +243,7 @@
     },
     {
       "path": "styles/app.css",
-      "sha256": "cbdfaa519c67ab9c2a03739a2af76ed7a0cbe69e7ab627c50b0d7d5baa83cecd",
+      "sha256": "42ccc009d6fb01b73aa7c93993662eff6149fe8e482e7d6dde3fb388e7282ebd",
       "adapter": "nexus-workspace"
     },
     {
@@ -258,7 +263,7 @@
     },
     {
       "path": "app/config.js",
-      "sha256": "dedf49c53d460f1eb2bf8c2408cb4313f7945ac428007066d6c220651ad0b960",
+      "sha256": "342d32768cfc5fe2a8a93744f2bee432dae6ad6b50100b16340d94fb504f1c33",
       "adapter": "nexus-workspace-site-config"
     }
   ]

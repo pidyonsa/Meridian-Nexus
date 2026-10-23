@@ -30,7 +30,10 @@ export const MODULES = [
       {label: 'Stores', path: '/franchise-orders/stores'}, {label: 'Reps', path: '/franchise-orders/reps'}, {label: 'Order detail', path: '/franchise-orders/orders'}]},
     {id: 'geo-portal', label: 'Open Geo Portal', desc: 'Sign in to the Geo portal for live coverage, routes and check-ins.', external: 'https://meridian.georep.com/portal/'}
   ]},
-  {id: 'insights', label: 'Insights', icon: 'chart', tone: 'green', dev: true, blurb: 'Sales intelligence across clients, regions and products.'},
+  {id: 'insights', label: 'Insights', icon: 'chart', tone: 'green', blurb: 'Client insights: distribution gaps, sales and range performance.', tools: [
+    {id: 'sirfruit-gaps', label: 'Sir Fruit distribution gaps', desc: "Weekly No gap, Opportunity and Lost by store and product for PnP Family, Dis-Chem and Food Lover's Market, and what converted.", section: 'gaps', path: '/insights/sir-fruit'},
+    {id: 'sirfruit-upload', label: 'Upload Sir Fruit gap report', desc: "Back office: upload the client's weekly workbook, check it, then save.", section: 'gaps', path: '/insights/sir-fruit/upload', manage: true}
+  ]},
   {id: 'learn', label: 'Learn', icon: 'cap', tone: 'violet', blurb: 'Learning completion and pass rates for the field team.', tools: [
     {id: 'training', label: 'Training hub', desc: 'LMS completion and pass rates by module, region and manager.', section: 'training', path: '/training', old: '#training'}
   ]},

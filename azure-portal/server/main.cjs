@@ -43,7 +43,9 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
     const host = `${req.protocol}://${req.get('host')}`;
     next(origin && origin !== host && origin !== env.PUBLIC_ORIGIN ? new AppError('permission-denied', 'Requests must come from Nexus.') : undefined);
   });
-  app.use('/api', express.json({limit: '1mb'}));
+  // 1 MB for ordinary API calls; workbook uploads parse their own larger bodies (server/gap/routes.cjs).
+  const UPLOADS = /^\/api\/gaps\/[a-z-]+\/(?:preview|upload)$/;
+  app.use('/api', express.json({limit: '1mb', type: req => !UPLOADS.test(req.originalUrl.split('?')[0]) && /json/.test(req.get('content-type') || '')}));
   app.get('/api/me', async (req, res, next) => {
     try {
       const profile = await profileFor(req.user);
@@ -83,5 +85,10 @@ if (require.main === module) {
   const port = Number(process.env.PORT || 4200);
   const repo = defaultRepo();
   const {adminRoutes} = require('./routes/admin.cjs');
-  createApp({api: [adminRoutes(repo)], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  const {gapRoutes} = require('./gap/routes.cjs');
+  const {sqlConfig, pool} = require('./db.cjs');
+  const gapStore = sqlConfig() ? require('./gap/store.cjs').sqlGapStore(() => pool()) : require('./gap/store.cjs').memoryGapStore();
+  // Gap trackers: Nexus admins only for now (staff see Syndicated Attendance and Franchise Orders only).
+  const gaps = gapRoutes({store: gapStore, allow: req => Boolean(req.user?.admin), who: req => req.user.email || req.user.name});
+  createApp({api: [adminRoutes(repo), gaps], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

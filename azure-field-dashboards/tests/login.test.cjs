@@ -104,7 +104,26 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
   // The site config sends tools that have not moved to the full Nexus on this site.
   const config = await (await get('/app/config.js', {headers: as([])})).text();
-  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder'\]/);
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'sirfruit-gaps', 'sirfruit-upload'\]/);
+});
+
+test('Sir Fruit gap tracker: Nexus.Admin only; admins upload and read', async t => {
+  const get = await nexusHost(t);
+  for (const route of ['/insights/sir-fruit', '/insights/sir-fruit/upload', '/api/gaps/sir-fruit']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  assert.equal((await get('/insights/sir-fruit/upload', {headers: as(['Nexus.Admin'])})).status, 200);
+  const empty = await (await get('/api/gaps/sir-fruit', {headers: as(['Nexus.Admin'])})).json();
+  assert.equal(empty.manage, true); assert.ok(empty.banners.every(b => !b.weeks.length));
+  const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(), ws = wb.addWorksheet('PnP Family Gap Tracker');
+  ws.addRows([['Date', 'Store', 'JUICE'], ['31.08.2026', 'Family A', 'Opportunity'], ['09.09.2026', 'Family A', 'No gap']]);
+  const body = JSON.stringify({fileName: 'gaps.xlsx', data: Buffer.from(await wb.xlsx.writeBuffer()).toString('base64')});
+  const saved = await get('/api/gaps/sir-fruit/upload', {method: 'POST', headers: {...as(['Nexus.Admin']), 'content-type': 'application/json'}, body});
+  assert.equal(saved.status, 200);
+  const staffUpload = await get('/api/gaps/sir-fruit/upload', {method: 'POST', headers: {...as([]), 'content-type': 'application/json'}, body});
+  assert.equal(staffUpload.status, 403);
+  const r = await (await get('/api/gaps/sir-fruit/compare?banner=PnP%20Family&from=2026-08-31&to=2026-09-09', {headers: as(['Nexus.Admin'])})).json();
+  assert.equal(r.metrics.converted, 1);
+  const bad = await get('/api/gaps/sir-fruit/compare?banner=PnP%20Family&from=x&to=y', {headers: as(['Nexus.Admin'])});
+  assert.equal(bad.status, 400); assert.match((await bad.json()).error.message, /Choose two weeks/);
 });
 
 test('full Nexus portal and its Firebase files: Nexus.Admin only; signed out goes to sign-in', async t => {
