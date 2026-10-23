@@ -1,16 +1,17 @@
 import {h, icon} from '../ui.js';
+import {OLD_NEXUS} from '../nav.js';
+import {moduleHead} from './module.js';
 
-// Shown for sections that are still being moved to Azure; the Firebase portal keeps serving them until then.
-const OLD_NEXUS = 'https://meridian-nexus.web.app';
-
-export async function renderPending(main, {item, child}) {
+// A tool that still runs on the Firebase-era Nexus: say so and link straight to it.
+export async function renderPending(main, {module, tool, page}) {
   main.replaceChildren(
-    h('header.page-head', {}, h('div', {}, h('p.eyebrow', {}, child ? item.label : 'Nexus'), h('h1', {}, child?.label || item.label))),
+    moduleHead(module),
     h('section.state-panel', {},
-      h('span.state-icon', {}, icon(item.icon)),
-      h('h2', {}, 'Moving to Azure'),
-      h('p', {}, `${item.label} is being rebuilt on the new Azure Nexus. Until it lands here, keep using it on the current Nexus — nothing has changed there.`),
-      h('a.button.primary', {href: OLD_NEXUS, target: '_blank', rel: 'noopener'}, 'Open current Nexus', icon('arrow'))
+      h('span.state-icon', {}, icon(module.icon)),
+      h('h2', {}, page ? `${tool.label} · ${page.label}` : tool.label),
+      h('p', {}, `${tool.label} is moving to the Azure Nexus. Until it lands here, open it on the current Nexus — nothing has changed there.`),
+      h('a.button.primary', {href: `${OLD_NEXUS}/${tool.old || ''}`, target: '_blank', rel: 'noopener'}, 'Open on current Nexus', icon('external')),
+      h('a.button.ghost', {href: `/modules/${module.id}`, 'data-link': true}, `Back to ${module.short || module.label}`)
     )
   );
 }

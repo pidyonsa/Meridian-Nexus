@@ -3,54 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#061d35">
+  <meta name="theme-color" content="#081b34">
   <title>Meridian Nexus</title>
   <link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/styles/app.css">
   <script type="module" src="/app/main.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+  <div class="backdrop" aria-hidden="true"></div>
   <div class="boot" id="boot" role="status" aria-live="polite">
-    <img src="/assets/meridian.png" alt="" width="148" height="40">
+    <img src="/assets/nexus-mark.png" alt="" width="56" height="56">
     <span class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></span>
     <span class="sr-only">Loading Nexus</span>
   </div>
   <div class="shell" id="shell" hidden>
     <aside class="sidebar" id="sidebar" aria-label="Nexus navigation">
-      <div class="sidebar-brand">
-        <a href="/" data-link class="brand-link" aria-label="Nexus home"><img src="/assets/meridian.png" alt="Meridian" width="132" height="36"></a>
-        <span class="brand-tag">Nexus</span>
-      </div>
+      <a href="/" data-link class="brand" aria-label="Meridian Nexus home">
+        <img src="/assets/nexus-mark.png" alt="" width="30" height="30">
+        <span>Meridian <b>Nexus</b></span>
+      </a>
       <nav class="nav" id="nav"></nav>
       <div class="sidebar-foot">
-        <span class="secure-note"><span class="dot" aria-hidden="true"></span>Secure Meridian workspace</span>
+        <span class="avatar" id="avatar" aria-hidden="true"></span>
+        <div class="who"><strong id="userName"></strong><a href="/.auth/logout?post_logout_redirect_uri=/" id="signOut">Sign out</a></div>
+        <span class="role-badge" id="userRole"></span>
       </div>
     </aside>
     <div class="scrim" id="scrim" hidden></div>
     <div class="workspace">
-      <header class="topbar">
-        <button class="icon-button menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"></button>
-        <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
-        <button class="search-trigger" id="searchButton" type="button" aria-haspopup="dialog"><span class="search-icon" aria-hidden="true"></span><span class="search-label">Search Nexus</span><kbd>Ctrl K</kbd></button>
-        <div class="user-menu">
-          <button class="user-button" id="userButton" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu"><span class="avatar" id="avatar"></span><span class="user-name" id="userName"></span></button>
-          <div class="menu" id="userMenu" role="menu" hidden>
-            <div class="menu-head"><strong id="menuName"></strong><span id="menuEmail"></span><span class="role-badge" id="menuRole"></span></div>
-            <a role="menuitem" href="/.auth/logout?post_logout_redirect_uri=/" class="menu-item" id="signOut">Sign out</a>
-          </div>
-        </div>
+      <header class="mobilebar">
+        <button class="icon-button" id="menuButton" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"></button>
+        <a href="/" data-link class="brand compact" aria-label="Meridian Nexus home"><img src="/assets/nexus-mark.png" alt="" width="26" height="26"><span>Meridian <b>Nexus</b></span></a>
+        <button class="icon-button" id="mobileSearch" type="button" aria-label="Search Nexus"></button>
       </header>
       <main class="main" id="main" tabindex="-1"></main>
     </div>
   </div>
   <dialog class="palette" id="palette" aria-label="Search Nexus">
     <form method="dialog" class="palette-form">
-      <input id="paletteInput" type="search" placeholder="Jump to a page or feature…" autocomplete="off" aria-controls="paletteResults">
+      <input id="paletteInput" type="search" placeholder="Search tools…" autocomplete="off" aria-controls="paletteResults">
       <ul id="paletteResults" class="palette-results" role="listbox"></ul>
       <footer class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></footer>
     </form>

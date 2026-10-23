@@ -1,10 +1,15 @@
 import {h, icon, initials, toast} from './ui.js';
 import {api} from './api.js';
-import {visibleNav, match} from './nav.js';
-import {VIEWS} from './views/index.js';
+import {MODULES, locate, moduleState, toolState} from './nav.js';
+import {renderHome} from './views/home.js';
+import {renderModule, renderLocked} from './views/module.js';
+import {renderAdmin} from './views/admin.js';
+import {renderPending} from './views/pending.js';
 
 const $ = id => document.getElementById(id);
-const state = {user: null, nav: [], controller: null};
+const state = {user: null, sections: new Set(), controller: null};
+// Tools with a page on the Azure portal; the rest show where they still run.
+const TOOL_VIEWS = {'admin-overview': renderAdmin, 'admin-users': renderAdmin};
 
 async function boot() {
   try {
@@ -13,62 +18,61 @@ async function boot() {
     $('boot').replaceChildren(h('div.boot-error', {}, icon('alert'), h('strong', {}, 'Nexus could not start'), h('span', {}, error.message), h('button.button', {type: 'button', onclick: () => location.reload()}, 'Try again')));
     return;
   }
-  state.nav = visibleNav(state.user.sections);
+  state.sections = new Set(state.user.sections);
   renderChrome();
   await route();
   $('boot').remove();
   $('shell').hidden = false;
 }
 
+const DOT = {available: 'green', moving: 'blue', locked: 'orange', separate: 'orange'};
+
 function renderChrome() {
   const {user} = state;
   $('avatar').textContent = initials(user.name);
   $('userName').textContent = user.name;
-  $('menuName').textContent = user.name;
-  $('menuEmail').textContent = user.email;
-  $('menuRole').textContent = user.preview ? 'Local preview' : user.admin ? 'Administrator' : 'Staff';
+  $('userRole').textContent = user.preview ? 'Preview' : user.admin ? 'Admin' : '';
+  $('userRole').hidden = !user.admin && !user.preview;
   $('menuButton').replaceChildren(icon('menu'));
-  $('searchButton').querySelector('.search-icon').replaceChildren(icon('search'));
-  $('nav').replaceChildren(...state.nav.map(group => h('div.nav-group', {},
-    group.group ? h('p.nav-label', {}, group.group) : null,
-    h('ul', {}, group.items.map(item => h('li', {},
-      h('a.nav-item', {href: item.path, 'data-link': true, 'data-nav': item.id}, icon(item.icon), h('span', {}, item.label), item.children ? h('span.nav-caret', {}, icon('chevron')) : null),
-      item.children ? h('ul.nav-children', {'data-children': item.id}, item.children.map(child => h('li', {}, h('a.nav-child', {href: child.path, 'data-link': true}, child.label)))) : null
-    )))
-  )));
+  $('mobileSearch').replaceChildren(icon('search'));
+  $('nav').replaceChildren(
+    h('a.nav-item', {href: '/', 'data-link': true, 'data-nav': 'home'}, icon('grid'), h('span', {}, 'Overview')),
+    h('p.nav-label', {}, 'Modules'),
+    h('ul', {}, MODULES.map(m => {
+      const s = moduleState(m, state.sections);
+      return h('li', {}, h('a.nav-item', {href: `/modules/${m.id}`, 'data-link': true, 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), DOT[s] ? h(`span.dot.${DOT[s]}`, {title: s === 'locked' ? 'Admin only' : s === 'moving' ? 'On the current Nexus' : 'Available'}) : null));
+    }))
+  );
 }
 
 function highlight(found) {
+  const active = found?.home ? 'home' : found?.module?.id;
   for (const el of document.querySelectorAll('[data-nav]')) {
-    const active = el.dataset.nav === found?.item.id;
-    el.classList.toggle('active', active);
-    if (active) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+    el.classList.toggle('active', el.dataset.nav === active);
+    if (el.dataset.nav === active) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
   }
-  for (const list of document.querySelectorAll('[data-children]')) list.classList.toggle('open', list.dataset.children === found?.item.id);
-  for (const el of document.querySelectorAll('.nav-child')) el.classList.toggle('active', el.getAttribute('href') === location.pathname);
-  $('crumbs').replaceChildren(...[
-    h('a', {href: state.user.sections.includes('home') ? '/' : state.nav[0].items[0].path, 'data-link': true}, 'Nexus'),
-    found && found.item.path !== '/' ? [h('span.crumb-sep', {}, icon('chevron')), h(found.child ? 'a' : 'span', found.child ? {href: found.item.path, 'data-link': true} : {'aria-current': 'page'}, found.item.label)] : null,
-    found?.child ? [h('span.crumb-sep', {}, icon('chevron')), h('span', {'aria-current': 'page'}, found.child.label)] : null
-  ].flat().filter(Boolean));
 }
 
 async function route() {
-  const found = match(location.pathname, state.nav);
-  if (!found) {
-    // Not allowed or unknown: go to the first section this user may open.
-    history.replaceState(null, '', state.nav[0].items[0].path);
-    return route();
-  }
+  const found = locate(location.pathname);
+  if (!found) { history.replaceState(null, '', '/'); return route(); }
   highlight(found);
   closeDrawer();
   state.controller?.abort();
   state.controller = new AbortController();
   const main = $('main');
   main.replaceChildren(h('div.page-loading', {role: 'status'}, h('span.spinner'), 'Loading…'));
-  document.title = `${found.child?.label || found.item.label} · Meridian Nexus`;
+  document.title = `${found.page?.label || found.tool?.label || found.module?.label || 'Overview'} · Meridian Nexus`;
+  const context = {user: state.user, sections: state.sections, ...found, path: location.pathname, signal: state.controller.signal};
   try {
-    await (VIEWS[found.item.id] || VIEWS.pending)(main, {user: state.user, nav: state.nav, item: found.item, child: found.child, path: location.pathname, signal: state.controller.signal});
+    if (found.home) await renderHome(main, context);
+    else if (!found.tool) await renderModule(main, context);
+    else {
+      const s = toolState(found.tool, state.sections);
+      if (s === 'locked' || s === 'restricted') await renderLocked(main, context);
+      else await (TOOL_VIEWS[found.tool.id] || renderPending)(main, context);
+    }
+    main.focus({preventScroll: true});
   } catch (error) {
     if (error.name === 'AbortError') return;
     main.replaceChildren(h('section.state-panel.error', {}, icon('alert'), h('h2', {}, 'This page could not load'), h('p', {}, error.message), error.requestId ? h('p.muted', {}, `Reference ${error.requestId}`) : null, h('button.button', {type: 'button', onclick: route}, icon('refresh'), 'Try again')));
@@ -94,25 +98,32 @@ function closeDrawer() { $('sidebar').classList.remove('open'); $('scrim').hidde
 $('menuButton').addEventListener('click', () => { const open = !$('sidebar').classList.contains('open'); $('sidebar').classList.toggle('open', open); $('scrim').hidden = !open; $('menuButton').setAttribute('aria-expanded', String(open)); });
 $('scrim').addEventListener('click', closeDrawer);
 
-// User menu.
-$('userButton').addEventListener('click', () => { const menu = $('userMenu'); menu.hidden = !menu.hidden; $('userButton').setAttribute('aria-expanded', String(!menu.hidden)); });
-document.addEventListener('click', event => { if (!event.target.closest('.user-menu')) { $('userMenu').hidden = true; $('userButton').setAttribute('aria-expanded', 'false'); } });
-
-// Search palette (Ctrl/Cmd+K): every page the user may open.
-function entries() {
-  return state.nav.flatMap(group => group.items.flatMap(item => [{label: item.label, hint: group.group || 'Nexus', path: item.path, icon: item.icon}, ...(item.children || []).map(child => ({label: child.label, hint: item.label, path: child.path, icon: item.icon}))])).filter((e, i, all) => all.findIndex(x => x.path === e.path && x.label === e.label) === i);
+// Search (Ctrl/Cmd+K, the home search box and the phone search button): every module, tool and page.
+export function searchEntries() {
+  const out = [];
+  for (const m of MODULES) {
+    out.push({label: m.label, hint: 'Module', path: `/modules/${m.id}`, icon: m.icon});
+    for (const t of m.tools || []) {
+      if (t.external) { out.push({label: t.label, hint: m.label, href: t.external, icon: 'external'}); continue; }
+      if (!state.sections.has(t.section)) continue;
+      out.push({label: t.label, hint: m.label, path: t.path, icon: m.icon});
+      for (const p of t.pages || []) out.push({label: p.label, hint: t.label, path: p.path, icon: m.icon});
+    }
+  }
+  return out;
 }
 let selected = 0;
 function renderPalette() {
-  const q = $('paletteInput').value.trim().toLowerCase();
-  const results = entries().filter(e => !q || `${e.label} ${e.hint}`.toLowerCase().includes(q)).slice(0, 12);
+  // Every word must appear somewhere in the label or its module/tool, in any order.
+  const words = $('paletteInput').value.toLowerCase().split(/[^a-z0-9&]+/).filter(Boolean);
+  const results = searchEntries().filter(e => { const text = `${e.label} ${e.hint}`.toLowerCase(); return words.every(w => text.includes(w)); }).slice(0, 14);
   selected = Math.min(selected, Math.max(results.length - 1, 0));
-  $('paletteResults').replaceChildren(...(results.length ? results.map((e, i) => h('li', {role: 'option', 'aria-selected': String(i === selected), class: i === selected ? 'selected' : '', onclick: () => openResult(e), onmousemove: () => { if (selected !== i) { selected = i; renderPalette(); } }}, icon(e.icon), h('span.result-label', {}, e.label), h('span.result-hint', {}, e.hint))) : [h('li.palette-empty', {}, 'No matching pages')]));
+  $('paletteResults').replaceChildren(...(results.length ? results.map((e, i) => h('li', {role: 'option', 'aria-selected': String(i === selected), class: i === selected ? 'selected' : '', onclick: () => openResult(e), onmousemove: () => { if (selected !== i) { selected = i; renderPalette(); } }}, icon(e.icon), h('span.result-label', {}, e.label), h('span.result-hint', {}, e.hint))) : [h('li.palette-empty', {}, 'No matching tools')]));
   return results;
 }
-function openResult(entry) { $('palette').close(); navigate(entry.path); }
-function openPalette() { $('paletteInput').value = ''; selected = 0; renderPalette(); $('palette').showModal(); $('paletteInput').focus(); }
-$('searchButton').addEventListener('click', openPalette);
+function openResult(entry) { $('palette').close(); if (entry.href) window.open(entry.href, '_blank', 'noopener'); else navigate(entry.path); }
+export function openPalette(query = '') { $('paletteInput').value = query; selected = 0; renderPalette(); if (!$('palette').open) $('palette').showModal(); $('paletteInput').focus(); }
+$('mobileSearch').addEventListener('click', () => openPalette());
 $('paletteInput').addEventListener('input', () => { selected = 0; renderPalette(); });
 $('paletteInput').addEventListener('keydown', event => {
   const results = renderPalette();

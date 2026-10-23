@@ -1,46 +1,50 @@
 import {h, icon} from '../ui.js';
+import {MODULES, moduleState} from '../nav.js';
+import {UPDATES} from '../updates.js';
+import {openPalette} from '../main.js';
 
-const BLURBS = {
-  attendance: 'Daily visits, MTD coverage, rosters and store attendance for reps and merchandisers.',
-  callcycle: 'Planned versus visited stores by division, rep and store.',
-  franchiseorder: 'Franchise order value, trends, regions, products, stores and reps.',
-  sales: 'Month-to-date Geo Rep orders with drilldowns and reconciliation.',
-  training: 'LMS completion and pass rates by module, region and manager.',
-  automation: 'Run and schedule portal reports, answer verification prompts and review deliveries.',
-  etls: 'Retailer data pipelines: upload inputs, review, approve and download outputs.',
-  resources: 'Shared reference files and templates for the team.',
-  chat: 'Direct and group conversations, tasks and announcements.',
-  support: 'Raise and follow up support requests for Nexus.',
-  admin: 'Users, jobs, schedules, extraction profiles and integrations.'
+export const BADGE = {
+  available: ['Available', 'green'], moving: ['On current Nexus', 'blue'], dev: ['In development', 'orange'],
+  locked: ['Admin only', 'orange'], restricted: ['Admin only', 'orange'], link: ['Opens Geo', 'blue'], separate: ['Separate app', 'orange']
 };
+export const badge = s => h(`span.pill.${BADGE[s][1]}`, {}, BADGE[s][0]);
+export const tile = (name, tone) => h(`span.tile.${tone}`, {}, icon(name));
 
-function greeting() {
-  const hour = Number(new Intl.DateTimeFormat('en-ZA', {hour: 'numeric', hourCycle: 'h23', timeZone: 'Africa/Johannesburg'}).format(new Date()));
-  return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+const shortDate = value => new Intl.DateTimeFormat('en-ZA', {day: 'numeric', month: 'short', timeZone: 'Africa/Johannesburg'}).format(new Date(`${value}T12:00:00Z`));
+
+function stat(value, label, iconName, tone) {
+  return h(`div.stat-card.${tone}`, {}, h('div', {}, h('strong', {}, String(value)), h('span', {}, label)), tile(iconName, tone));
 }
 
-export async function renderHome(main, {user, nav}) {
+export async function renderHome(main, {user, sections}) {
+  const states = MODULES.map(m => moduleState(m, sections));
+  const recent = UPDATES.filter(u => Date.now() - new Date(`${u.date}T00:00:00Z`) < 14 * 86400000);
   const first = user.name.split(/\s+/)[0];
-  const cards = nav.flatMap(group => group.items.filter(item => item.id !== 'home').map(item => ({...item, group: group.group})));
   main.replaceChildren(
-    h('section.hero', {},
-      h('div.hero-copy', {},
-        h('p.eyebrow', {}, new Intl.DateTimeFormat('en-ZA', {weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Johannesburg'}).format(new Date())),
-        h('h1', {}, `${greeting()}, ${first}`),
-        h('p.lede', {}, 'Your Meridian operations in one place: field attendance, orders, automations and the team.')
-      ),
-      h('div.hero-actions', {},
-        user.sections.includes('automation') ? h('a.button.primary', {href: '/automation', 'data-link': true}, icon('play'), 'Run a report') : null,
-        user.sections.includes('attendance') ? h('a.button', {href: '/attendance/reps/daily', 'data-link': true}, icon('clock'), "Today's attendance") : null
-      )
+    h('header.home-head', {},
+      h('p.eyebrow', {}, 'Meridian workspace'),
+      h('h1', {}, first && !user.preview ? `Welcome back, ${first}.` : 'Welcome back.'),
+      h('p.lede', {}, 'Find a tool below, or pick one from the sidebar.'),
+      h('button.tool-search', {type: 'button', onclick: () => openPalette()}, icon('search'), h('span', {}, 'Search tools…'), h('kbd', {}, 'Ctrl K'))
     ),
-    h('section.section', {'aria-labelledby': 'workspaceHeading'},
-      h('div.section-head', {}, h('h2', {id: 'workspaceHeading'}, 'Workspace'), h('p.muted', {}, 'Everything you have access to')),
-      h('div.card-grid', {}, cards.map(item => h('a.feature-card', {href: item.path, 'data-link': true},
-        h('span.feature-icon', {}, icon(item.icon)),
-        h('span.feature-text', {}, h('strong', {}, item.label), h('span', {}, BLURBS[item.id] || '')),
-        h('span.feature-go', {}, icon('arrow'))
-      )))
+    h('div.stat-row', {},
+      stat(MODULES.length, 'Modules in Nexus', 'cube', 'orange'),
+      stat(states.filter(s => s === 'available' || s === 'moving').length, 'Available to use', 'checkCircle', 'green'),
+      stat(states.filter(s => s === 'dev').length, 'In development', 'gear', 'orange'),
+      stat(recent.length, 'Recent updates', 'bell', 'blue')
+    ),
+    h('div.home-grid', {},
+      h('section.glass', {'aria-labelledby': 'modulesHeading'},
+        h('h2', {id: 'modulesHeading'}, 'Workspace Modules'),
+        h('div.module-grid', {}, MODULES.map((m, i) => h('a.module-card', {href: `/modules/${m.id}`, 'data-link': true},
+          h('div.module-top', {}, tile(m.icon, m.tone), h('strong', {}, m.short || m.label)),
+          badge(states[i])
+        )))
+      ),
+      h('section.glass.updates', {'aria-labelledby': 'updatesHeading'},
+        h('h2', {id: 'updatesHeading'}, 'Recent Updates'),
+        UPDATES.length ? h('ol.update-list', {}, UPDATES.map(u => h('li', {}, h('span.update-date', {}, shortDate(u.date)), h('strong', {}, u.title), h('p', {}, u.text)))) : h('p.muted', {}, 'Nothing new yet.')
+      )
     )
   );
 }
