@@ -41,6 +41,14 @@ test('principal: rejects other tenants, non-Entra providers, missing object id a
   assert.equal(principalFromHeader('x'.repeat(20000)), null);
 });
 
+test('principal: guests invited into the tenant (identity-provider claim) are refused, even with a Nexus role', () => {
+  for (const idp of ['google.com', 'live.com', 'https://sts.windows.net/00000000-0000-0000-0000-000000000000/']) {
+    const p = JSON.parse(Buffer.from(header({roles: ['Nexus.Admin']}), 'base64').toString());
+    p.claims.push({typ: 'http://schemas.microsoft.com/identity/claims/identityprovider', val: idp});
+    assert.equal(principalFromHeader(Buffer.from(JSON.stringify(p)).toString('base64')), null, idp);
+  }
+});
+
 test('preview sign-in is impossible on App Service', () => {
   assert.equal(previewAllowed({NEXUS_PREVIEW: 'true', NODE_ENV: 'development'}), true);
   assert.equal(previewAllowed({NEXUS_PREVIEW: 'true', NODE_ENV: 'development', WEBSITE_SITE_NAME: 'x'}), false);

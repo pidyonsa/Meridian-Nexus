@@ -6,6 +6,8 @@ const TENANT_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/ten
 const OBJECT_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/objectidentifier', 'oid']);
 const EMAIL_CLAIMS = new Set(['preferred_username', 'email', 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress', 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']);
 const ROLE_CLAIMS = new Set(['roles', 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+// Guests invited into the Meridian tenant carry an identity-provider claim naming their home provider; staff do not.
+const IDP_CLAIMS = new Set(['idp', 'http://schemas.microsoft.com/identity/claims/identityprovider']);
 // Entra app roles on the "Meridian Nexus Azure" registration. Admin implies everything a Reader may do.
 const ROLES = {admin: 'Nexus.Admin', reader: 'Nexus.Reader'};
 
@@ -23,6 +25,8 @@ function principalFromHeader(header, tenant = MERIDIAN_TENANT) {
     const claims = Array.isArray(principal?.claims) ? principal.claims : [];
     const value = types => claims.find(claim => types.has(claim.typ))?.val;
     if (principal.auth_typ !== 'aad' || value(TENANT_CLAIMS) !== tenant) return null;
+    const idp = value(IDP_CLAIMS);
+    if (idp && !String(idp).includes(tenant)) return null;
     const id = value(OBJECT_CLAIMS);
     if (!id) return null;
     const roles = new Set(claims.filter(claim => ROLE_CLAIMS.has(claim.typ) || claim.typ === principal.role_typ).map(claim => claim.val));

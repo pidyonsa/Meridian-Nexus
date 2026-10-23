@@ -15,6 +15,9 @@ const MAX_RESPONSE = 9 * 1024 * 1024;
 const MERIDIAN_TENANT = 'cbe83df2-b350-4dab-8d5f-f78d21fe7d27';
 const TENANT_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/tenantid', 'tid']);
 const ROLE_CLAIMS = new Set(['roles', 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+// Guests (B2B: Gmail, personal Microsoft or other-company accounts invited into the Meridian tenant) get tokens from
+// the Meridian tenant too, but carry an identity-provider claim naming their home provider. Staff tokens have none.
+const IDP_CLAIMS = new Set(['idp', 'http://schemas.microsoft.com/identity/claims/identityprovider']);
 // Entra app role (registration "Meridian Nexus Azure") for the full Nexus; assigned to jpinto@ only for now.
 const ADMIN_ROLE = 'Nexus.Admin';
 // What every Meridian account may open: the landing page, Syndicated Attendance (Reps and Merchandisers), Franchise
@@ -31,6 +34,8 @@ function signedInUser(req) {
     const claims = Array.isArray(principal?.claims) ? principal.claims : [];
     const tenant = claims.find(claim => TENANT_CLAIMS.has(claim.typ))?.val;
     if (principal.auth_typ !== 'aad' || tenant !== MERIDIAN_TENANT) return null;
+    const idp = claims.find(claim => IDP_CLAIMS.has(claim.typ))?.val;
+    if (idp && !String(idp).includes(MERIDIAN_TENANT)) return null;
     const roles = new Set(claims.filter(claim => ROLE_CLAIMS.has(claim.typ) || claim.typ === principal.role_typ).map(claim => claim.val));
     return {name: req.get('x-ms-client-principal-name') || '', admin: roles.has(ADMIN_ROLE)};
   } catch { return null; }

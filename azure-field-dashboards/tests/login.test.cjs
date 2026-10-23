@@ -35,6 +35,19 @@ test('with Microsoft login required, every page, report and asset is refused wit
   assert.equal((await health.json()).status, 'ok');
 });
 
+test('a guest invited into the Meridian tenant (identity-provider claim) is not a Meridian sign-in', async t => {
+  const get = await host(t, true);
+  for (const idp of ['google.com', 'live.com', 'mail', 'https://sts.windows.net/00000000-0000-0000-0000-000000000000/']) {
+    for (const typ of ['idp', 'http://schemas.microsoft.com/identity/claims/identityprovider']) {
+      const guest = JSON.parse(Buffer.from(principal(MERIDIAN_TENANT), 'base64').toString());
+      guest.claims.push({typ, val: idp});
+      const header = {'x-ms-client-principal': Buffer.from(JSON.stringify(guest)).toString('base64')};
+      assert.equal((await get('/attendance', header)).status, 302, `${typ}=${idp}`);
+      assert.equal((await get('/api/orders', header, 'POST')).status, 401, `${typ}=${idp}`);
+    }
+  }
+});
+
 test('a signed-in Meridian user reaches pages and reports', async t => {
   const get = await host(t, true), signedIn = {'x-ms-client-principal': principal(MERIDIAN_TENANT), 'x-ms-client-principal-name': 'test.user@meridiangroup.co.za'};
   for (const route of ['/', '/attendance', '/franchise-orders']) assert.equal((await get(route, signedIn)).status, 200, route);
