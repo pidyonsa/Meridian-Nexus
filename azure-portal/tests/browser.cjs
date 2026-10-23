@@ -8,7 +8,7 @@ const {chromium} = require('playwright');
 
 const BASE = process.argv[2] || 'http://localhost:4200';
 const OUT = path.join(__dirname, '..', 'test-results');
-const PAGES = ['/', '/attendance/reps/daily', '/franchise-orders/regions', '/automation', '/admin/users'];
+const PAGES = ['/', '/attendance/reps/daily', '/franchise-orders/regions', '/automation', '/admin', '/admin/users'];
 const SIZES = {desktop: {width: 1440, height: 900}, phone: {width: 390, height: 844}};
 
 (async () => {

@@ -37,6 +37,7 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
   app.get('/api/me', async (req, res, next) => {
     try {
       const profile = await profileFor(req.user);
+      if (profile.disabled && !req.user.admin) throw new AppError('permission-denied', 'Your Nexus account is disabled. Ask the Nexus administrator for access.');
       res.json({id: req.user.id, email: req.user.email, name: req.user.name, admin: req.user.admin, preview: req.user.preview, sections: sectionsFor(req.user, profile)});
     } catch (error) { next(error); }
   });
@@ -51,8 +52,26 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
   return app;
 }
 
-module.exports = {createApp};
+// Production wiring: Azure SQL when configured, invented sample data for a local preview, otherwise unavailable.
+function defaultRepo(env = process.env) {
+  const {sqlConfig, query} = require('./db.cjs');
+  if (sqlConfig(env)) return require('./repo.cjs').sqlRepo(query);
+  if (require('./auth.cjs').previewAllowed(env)) return require('./fixtures.cjs').previewRepo();
+  const unavailable = async () => { throw new AppError('unavailable', 'The Nexus database is not configured.'); };
+  return {collection: unavailable, findUserByEmail: unavailable, syncStatus: unavailable};
+}
+
+function profileFrom(repo) {
+  return async user => {
+    const doc = user.email ? await repo.findUserByEmail(user.email) : null;
+    return doc ? {...(doc.data.permissions || {}), disabled: doc.data.disabled === true} : {};
+  };
+}
+
+module.exports = {createApp, defaultRepo, profileFrom};
 if (require.main === module) {
   const port = Number(process.env.PORT || 4200);
-  createApp().listen(port, () => console.log(`Nexus portal on http://localhost:${port}`));
+  const repo = defaultRepo();
+  const {adminRoutes} = require('./routes/admin.cjs');
+  createApp({api: [adminRoutes(repo)], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }
