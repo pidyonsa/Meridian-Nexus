@@ -106,6 +106,14 @@ test('sections: NEXUS_STAFF_SECTIONS fixes what staff see (admins unaffected, ad
   assert.deepEqual(sectionsFor({admin: true}, {}, env), SECTIONS);
 });
 
+test('NEXUS_CANONICAL_ORIGIN sends page requests to the one Nexus address', () => serve({env: {NEXUS_CANONICAL_ORIGIN: 'https://nexus.example'}}, async base => {
+  for (const [from, to] of [['/', '/'], ['/modules/geo', '/modules/geo'], ['/admin/users', '/'], ['/attendance/rep/overview', '/']]) {
+    const res = await fetch(base + from, {redirect: 'manual'});
+    assert.equal(res.status, 301, from); assert.equal(res.headers.get('location'), 'https://nexus.example' + to, from);
+  }
+  assert.equal(await (await fetch(`${base}/healthz`)).text(), 'ok');
+}));
+
 test('migrations are numbered, unique and split into batches', () => {
   const list = migrations();
   assert.ok(list.length >= 1);

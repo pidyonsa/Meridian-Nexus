@@ -23,6 +23,16 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
   // Health check for App Service; the only route open without sign-in.
   app.get('/healthz', (req, res) => res.type('text').send('ok'));
 
+  // NEXUS_CANONICAL_ORIGIN: Nexus has one address. Page requests here go there (workspace paths kept), so people
+  // never juggle several Nexus links.
+  if (env.NEXUS_CANONICAL_ORIGIN) {
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/api/') || !['GET', 'HEAD'].includes(req.method)) return next();
+      const keep = /^\/(?:modules\/[a-z-]{2,40})?$/.test(req.path) ? req.path : '/';
+      res.redirect(301, env.NEXUS_CANONICAL_ORIGIN + keep);
+    });
+  }
+
   app.use(authentication(env));
   app.use(requireUser(env));
 
