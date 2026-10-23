@@ -60,6 +60,11 @@ test('a signed-in user without a Nexus role is refused', () => serve({}, async b
   assert.equal(res.status, 403);
 }));
 
+test('admin-only mode lets admins in and turns readers away', () => serve({env: {NEXUS_ADMIN_ONLY: 'true'}}, async base => {
+  assert.equal((await fetch(`${base}/api/me`, {headers: {'x-ms-client-principal': header()}})).status, 403);
+  assert.equal((await fetch(`${base}/api/me`, {headers: {'x-ms-client-principal': header({roles: ['Nexus.Admin']})}})).status, 200);
+}));
+
 test('a reader gets their profile and the app shell; unknown APIs are 404', () => serve({}, async base => {
   const headers = {'x-ms-client-principal': header()};
   assert.deepEqual(await (await fetch(`${base}/api/me`, {headers})).json(), {id: OID, email: 'staff@meridiangroup.co.za', name: 'Staff Member', admin: false, preview: false, sections: ['automation', 'chat', 'support']});

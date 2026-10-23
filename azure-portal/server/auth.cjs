@@ -44,11 +44,15 @@ function authentication(env = process.env) {
 }
 
 // Pages: send signed-out visitors to Microsoft sign-in. APIs: answer 401 so the browser can do the same.
-function requireUser(req, res, next) {
-  if (req.user?.reader) return next();
-  if (req.user) return next(new AppError('permission-denied', 'Your Meridian account is not assigned to Nexus. Ask the Nexus administrator for access.'));
-  if (req.path.startsWith('/api/')) return next(new AppError('unauthenticated', 'Sign in with your Meridian account.'));
-  res.redirect(302, `/.auth/login/aad?post_login_redirect_uri=${encodeURIComponent(req.originalUrl || '/')}`);
+// NEXUS_ADMIN_ONLY=true limits the whole site to Nexus admins while sections are still being moved over.
+function requireUser(env = process.env) {
+  return (req, res, next) => {
+    if (req.user?.admin || (req.user?.reader && env.NEXUS_ADMIN_ONLY !== 'true')) return next();
+    if (req.user?.reader) return next(new AppError('permission-denied', 'The new Nexus is open to administrators only for now. Keep using the current Nexus.'));
+    if (req.user) return next(new AppError('permission-denied', 'Your Meridian account is not assigned to Nexus. Ask the Nexus administrator for access.'));
+    if (req.path.startsWith('/api/')) return next(new AppError('unauthenticated', 'Sign in with your Meridian account.'));
+    res.redirect(302, `/.auth/login/aad?post_login_redirect_uri=${encodeURIComponent(req.originalUrl || '/')}`);
+  };
 }
 
 function requireAdmin(req, res, next) {

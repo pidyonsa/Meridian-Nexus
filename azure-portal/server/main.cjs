@@ -24,7 +24,7 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
   app.get('/healthz', (req, res) => res.type('text').send('ok'));
 
   app.use(authentication(env));
-  app.use(requireUser);
+  app.use(requireUser(env));
 
   // State-changing API calls must come from this site (Easy Auth cookies are sent cross-site otherwise).
   app.use('/api', (req, res, next) => {

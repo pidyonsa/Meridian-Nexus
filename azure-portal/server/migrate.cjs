@@ -7,6 +7,9 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {sql, pool, close} = require('./db.cjs');
 
+// Schema changes (index rebuilds) can take minutes; app queries keep the 30-second default.
+process.env.SQL_REQUEST_TIMEOUT_MS ||= '600000';
+
 const DIR = path.join(__dirname, '..', 'migrations');
 
 function migrations(dir = DIR) {
