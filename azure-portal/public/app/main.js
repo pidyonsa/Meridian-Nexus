@@ -1,6 +1,6 @@
 import {h, icon, initials, toast} from './ui.js';
 import {api} from './api.js';
-import {MODULES, locate, moduleState, toolState} from './nav.js';
+import {MODULES, locate, moduleState, toolState, toolLink} from './nav.js';
 import {renderHome} from './views/home.js';
 import {renderModule, renderLocked} from './views/module.js';
 import {renderAdmin} from './views/admin.js';
@@ -102,12 +102,12 @@ $('scrim').addEventListener('click', closeDrawer);
 export function searchEntries() {
   const out = [];
   for (const m of MODULES) {
-    out.push({label: m.label, hint: 'Module', path: `/modules/${m.id}`, icon: m.icon});
+    out.push({label: m.label, hint: 'Module', link: {href: `/modules/${m.id}`, spa: true}, icon: m.icon});
     for (const t of m.tools || []) {
-      if (t.external) { out.push({label: t.label, hint: m.label, href: t.external, icon: 'external'}); continue; }
-      if (!state.sections.has(t.section)) continue;
-      out.push({label: t.label, hint: m.label, path: t.path, icon: m.icon});
-      for (const p of t.pages || []) out.push({label: p.label, hint: t.label, path: p.path, icon: m.icon});
+      if (t.external) { out.push({label: t.label, hint: m.label, link: toolLink(t), icon: 'external'}); continue; }
+      if (!state.sections.has(t.section) || t.restricted) continue;
+      out.push({label: t.label, hint: m.label, link: toolLink(t), icon: m.icon});
+      for (const p of t.pages || []) out.push({label: p.label, hint: t.label, link: toolLink(t, p), icon: m.icon});
     }
   }
   return out;
@@ -121,7 +121,10 @@ function renderPalette() {
   $('paletteResults').replaceChildren(...(results.length ? results.map((e, i) => h('li', {role: 'option', 'aria-selected': String(i === selected), class: i === selected ? 'selected' : '', onclick: () => openResult(e), onmousemove: () => { if (selected !== i) { selected = i; renderPalette(); } }}, icon(e.icon), h('span.result-label', {}, e.label), h('span.result-hint', {}, e.hint))) : [h('li.palette-empty', {}, 'No matching tools')]));
   return results;
 }
-function openResult(entry) { $('palette').close(); if (entry.href) window.open(entry.href, '_blank', 'noopener'); else navigate(entry.path); }
+function openResult({link}) {
+  $('palette').close();
+  if (link.spa) navigate(link.href); else if (link.newTab) window.open(link.href, '_blank', 'noopener'); else location.assign(link.href);
+}
 export function openPalette(query = '') { $('paletteInput').value = query; selected = 0; renderPalette(); if (!$('palette').open) $('palette').showModal(); $('paletteInput').focus(); }
 $('mobileSearch').addEventListener('click', () => openPalette());
 $('paletteInput').addEventListener('input', () => { selected = 0; renderPalette(); });

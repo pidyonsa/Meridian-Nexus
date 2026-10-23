@@ -2,10 +2,12 @@
 // Order, names and wording follow the Firebase-era Nexus workspace (meridain-nexus.web.app). A tool's `section` must
 // match server/access.cjs; the server decides which sections each person may open.
 
-export const OLD_NEXUS = 'https://meridain-nexus.web.app';
+import {CONFIG} from './config.js';
 
-// Tools that already work on the Azure portal. Everything else opens on the current Nexus until it moves.
-export const BUILT = new Set(['admin-overview', 'admin-users']);
+// Where tools that have not moved yet still run, and which tools work on this site (see config.js).
+export const OLD_NEXUS = CONFIG.currentNexus;
+export const BUILT = new Set(CONFIG.built);
+const PAGE_TOOLS = new Set(CONFIG.pageTools);
 
 export const MODULES = [
   {id: 'activate', label: 'Activate', icon: 'bolt', tone: 'orange', dev: true, blurb: 'Activation campaigns and in-store execution.'},
@@ -20,9 +22,9 @@ export const MODULES = [
     {id: 'support', label: 'Support', desc: 'Raise and follow up support requests for Nexus.', section: 'support', path: '/support', old: '#support'}
   ]},
   {id: 'geo', label: 'Geo', icon: 'pin', tone: 'violet', blurb: 'Geo-verified store coverage and route tracking on a live map.', tools: [
-    {id: 'attendance', label: 'Time and Attendance', desc: 'Syndicated attendance for reps and merchandisers: daily visits, month-to-date coverage, rosters and stores.', section: 'attendance', path: '/attendance/reps/daily', old: '#attendance', pages: [
-      {label: 'Reps · Daily visits', path: '/attendance/reps/daily'}, {label: 'Reps · MTD overview', path: '/attendance/reps/mtd'}, {label: 'Reps · Roster', path: '/attendance/reps/roster'}, {label: 'Reps · Stores', path: '/attendance/reps/stores'},
-      {label: 'Merchandisers · Daily visits', path: '/attendance/merchandisers/daily'}, {label: 'Merchandisers · MTD overview', path: '/attendance/merchandisers/mtd'}, {label: 'Merchandisers · Roster', path: '/attendance/merchandisers/roster'}, {label: 'Merchandisers · Stores', path: '/attendance/merchandisers/stores'}]},
+    {id: 'attendance', label: 'Time and Attendance', desc: 'Syndicated attendance for reps and merchandisers: daily visits, month-to-date coverage, rosters and stores.', section: 'attendance', path: '/attendance/rep/overview', old: '#attendance', pages: [
+      {label: 'Reps · MTD overview', path: '/attendance/rep/overview'}, {label: 'Reps · Daily visits', path: '/attendance/rep/daily'}, {label: 'Reps · Roster', path: '/attendance/rep/users'}, {label: 'Reps · Stores', path: '/attendance/rep/stores'},
+      {label: 'Merchandisers · MTD overview', path: '/attendance/merchandiser/overview'}, {label: 'Merchandisers · Daily visits', path: '/attendance/merchandiser/daily'}, {label: 'Merchandisers · Roster', path: '/attendance/merchandiser/users'}, {label: 'Merchandisers · Stores', path: '/attendance/merchandiser/stores'}]},
     {id: 'franchiseorder', label: 'Franchise orders', desc: 'Franchise order value, trends, regions, products, stores and reps.', section: 'franchiseorder', path: '/franchise-orders/overview', old: '#franchiseorder', pages: [
       {label: 'Executive overview', path: '/franchise-orders/overview'}, {label: 'Trend analysis', path: '/franchise-orders/trend'}, {label: 'Regional', path: '/franchise-orders/regions'}, {label: 'Products', path: '/franchise-orders/products'},
       {label: 'Stores', path: '/franchise-orders/stores'}, {label: 'Reps', path: '/franchise-orders/reps'}, {label: 'Order detail', path: '/franchise-orders/orders'}]},
@@ -48,6 +50,15 @@ export const MODULES = [
     {id: 'resources', label: 'Resources', desc: 'Shared reference files and templates.', section: 'resources', path: '/resources', old: '#resources'}
   ]}
 ];
+
+// Where a tool (or one of its pages) opens: inside the workspace (spa), as its own page on this site, or on the
+// current Nexus. `newTab` only for other sites.
+export function toolLink(tool, page = null) {
+  if (tool.external) return {href: tool.external, newTab: true};
+  if (BUILT.has(tool.id)) return PAGE_TOOLS.has(tool.id) ? {href: page?.path || tool.path} : {href: page?.path || tool.path, spa: true};
+  if (CONFIG.directLinks) return {href: `${OLD_NEXUS}${tool.old || ''}`};
+  return {href: page?.path || tool.path, spa: true};
+}
 
 // What a tool means for this user: available here, still on the current Nexus, locked, restricted or an outside link.
 export function toolState(tool, sections) {

@@ -5,7 +5,6 @@ const compression = require('compression');
 const fs = require('node:fs');
 const path = require('node:path');
 const {setTimeout: sleep} = require('node:timers/promises');
-const {renderLanding} = require('./landing.cjs');
 const {mountNexusPortal} = require('./nexus-portal.cjs');
 
 const UPSTREAM = 'https://meridian-field-dashboards.web.app';
@@ -20,9 +19,15 @@ const ROLE_CLAIMS = new Set(['roles', 'http://schemas.microsoft.com/ws/2008/06/i
 const IDP_CLAIMS = new Set(['idp', 'http://schemas.microsoft.com/identity/claims/identityprovider']);
 // Entra app role (registration "Meridian Nexus Azure") for the full Nexus; assigned to jpinto@ only for now.
 const ADMIN_ROLE = 'Nexus.Admin';
-// What every Meridian account may open: the landing page, Syndicated Attendance (Reps and Merchandisers), Franchise
+// What every Meridian account may open: the Nexus workspace, Syndicated Attendance (Reps and Merchandisers), Franchise
 // Orders and their static files. Anything else on this site is the full Nexus (/nexus/) and needs ADMIN_ROLE.
-const everyoneMayOpen = (req, assets) => req.path === '/' || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || API_ROUTES.has(req.path);
+// The Nexus workspace (home page and module pages), built in from ../azure-portal/public by scripts/build.cjs.
+const WORKSPACE_ROUTE = /^\/(?:modules\/[a-z-]{2,40}\/?)?$/;
+// Sections (server/access.cjs in azure-portal): admins open everything; everyone else Syndicated Attendance and
+// Franchise Orders only (user decision, 23 October 2026).
+const ALL_SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'automation', 'etls', 'resources', 'chat', 'support', 'admin'];
+const STAFF_SECTIONS = ['attendance', 'franchiseorder'];
+const everyoneMayOpen = (req, assets) => WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
 
 // Microsoft sign-in is done by App Service Authentication (Entra ID, Meridian tenant). It passes the signed-in
 // user in X-MS-CLIENT-PRINCIPAL and strips that header from incoming requests, so a caller cannot supply it.
@@ -37,7 +42,8 @@ function signedInUser(req) {
     const idp = claims.find(claim => IDP_CLAIMS.has(claim.typ))?.val;
     if (idp && !String(idp).includes(MERIDIAN_TENANT)) return null;
     const roles = new Set(claims.filter(claim => ROLE_CLAIMS.has(claim.typ) || claim.typ === principal.role_typ).map(claim => claim.val));
-    return {name: req.get('x-ms-client-principal-name') || '', admin: roles.has(ADMIN_ROLE)};
+    const email = req.get('x-ms-client-principal-name') || '';
+    return {name: email, displayName: String(claims.find(claim => claim.typ === 'name')?.val || email), admin: roles.has(ADMIN_ROLE)};
   } catch { return null; }
 }
 
@@ -89,7 +95,13 @@ function createApp({fetchImpl = fetch, functionsFetch = fetch, portalDir, now = 
     if (!user.admin && !everyoneMayOpen(req, assets)) return res.status(403).json({error: 'Your account can view Syndicated Attendance and Franchise Orders only.'});
     next();
   });
-  app.get('/', (req, res) => res.type('html').send(renderLanding(requireLogin() ? signedInUser(req) : null)));
+  // The workspace asks who is signed in and which sections they may open; the checks above already enforce it.
+  app.get('/api/me', (req, res) => {
+    const user = signedInUser(req);
+    if (!user) return res.status(401).json({error: {code: 'unauthenticated', message: 'Sign in with your Meridian Microsoft account.'}});
+    res.json({email: user.name.toLowerCase(), name: user.displayName, admin: user.admin, preview: false, sections: user.admin ? ALL_SECTIONS : STAFF_SECTIONS});
+  });
+  app.get(WORKSPACE_ROUTE, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
   mountNexusPortal(app, {fetchImpl: functionsFetch, ...(portalDir ? {portalDir} : {})});
   app.use('/api', (req, res, next) => {
     if (!enabled()) return res.status(503).json({error: 'The public dashboards are currently unavailable.'});

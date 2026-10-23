@@ -85,18 +85,26 @@ const nexusHost = async (t, functionsFetch) => {
 };
 const as = roles => ({'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', roles), 'x-ms-client-principal-name': 'someone@meridiangroup.co.za'});
 
-test('landing page: dashboards for every Meridian account, the full Nexus only for Nexus.Admin', async t => {
+test('Nexus workspace: home and module pages for every Meridian account; sections by role', async t => {
   const get = await nexusHost(t);
-  const staff = await (await get('/', {headers: as([])})).text(), admin = await (await get('/', {headers: as(['Nexus.Admin'])})).text();
-  for (const html of [staff, admin]) {
-    for (const href of ['/attendance/rep/overview', '/attendance/merchandiser/overview', '/franchise-orders/overview', '/.auth/logout?post_logout_redirect_uri=/']) assert.ok(html.includes(`href="${href}"`), href);
-    assert.ok(html.includes('someone@meridiangroup.co.za'));
+  for (const route of ['/', '/modules/geo', '/modules/admin']) {
+    const page = await get(route, {headers: as([])});
+    assert.equal(page.status, 200, route);
+    const html = await page.text();
+    assert.ok(html.includes('src="/app/main.js"') && html.includes('Meridian <b>Nexus</b>'), route);
+    assert.ok(!/fonts\.googleapis|fonts\.gstatic/.test(html), 'no third-party fonts');
   }
-  assert.ok(!staff.includes('/nexus/'), 'staff must not see the full Nexus');
-  for (const hash of ['home', 'sales', 'insights', 'attendance', 'stockfix', 'automation', 'etls', 'admin']) assert.ok(admin.includes(`href="/nexus/#${hash}"`), hash);
-  // Names are escaped.
-  const odd = await (await get('/', {headers: {...as([]), 'x-ms-client-principal-name': '<b>x</b>'}})).text();
-  assert.ok(odd.includes('&lt;b&gt;x&lt;/b&gt;') && !odd.includes('<b>x</b>'));
+  const staff = await (await get('/api/me', {headers: as([])})).json();
+  assert.deepEqual(staff.sections, ['attendance', 'franchiseorder']);
+  assert.equal(staff.admin, false); assert.equal(staff.email, 'someone@meridiangroup.co.za'); assert.equal(staff.name, 'Test User');
+  const admin = await (await get('/api/me', {headers: as(['Nexus.Admin'])})).json();
+  assert.equal(admin.admin, true); assert.ok(admin.sections.includes('admin') && admin.sections.includes('automation'));
+  // Staff still cannot open the full Nexus; unknown module names are not workspace pages.
+  assert.equal((await get('/nexus/', {headers: as([])})).status, 403);
+  assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
+  // The site config sends tools that have not moved to the full Nexus on this site.
+  const config = await (await get('/app/config.js', {headers: as([])})).text();
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder'\]/);
 });
 
 test('full Nexus portal and its Firebase files: Nexus.Admin only; signed out goes to sign-in', async t => {

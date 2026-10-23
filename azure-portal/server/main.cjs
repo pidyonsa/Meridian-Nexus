@@ -15,7 +15,7 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
   app.set('trust proxy', 1);
   app.use(requestId);
   app.use(helmet({
-    contentSecurityPolicy: {useDefaults: true, directives: {'script-src': ["'self'"], 'style-src': ["'self'", 'https://fonts.googleapis.com'], 'font-src': ["'self'", 'https://fonts.gstatic.com'], 'img-src': ["'self'", 'data:', 'blob:'], 'connect-src': ["'self'"], 'frame-ancestors': ["'none'"]}},
+    contentSecurityPolicy: {useDefaults: true, directives: {'script-src': ["'self'"], 'style-src': ["'self'"], 'font-src': ["'self'"], 'img-src': ["'self'", 'data:', 'blob:'], 'connect-src': ["'self'"], 'frame-ancestors': ["'none'"]}},
     referrerPolicy: {policy: 'same-origin'}
   }));
   app.use(compression());

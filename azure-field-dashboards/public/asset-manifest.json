@@ -185,6 +185,81 @@
       "path": "assets/favicon-32.png",
       "sha256": "5f2070857be74a8c339f0a2f547383a65fdf0cbc6a973b085b458b79d3c4970e",
       "adapter": "existing-meridian-favicon"
+    },
+    {
+      "path": "workspace.html",
+      "sha256": "1a7b159fb0045e0969f3650c0ea428df5354f1536d3f99785cf14b204f16c99c",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/api.js",
+      "sha256": "38afa65d85e968f234aa711ee2bbfc4977324f2b3b176519b5a2b3e76fa4e545",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/main.js",
+      "sha256": "d43d9f623e9f04f9643146a6e2d6ea26780d99df87f0a4a35a24507d0548a8c9",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/nav.js",
+      "sha256": "898cdf5f237caf11b9fb4e5b9c5cfb13a911abfbfd7b40076bec03bc6fbe88f6",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/ui.js",
+      "sha256": "30cb835674fd01755e875b2b461ab80f3f88f73a7b57aed6fc73e6f0e160feb7",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/updates.js",
+      "sha256": "30a15b0ca47797061cdeec80b3f0e1805b450f4cc3dc3e3a30892d50b95dc0f2",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/views/admin.js",
+      "sha256": "e04ea3fff54480ff05583af21ebad71cc8e674ef74d30726dde36aa76ff6016b",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/views/home.js",
+      "sha256": "dce62f432b30d962d83a1456c5444bd45c8cefb4d2eed8a73549997d2d97fb86",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/views/module.js",
+      "sha256": "6aba87a08b63117ccc157e53fbafc7342309d218e767303511163d1212a90647",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/views/pending.js",
+      "sha256": "37ecc342aec403a14291a2c400b6755ec5935837ea014d83c72510d0cf3c0ac9",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "styles/app.css",
+      "sha256": "cbdfaa519c67ab9c2a03739a2af76ed7a0cbe69e7ab627c50b0d7d5baa83cecd",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "assets/nexus-mark.png",
+      "sha256": "a418f5018e9f2d7897f4a4a4fd8d6eb40fb5c82642bde17b15b9bd9b50f2c4b2",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "assets/nexus-backdrop.jpg",
+      "sha256": "0c9afc2fc793979bffc706c915a8bcacaea9c1e1d37b220c5914da4ec4acbbc4",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "assets/apple-touch-icon.png",
+      "sha256": "fe799df1d1e6ab822a3b4ebe81883f88dc24aa8810474c871e72390524cbeb3a",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/config.js",
+      "sha256": "dedf49c53d460f1eb2bf8c2408cb4313f7945ac428007066d6c220651ad0b960",
+      "adapter": "nexus-workspace-site-config"
     }
   ]
 }

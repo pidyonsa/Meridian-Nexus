@@ -10,7 +10,7 @@ const {chromium} = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:4200';
 const OUT = path.join(__dirname, '..', 'test-results');
 // [path, module that should be highlighted]
-const PAGES = [['/', 'home'], ['/modules/geo', 'geo'], ['/modules/call-cycle', 'call-cycle'], ['/modules/activate', 'activate'], ['/attendance/reps/daily', 'geo'], ['/admin', 'admin'], ['/admin/users', 'admin']];
+const PAGES = [['/', 'home'], ['/modules/geo', 'geo'], ['/modules/call-cycle', 'call-cycle'], ['/modules/activate', 'activate'], ['/attendance/rep/overview', 'geo'], ['/admin', 'admin'], ['/admin/users', 'admin']];
 const SIZES = {desktop: {width: 1440, height: 900}, phone: {width: 390, height: 844}};
 const shot = route => route.replace(/\//g, '_') || '_home';
 
@@ -45,7 +45,7 @@ const shot = route => route.replace(/\//g, '_') || '_home';
       await page.screenshot({path: path.join(OUT, 'desktop_palette.png')});
       await page.keyboard.press('Enter');
       await page.waitForTimeout(250);
-      if (!page.url().endsWith('/attendance/merchandisers/roster')) failures.push(`search did not open the merchandiser roster (${page.url()})`);
+      if (!page.url().endsWith('/attendance/merchandiser/users')) failures.push(`search did not open the merchandiser roster (${page.url()})`);
     }
     for (const error of errors) failures.push(`${size}: console error: ${error}`);
   }

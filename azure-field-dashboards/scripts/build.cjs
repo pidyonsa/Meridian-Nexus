@@ -74,5 +74,28 @@ files.push({path:'assets/meridian-mark.png',sha256:hash(mark),adapter:'existing-
 const favicon=fs.readFileSync(path.resolve(root,'../public/assets/icons/favicon-32.png'));
 fs.writeFileSync(path.join(root,'public/assets/favicon-32.png'),favicon);
 files.push({path:'assets/favicon-32.png',sha256:hash(favicon),adapter:'existing-meridian-favicon'});
+// The Nexus workspace (home and module pages) from ../azure-portal/public, so nexus.meridiangroup.co.za is the one
+// Nexus address. Its config.js is written for this site: Attendance and Franchise Orders open these dashboards; tools
+// not moved yet open in the full Nexus at /nexus/ on this same site (admins only).
+const workspace = path.resolve(root, '../azure-portal/public');
+for (const [from, to] of [['index.html', 'workspace.html'], ...['api.js', 'main.js', 'nav.js', 'ui.js', 'updates.js', 'views/admin.js', 'views/home.js', 'views/module.js', 'views/pending.js'].map(f => [`app/${f}`, `app/${f}`]),
+  ['styles/app.css', 'styles/app.css'], ['assets/nexus-mark.png', 'assets/nexus-mark.png'], ['assets/nexus-backdrop.jpg', 'assets/nexus-backdrop.jpg'], ['assets/apple-touch-icon.png', 'assets/apple-touch-icon.png']]) {
+  assert.ok(!files.some(file => file.path === to), 'Workspace file collides with a dashboard file: ' + to);
+  const bytes = fs.readFileSync(path.join(workspace, from));
+  fs.mkdirSync(path.dirname(path.join(root, 'public', to)), {recursive: true});
+  fs.writeFileSync(path.join(root, 'public', to), bytes);
+  files.push({path: to, sha256: hash(bytes), adapter: 'nexus-workspace'});
+}
+const siteConfig = Buffer.from(`// Written by azure-field-dashboards/scripts/build.cjs for nexus.meridiangroup.co.za.
+export const CONFIG = {
+  built: ['attendance', 'franchiseorder'],
+  currentNexus: '/nexus/',
+  directLinks: true,
+  pageTools: ['attendance', 'franchiseorder']
+};
+`);
+fs.writeFileSync(path.join(root, 'public/app/config.js'), siteConfig);
+files.push({path: 'app/config.js', sha256: hash(siteConfig), adapter: 'nexus-workspace-site-config'});
+for (const font of ['400', '500', '600', '700'].map(w => `vendor/fonts/poppins-latin-${w}-normal.woff2`)) assert.ok(files.some(file => file.path === font), 'Workspace font missing: ' + font);
 fs.writeFileSync(path.join(root, 'public/asset-manifest.json'), JSON.stringify({source: 'tested-temporary-dashboard-build', files}, null, 2));
 console.log(`Built ${files.length} static files with isolated Attendance and Orders presentation adapters. Original Nexus sources untouched.`);

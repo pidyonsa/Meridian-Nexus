@@ -14,7 +14,7 @@ for (const entry of manifest.files) {
   assert.equal(crypto.createHash('sha256').update(fs.readFileSync(source)).digest('hex'), entry.sha256);
   archive.file(source, {name: 'public/' + entry.path});
 }
-const serverFiles = ['public/asset-manifest.json', 'server/main.cjs', 'server/landing.cjs', 'server/nexus-portal.cjs', 'server/azure-reports.cjs', 'server/snapshot-data.cjs', 'server/report-engine/manifest.json', 'package-lock.json', ...engine.map(file => 'server/report-engine/' + file.path)];
+const serverFiles = ['public/asset-manifest.json', 'server/main.cjs', 'server/nexus-portal.cjs', 'server/azure-reports.cjs', 'server/snapshot-data.cjs', 'server/report-engine/manifest.json', 'package-lock.json', ...engine.map(file => 'server/report-engine/' + file.path)];
 for (const relative of serverFiles) archive.file(path.join(root, relative), {name: relative});
 // The full Nexus portal (/nexus/), checked against its manifest from scripts/fetch-nexus-portal.cjs.
 const portal = JSON.parse(fs.readFileSync(path.join(root, 'nexus-portal/manifest.json'), 'utf8'));
