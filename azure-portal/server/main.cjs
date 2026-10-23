@@ -38,7 +38,7 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
     try {
       const profile = await profileFor(req.user);
       if (profile.disabled && !req.user.admin) throw new AppError('permission-denied', 'Your Nexus account is disabled. Ask the Nexus administrator for access.');
-      res.json({id: req.user.id, email: req.user.email, name: req.user.name, admin: req.user.admin, preview: req.user.preview, sections: sectionsFor(req.user, profile)});
+      res.json({id: req.user.id, email: req.user.email, name: req.user.name, admin: req.user.admin, preview: req.user.preview, sections: sectionsFor(req.user, profile, env)});
     } catch (error) { next(error); }
   });
   for (const mount of api) mount(app);

@@ -88,7 +88,14 @@ test('errors carry a request id and never leak internals', () => serve({api: [ap
 test('sections: admins see everything; staff get their permissions, never admin-only pages', () => {
   const {sectionsFor, SECTIONS} = require('../server/access.cjs');
   assert.deepEqual(sectionsFor({admin: true}), SECTIONS);
-  assert.deepEqual(sectionsFor({admin: false}, {allowedNavigationIds: ['attendance', 'admin', 'etls', 'stockfix'], chatEnabled: false}), ['attendance', 'callcycle', 'support']);
+  assert.deepEqual(sectionsFor({admin: false}, {allowedNavigationIds: ['attendance', 'admin', 'etls', 'stockfix'], chatEnabled: false}, {}), ['attendance', 'callcycle', 'support']);
+});
+
+test('sections: NEXUS_STAFF_SECTIONS fixes what staff see (admins unaffected, admin pages never leak)', () => {
+  const {sectionsFor, SECTIONS} = require('../server/access.cjs');
+  const env = {NEXUS_STAFF_SECTIONS: 'attendance,franchiseorder,admin'};
+  assert.deepEqual(sectionsFor({admin: false}, {allowedNavigationIds: ['automation', 'chat', 'training']}, env), ['attendance', 'franchiseorder']);
+  assert.deepEqual(sectionsFor({admin: true}, {}, env), SECTIONS);
 });
 
 test('migrations are numbered, unique and split into batches', () => {
