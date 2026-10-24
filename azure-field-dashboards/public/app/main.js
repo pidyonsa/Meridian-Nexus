@@ -41,13 +41,25 @@ function renderChrome() {
     h('p.nav-label', {}, 'Modules'),
     h('ul', {}, MODULES.map(m => {
       const s = moduleState(m, state.sections);
-      return h('li', {}, h('a.nav-item', {href: `/modules/${m.id}`, 'data-link': true, 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), DOT[s] ? h(`span.dot.${DOT[s]}`, {title: s === 'locked' ? 'Admin only' : s === 'moving' ? 'On the current Nexus' : 'Available'}) : null));
+      // Tools that work on this site are listed by name under their module, one click away.
+      const ready = (m.tools || []).filter(t => toolState(t, state.sections) === 'available');
+      return h('li', {},
+        h('a.nav-item', {href: `/modules/${m.id}`, 'data-link': true, 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), DOT[s] ? h(`span.dot.${DOT[s]}`, {title: s === 'locked' ? 'Admin only' : s === 'moving' ? 'On the current Nexus' : 'Available'}) : null),
+        ready.length ? h('ul.nav-tools', {}, ready.map(t => {
+          const link = toolLink(t);
+          return h('li', {}, h('a.nav-tool', {...(link.spa ? {href: link.href, 'data-link': true} : {href: link.href}), 'data-tool': t.id}, t.navLabel || t.label));
+        })) : null);
     }))
   );
 }
 
 function highlight(found) {
   const active = found?.home ? 'home' : found?.module?.id;
+  for (const el of document.querySelectorAll('[data-tool]')) {
+    const on = el.dataset.tool === found?.tool?.id;
+    el.classList.toggle('active', on);
+    if (on) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+  }
   for (const el of document.querySelectorAll('[data-nav]')) {
     el.classList.toggle('active', el.dataset.nav === active);
     if (el.dataset.nav === active) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');

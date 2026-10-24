@@ -22,7 +22,7 @@ export const MODULES = [
     {id: 'support', label: 'Support', desc: 'Raise and follow up support requests for Nexus.', section: 'support', path: '/support', old: '#support'}
   ]},
   {id: 'geo', label: 'Geo', icon: 'pin', tone: 'violet', blurb: 'Geo-verified store coverage and route tracking on a live map.', tools: [
-    {id: 'attendance', label: 'Time and Attendance', desc: 'Syndicated attendance for reps and merchandisers: daily visits, month-to-date coverage, rosters and stores.', section: 'attendance', path: '/attendance/rep/overview', old: '#attendance', pages: [
+    {id: 'attendance', label: 'Time and Attendance', navLabel: 'Time & Attendance', desc: 'Syndicated attendance for reps and merchandisers: daily visits, month-to-date coverage, rosters and stores.', section: 'attendance', path: '/attendance/rep/overview', old: '#attendance', pages: [
       {label: 'Reps · MTD overview', path: '/attendance/rep/overview'}, {label: 'Reps · Daily visits', path: '/attendance/rep/daily'}, {label: 'Reps · Roster', path: '/attendance/rep/users'}, {label: 'Reps · Stores', path: '/attendance/rep/stores'},
       {label: 'Merchandisers · MTD overview', path: '/attendance/merchandiser/overview'}, {label: 'Merchandisers · Daily visits', path: '/attendance/merchandiser/daily'}, {label: 'Merchandisers · Roster', path: '/attendance/merchandiser/users'}, {label: 'Merchandisers · Stores', path: '/attendance/merchandiser/stores'}]},
     {id: 'franchiseorder', label: 'Franchise orders', desc: 'Franchise order value, trends, regions, products, stores and reps.', section: 'franchiseorder', path: '/franchise-orders/overview', old: '#franchiseorder', pages: [
@@ -31,8 +31,8 @@ export const MODULES = [
     {id: 'geo-portal', label: 'Open Geo Portal', desc: 'Sign in to the Geo portal for live coverage, routes and check-ins.', external: 'https://meridian.georep.com/portal/'}
   ]},
   {id: 'insights', label: 'Insights', icon: 'chart', tone: 'green', blurb: 'Client insights: distribution gaps, sales and range performance.', tools: [
-    {id: 'sirfruit-gaps', label: 'Sir Fruit distribution gaps', desc: "Weekly No gap, Opportunity and Lost by store and product for PnP Family, Dis-Chem and Food Lover's Market, and what converted.", section: 'gaps', path: '/insights/sir-fruit'},
-    {id: 'sirfruit-upload', label: 'Upload Sir Fruit gap report', desc: "Back office: upload the client's weekly workbook, check it, then save.", section: 'gaps-upload', path: '/insights/sir-fruit/upload'}
+    {id: 'sirfruit-gaps', label: 'Sir Fruit distribution gaps', navLabel: 'Sir Fruit gap tracker', desc: "Weekly No gap, Opportunity and Lost by store and product for PnP Family, Dis-Chem and Food Lover's Market, and what converted.", section: 'gaps', path: '/insights/sir-fruit'},
+    {id: 'sirfruit-upload', label: 'Upload Sir Fruit gap report', navLabel: 'Upload gap report', desc: "Back office: upload the client's weekly workbook, check it, then save.", section: 'gaps-upload', path: '/insights/sir-fruit/upload'}
   ]},
   {id: 'learn', label: 'Learn', icon: 'cap', tone: 'violet', blurb: 'Learning completion and pass rates for the field team.', tools: [
     {id: 'training', label: 'Training hub', desc: 'LMS completion and pass rates by module, region and manager.', section: 'training', path: '/training', old: '#training'}
