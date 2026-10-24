@@ -84,7 +84,7 @@ async function serve(fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-'));
   fs.writeFileSync(path.join(dir, 'index.html'), '<!doctype html>');
   const store = memoryGapStore();
-  const server = createApp({publicDir: dir, env: {}, log: {error() {}}, api: [gapRoutes({store, allow: (req, kind) => req.user.admin, who: req => req.user.email})]}).listen(0);
+  const server = createApp({publicDir: dir, env: {}, log: {error() {}}, api: [gapRoutes({store, allow: (req, kind) => kind === 'view' || req.user.admin, who: req => req.user.email})]}).listen(0);
   try { return await fn(`http://127.0.0.1:${server.address().port}`, store); } finally { server.close(); }
 }
 
@@ -119,6 +119,9 @@ test('upload flow: preview, save, overview, compare, export; staff cannot upload
   assert.deepEqual(wb.worksheets.map(w => w.name), ['Summary', 'Changes', 'Store coverage']);
   assert.equal(wb.getWorksheet('Changes').rowCount, 1 + all.changesTotal);
   assert.equal((await fetch(`${base}/api/gaps/unknown`, {headers: admin})).status, 404);
+  // Staff view and export, but never see the upload history.
+  assert.equal((await fetch(`${base}/api/gaps/sir-fruit/compare?banner=all&from=2026-08-31&to=2026-09-09`, {headers: staff})).status, 200);
+  assert.equal((await fetch(`${base}/api/gaps/sir-fruit/uploads`, {headers: staff})).status, 403);
   // Workbooks over the 1 MB API limit still upload (padding past the end of the zip is ignored by Excel readers).
   const big = Buffer.concat([await workbook(), Buffer.alloc(1.5 * 1024 * 1024)]);
   const res = await fetch(`${base}/api/gaps/sir-fruit/preview`, {method: 'POST', headers: admin, body: JSON.stringify({fileName: 'big.xlsx', data: big.toString('base64')})});

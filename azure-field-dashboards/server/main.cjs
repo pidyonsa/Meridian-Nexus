@@ -25,11 +25,13 @@ const ADMIN_ROLE = 'Nexus.Admin';
 const WORKSPACE_ROUTE = /^\/(?:modules\/[a-z-]{2,40}\/?)?$/;
 // Sections (server/access.cjs in azure-portal): admins open everything; everyone else Syndicated Attendance and
 // Franchise Orders only (user decision, 23 October 2026).
-const ALL_SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'gaps', 'automation', 'etls', 'resources', 'chat', 'support', 'admin'];
-// Client gap trackers (Sir Fruit): workspace pages and API, Nexus.Admin only for now (not in everyoneMayOpen).
+const ALL_SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'gaps', 'gaps-upload', 'automation', 'etls', 'resources', 'chat', 'support', 'admin'];
+// Client gap trackers (Sir Fruit): every Meridian account may view (user decision, 24 October 2026); uploading and the
+// upload history stay Nexus.Admin only.
 const GAP_PAGES = /^\/insights\/sir-fruit(?:\/upload)?\/?$/;
-const STAFF_SECTIONS = ['attendance', 'franchiseorder'];
-const everyoneMayOpen = (req, assets) => WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
+const GAP_VIEW = /^\/(?:insights\/sir-fruit\/?|api\/gaps\/sir-fruit(?:\/(?:compare|export))?)$/;
+const STAFF_SECTIONS = ['attendance', 'franchiseorder', 'gaps'];
+const everyoneMayOpen = (req, assets) => (GAP_VIEW.test(req.path) && ['GET', 'HEAD'].includes(req.method)) || WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
 
 // Microsoft sign-in is done by App Service Authentication (Entra ID, Meridian tenant). It passes the signed-in
 // user in X-MS-CLIENT-PRINCIPAL and strips that header from incoming requests, so a caller cannot supply it.
@@ -105,12 +107,12 @@ function createApp({gapStore = null, fetchImpl = fetch, functionsFetch = fetch, 
   });
   app.get(WORKSPACE_ROUTE, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
   app.get(GAP_PAGES, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
-  // Gap trackers (code shared with the Nexus portal, server/shared/). Admin-only: the sign-in check above already
-  // refuses everyone else; allow() repeats it so the API is safe on its own.
+  // Gap trackers (code shared with the Nexus portal, server/shared/). Viewing: any signed-in Meridian account;
+  // uploads: Nexus.Admin. The sign-in check above already enforces this; allow() repeats it so the API is safe alone.
   const {gapRoutes} = require('./shared/gap/routes.cjs');
   const {AppError} = require('./shared/errors.cjs');
   const store = gapStore || (require('./shared/db.cjs').sqlConfig() ? require('./shared/gap/store.cjs').sqlGapStore(() => require('./shared/db.cjs').pool()) : require('./shared/gap/store.cjs').memoryGapStore());
-  gapRoutes({store, allow: req => Boolean(signedInUser(req)?.admin), who: req => signedInUser(req)?.name || 'unknown'})(app);
+  gapRoutes({store, allow: (req, kind) => { const user = signedInUser(req); return Boolean(user && (kind === 'view' || user.admin)); }, who: req => signedInUser(req)?.name || 'unknown'})(app);
   app.use('/api/gaps', (error, req, res, next) => {
     if (res.headersSent) return next(error);
     if (error instanceof AppError) return res.status(error.status).json({error: {code: error.code, message: error.message}});

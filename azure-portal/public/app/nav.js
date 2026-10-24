@@ -32,7 +32,7 @@ export const MODULES = [
   ]},
   {id: 'insights', label: 'Insights', icon: 'chart', tone: 'green', blurb: 'Client insights: distribution gaps, sales and range performance.', tools: [
     {id: 'sirfruit-gaps', label: 'Sir Fruit distribution gaps', desc: "Weekly No gap, Opportunity and Lost by store and product for PnP Family, Dis-Chem and Food Lover's Market, and what converted.", section: 'gaps', path: '/insights/sir-fruit'},
-    {id: 'sirfruit-upload', label: 'Upload Sir Fruit gap report', desc: "Back office: upload the client's weekly workbook, check it, then save.", section: 'gaps', path: '/insights/sir-fruit/upload', manage: true}
+    {id: 'sirfruit-upload', label: 'Upload Sir Fruit gap report', desc: "Back office: upload the client's weekly workbook, check it, then save.", section: 'gaps-upload', path: '/insights/sir-fruit/upload'}
   ]},
   {id: 'learn', label: 'Learn', icon: 'cap', tone: 'violet', blurb: 'Learning completion and pass rates for the field team.', tools: [
     {id: 'training', label: 'Training hub', desc: 'LMS completion and pass rates by module, region and manager.', section: 'training', path: '/training', old: '#training'}

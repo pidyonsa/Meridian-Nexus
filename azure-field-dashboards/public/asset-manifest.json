@@ -203,7 +203,7 @@
     },
     {
       "path": "app/nav.js",
-      "sha256": "71dbb5b4169017a85364cede179962bdc4ec2f709f8914fa277d55fbc51a60bc",
+      "sha256": "c5eab9a18e068a9ccceae7809e81ec99514a469f081dac3072382266f9917c9f",
       "adapter": "nexus-workspace"
     },
     {
@@ -213,7 +213,7 @@
     },
     {
       "path": "app/updates.js",
-      "sha256": "30a15b0ca47797061cdeec80b3f0e1805b450f4cc3dc3e3a30892d50b95dc0f2",
+      "sha256": "d0ae02a1093604269d114b80237189da196b64514237e0e6c408397daad779c4",
       "adapter": "nexus-workspace"
     },
     {

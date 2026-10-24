@@ -95,7 +95,7 @@ test('Nexus workspace: home and module pages for every Meridian account; section
     assert.ok(!/fonts\.googleapis|fonts\.gstatic/.test(html), 'no third-party fonts');
   }
   const staff = await (await get('/api/me', {headers: as([])})).json();
-  assert.deepEqual(staff.sections, ['attendance', 'franchiseorder']);
+  assert.deepEqual(staff.sections, ['attendance', 'franchiseorder', 'gaps']);
   assert.equal(staff.admin, false); assert.equal(staff.email, 'someone@meridiangroup.co.za'); assert.equal(staff.name, 'Test User');
   const admin = await (await get('/api/me', {headers: as(['Nexus.Admin'])})).json();
   assert.equal(admin.admin, true); assert.ok(admin.sections.includes('admin') && admin.sections.includes('automation'));
@@ -107,9 +107,14 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'sirfruit-gaps', 'sirfruit-upload'\]/);
 });
 
-test('Sir Fruit gap tracker: Nexus.Admin only; admins upload and read', async t => {
+test('Sir Fruit gap tracker: everyone views; only Nexus.Admin uploads', async t => {
   const get = await nexusHost(t);
-  for (const route of ['/insights/sir-fruit', '/insights/sir-fruit/upload', '/api/gaps/sir-fruit']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  for (const route of ['/insights/sir-fruit', '/api/gaps/sir-fruit']) assert.equal((await get(route, {headers: as([])})).status, 200, route);
+  for (const route of ['/insights/sir-fruit/upload', '/api/gaps/sir-fruit/uploads']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  assert.equal((await get('/api/gaps/sir-fruit', {headers: {}})).status, 401);
+  assert.equal((await (await get('/api/gaps/sir-fruit', {headers: as([])})).json()).manage, false);
+  assert.ok((await (await get('/api/me', {headers: as([])})).json()).sections.includes('gaps'));
+  assert.ok(!(await (await get('/api/me', {headers: as([])})).json()).sections.includes('gaps-upload'));
   assert.equal((await get('/insights/sir-fruit/upload', {headers: as(['Nexus.Admin'])})).status, 200);
   const empty = await (await get('/api/gaps/sir-fruit', {headers: as(['Nexus.Admin'])})).json();
   assert.equal(empty.manage, true); assert.ok(empty.banners.every(b => !b.weeks.length));
@@ -120,8 +125,9 @@ test('Sir Fruit gap tracker: Nexus.Admin only; admins upload and read', async t 
   assert.equal(saved.status, 200);
   const staffUpload = await get('/api/gaps/sir-fruit/upload', {method: 'POST', headers: {...as([]), 'content-type': 'application/json'}, body});
   assert.equal(staffUpload.status, 403);
-  const r = await (await get('/api/gaps/sir-fruit/compare?banner=PnP%20Family&from=2026-08-31&to=2026-09-09', {headers: as(['Nexus.Admin'])})).json();
+  const r = await (await get('/api/gaps/sir-fruit/compare?banner=PnP%20Family&from=2026-08-31&to=2026-09-09', {headers: as([])})).json();
   assert.equal(r.metrics.converted, 1);
+  assert.equal((await get('/api/gaps/sir-fruit/export?banner=all&from=2026-08-31&to=2026-09-09', {headers: as([])})).status, 200);
   const bad = await get('/api/gaps/sir-fruit/compare?banner=PnP%20Family&from=x&to=y', {headers: as(['Nexus.Admin'])});
   assert.equal(bad.status, 400); assert.match((await bad.json()).error.message, /Choose two weeks/);
 });
