@@ -26,10 +26,12 @@ const WORKSPACE_ROUTE = /^\/(?:modules\/[a-z-]{2,40}\/?)?$/;
 // Sections (server/access.cjs in azure-portal): admins open everything; everyone else Syndicated Attendance and
 // Franchise Orders only (user decision, 23 October 2026).
 const ALL_SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'gaps', 'gaps-upload', 'automation', 'etls', 'resources', 'chat', 'support', 'admin'];
-// Client gap trackers (Sir Fruit): every Meridian account may view (user decision, 24 October 2026); uploading and the
-// upload history stay Nexus.Admin only.
-const GAP_PAGES = /^\/insights\/sir-fruit(?:\/upload)?\/?$/;
-const GAP_VIEW = /^\/(?:insights\/sir-fruit\/?|api\/gaps\/sir-fruit(?:\/(?:compare|export))?)$/;
+// Client gap trackers (any client): every Meridian account may view (user decision, 24 October 2026); adding
+// clients, uploading and the upload history stay Nexus.Admin only.
+const GAP_PAGES = /^\/(?:gap-tracker(?:\/[a-z0-9-]{2,60})?|admin\/gap-upload)\/?$/;
+const GAP_VIEW = /^\/(?:gap-tracker(?:\/[a-z0-9-]{2,60})?\/?|api\/gaps(?:\/[a-z0-9-]{2,60}(?:\/(?:compare|detail|export))?)?)$/;
+// The tracker briefly lived under Insights (23-24 October 2026); old links keep working.
+const GAP_MOVED = {'/insights/sir-fruit': '/gap-tracker/sir-fruit', '/insights/sir-fruit/upload': '/admin/gap-upload'};
 const STAFF_SECTIONS = ['attendance', 'franchiseorder', 'gaps'];
 const everyoneMayOpen = (req, assets) => (GAP_VIEW.test(req.path) && ['GET', 'HEAD'].includes(req.method)) || WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
 
@@ -85,6 +87,7 @@ function createApp({gapStore = null, fetchImpl = fetch, functionsFetch = fetch, 
     });
     next();
   });
+  app.get(Object.keys(GAP_MOVED), (req, res) => res.redirect(301, GAP_MOVED[req.path]));
   // Everything except the App Service health check needs a signed-in Meridian user. App Service Authentication sends
   // signed-out visitors to Microsoft sign-in and passes signed-in users in X-MS-CLIENT-PRINCIPAL. This also holds if
   // platform sign-in is switched off or set to allow anonymous requests: signed-out page and file requests go to

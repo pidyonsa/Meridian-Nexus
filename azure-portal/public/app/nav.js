@@ -30,14 +30,18 @@ export const MODULES = [
       {label: 'Stores', path: '/franchise-orders/stores'}, {label: 'Reps', path: '/franchise-orders/reps'}, {label: 'Order detail', path: '/franchise-orders/orders'}]},
     {id: 'geo-portal', label: 'Open Geo Portal', desc: 'Sign in to the Geo portal for live coverage, routes and check-ins.', external: 'https://meridian.georep.com/portal/'}
   ]},
-  {id: 'insights', label: 'Insights', icon: 'chart', tone: 'green', blurb: 'Client insights: distribution gaps, sales and range performance.', tools: [
-    {id: 'sirfruit-gaps', label: 'Sir Fruit distribution gaps', navLabel: 'Sir Fruit gap tracker', desc: "Weekly No gap, Opportunity and Lost by store and product for PnP Family, Dis-Chem and Food Lover's Market, and what converted.", section: 'gaps', path: '/insights/sir-fruit'},
-    {id: 'sirfruit-upload', label: 'Upload Sir Fruit gap report', navLabel: 'Upload gap report', desc: "Back office: upload the client's weekly workbook, check it, then save.", section: 'gaps-upload', path: '/insights/sir-fruit/upload'}
+  {id: 'insights', label: 'Insights', icon: 'chart', tone: 'green', dev: true, blurb: 'Sales intelligence across clients, regions and products.'},
+  // `home`: the module opens this tool directly (no module page). Its clients are listed in the side menu.
+  {id: 'gap-tracker', label: 'Gap tracker', icon: 'target', tone: 'orange', home: 'gaps', blurb: 'Client distribution gaps by banner, store and product: what converted, what was won back and what dropped out.', tools: [
+    {id: 'gaps', label: 'Distribution gaps', desc: 'Weekly No gap, Opportunity and Lost by store and product for every client, and what converted.', section: 'gaps', path: '/gap-tracker', prefix: true}
   ]},
   {id: 'learn', label: 'Learn', icon: 'cap', tone: 'violet', blurb: 'Learning completion and pass rates for the field team.', tools: [
     {id: 'training', label: 'Training hub', desc: 'LMS completion and pass rates by module, region and manager.', section: 'training', path: '/training', old: '#training'}
   ]},
-  {id: 'stockfix', label: 'StockFix', icon: 'box', tone: 'orange', separate: true, blurb: 'Out-of-stock fixes and field tasks.', note: 'StockFix runs in its own StockFix workspace and is not part of the Nexus move.'},
+  // StockFix is its own app (own sign-in); Nexus links to it (user decision, 24 October 2026).
+  {id: 'stockfix', label: 'StockFix', icon: 'box', tone: 'orange', home: 'stockfix-app', blurb: 'Out-of-stock fixes, adoption and field tasks.', tools: [
+    {id: 'stockfix-app', label: 'StockFix', desc: 'Adoption, out-of-stock fixes and field tasks in the StockFix app.', external: 'https://stock-fix.replit.app/adoption/', action: 'Open StockFix'}
+  ]},
   {id: 'sales', label: 'Sales dashboard', icon: 'bars', tone: 'blue', blurb: 'Review current-month Geo Rep orders by region, rep, store and product.', tools: [
     {id: 'sales', label: 'Sales dashboard', desc: 'Month-to-date Geo Rep orders with drilldowns and reconciliation.', section: 'sales', path: '/sales', old: '#sales'}
   ]},
@@ -48,11 +52,25 @@ export const MODULES = [
   {id: 'admin', label: 'Admin', icon: 'bank', tone: 'orange', blurb: 'Manage extraction profile connections, extraction steps and secure access.', tools: [
     {id: 'admin-overview', label: 'Migration health', desc: 'Firestore to Azure sync status and recent runs.', section: 'admin', path: '/admin'},
     {id: 'admin-users', label: 'Users', desc: 'Who can open what in Nexus.', section: 'admin', path: '/admin/users'},
+    {id: 'gap-upload', label: 'Upload gap report', desc: "Upload a client's weekly gap workbook (or add a new client), check it, then save.", section: 'gaps-upload', path: '/admin/gap-upload'},
     {id: 'admin-jobs', label: 'Jobs and schedules', desc: 'Live and historical extraction runs, schedules and reliability alerts.', section: 'admin', path: '/admin/jobs', old: '#admin'},
     {id: 'admin-profiles', label: 'Extraction profiles', desc: 'Portal connections, credentials and workflow steps.', section: 'admin', path: '/admin/profiles', old: '#admin'},
     {id: 'resources', label: 'Resources', desc: 'Shared reference files and templates.', section: 'resources', path: '/resources', old: '#resources'}
   ]}
 ];
+
+// Where a module opens: straight into its home tool when it has one (an outside app opens in a new tab), otherwise
+// its module page. Returns a link like toolLink().
+export function moduleLink(module, sections) {
+  const tool = module.home && module.tools.find(t => t.id === module.home);
+  if (tool?.external) return {href: tool.external, newTab: true};
+  return tool && toolState(tool, sections) === 'available' ? {href: tool.path, spa: true} : {href: `/modules/${module.id}`, spa: true};
+}
+
+// <a> attributes for a link: workspace route, full page on this site, or a new tab for other sites.
+export function anchorAttrs(link) {
+  return link.spa ? {href: link.href, 'data-link': true} : link.newTab ? {href: link.href, target: '_blank', rel: 'noopener'} : {href: link.href};
+}
 
 // Where a tool (or one of its pages) opens: inside the workspace (spa), as its own page on this site, or on the
 // current Nexus. `newTab` only for other sites.
@@ -91,7 +109,7 @@ export function locate(path) {
     if (!tool.path) continue;
     const page = tool.pages?.find(p => p.path === path);
     const base = tool.path.split('/').slice(0, 2).join('/');
-    if (page || path === tool.path || (tool.pages && path.startsWith(`${base}/`))) return {module, tool, page: page || null};
+    if (page || path === tool.path || (tool.pages && path.startsWith(`${base}/`)) || (tool.prefix && path.startsWith(`${tool.path}/`))) return {module, tool, page: page || null};
   }
   return null;
 }

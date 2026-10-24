@@ -8,14 +8,14 @@ const crypto = require('node:crypto');
 const {pool, close} = require('../server/db.cjs');
 const {parseWorkbook, summarise} = require('../server/gap/parse.cjs');
 const {sqlGapStore} = require('../server/gap/store.cjs');
-const {CLIENTS} = require('../server/gap/routes.cjs');
 
 async function main() {
   const [client, file, uploadedBy] = process.argv.slice(2).filter(a => !a.startsWith('--'));
-  if (!CLIENTS[client] || !file || !uploadedBy) throw new Error('Usage: load-gap-report.cjs <client> <file.xlsx> <uploaded by> [--apply]');
+  if (!client || !file || !uploadedBy) throw new Error('Usage: load-gap-report.cjs <client> <file.xlsx> <uploaded by> [--apply]');
   const buffer = fs.readFileSync(file);
   const parsed = await parseWorkbook(buffer);
   const store = sqlGapStore(() => pool());
+  if (!(await store.clients()).some(c => c.id === client)) throw new Error('Unknown client: ' + client + ' (add it in Nexus first).');
   const existing = new Set((await store.existingWeeks(client)).map(w => `${w.banner}|${w.week}`));
   const summary = summarise(parsed);
   for (const b of summary.banners) for (const w of b.weeks) w.action = existing.has(`${b.banner}|${w.week}`) ? 'replace' : 'new';

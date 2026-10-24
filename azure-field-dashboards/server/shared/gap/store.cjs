@@ -34,6 +34,26 @@ function sqlGapStore(getPool) {
         throw error;
       }
     },
+    async clients() {
+      const r = await (await getPool()).request().query('SELECT id, label, colors FROM dbo.gap_clients WHERE active = 1 ORDER BY label');
+      return r.recordset.map(c => ({id: c.id, label: c.label, colors: c.colors ? JSON.parse(c.colors) : null}));
+    },
+    async createClient({id, label, createdBy}) {
+      await (await getPool()).request().input('i', sql.NVarChar(60), id).input('l', sql.NVarChar(120), label).input('u', sql.NVarChar(320), createdBy)
+        .query('INSERT dbo.gap_clients (id, label, created_by) VALUES (@i, @l, @u)');
+      return {id, label, colors: null};
+    },
+    async setColors(id, colors) {
+      await (await getPool()).request().input('i', sql.NVarChar(60), id).input('c', sql.NVarChar(sql.MAX), JSON.stringify(colors)).query('UPDATE dbo.gap_clients SET colors = @c WHERE id = @i');
+    },
+    // Raw store x product rows for some weeks of a client (all banners when banner is null).
+    async observations(client, banner, weeks) {
+      if (!weeks.length) return [];
+      const r = await (await getPool()).request().input('c', sql.NVarChar(60), client).input('b', sql.NVarChar(60), banner).input('w', sql.NVarChar(sql.MAX), JSON.stringify(weeks)).query(`
+        SELECT banner, CONVERT(char(10), week, 23) AS week, store_key, store, region, product, status FROM dbo.gap_observations
+        WHERE client = @c AND (@b IS NULL OR banner = @b) AND week IN (SELECT CONVERT(date, value) FROM OPENJSON(@w))`);
+      return r.recordset;
+    },
     async existingWeeks(client) {
       const r = await (await getPool()).request().input('c', sql.NVarChar(60), client).query('SELECT DISTINCT banner, CONVERT(char(10), week, 23) AS week FROM dbo.gap_observations WHERE client = @c');
       return r.recordset;
@@ -75,7 +95,12 @@ function memoryGapStore() {
   const obs = new Map(), uploads = [];
   const key = r => [r.client, r.banner, r.week, r.store_key, r.product].join('|');
   const where = (client, banner, week) => [...obs.values()].filter(r => r.client === client && (!banner || r.banner === banner) && (!week || r.week === week));
+  const clients = new Map([['sir-fruit', {id: 'sir-fruit', label: 'Sir Fruit', colors: null}]]);
   return {
+    async clients() { return [...clients.values()].sort((a, b) => a.label.localeCompare(b.label)); },
+    async createClient({id, label}) { if (clients.has(id)) throw Object.assign(new Error('duplicate'), {number: 2627}); const c = {id, label, colors: null}; clients.set(id, c); return c; },
+    async setColors(id, colors) { if (clients.has(id)) clients.get(id).colors = colors; },
+    async observations(client, banner, weeks) { return where(client, banner).filter(r => weeks.includes(r.week)).map(({banner: b, week, store_key, store, region, product, status}) => ({banner: b, week, store_key, store, region, product, status})); },
     async save({client, fileName, sha256, uploadedBy, parsed, summary}) {
       const id = uploads.length + 1;
       uploads.unshift({id, fileName, uploadedAt: new Date(), uploadedBy, summary, sha256});

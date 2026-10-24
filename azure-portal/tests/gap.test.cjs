@@ -64,8 +64,44 @@ test('a week that repeats the previous one is flagged', async () => {
 test('bad files are refused with a clear reason', async () => {
   await assert.rejects(parseWorkbook(Buffer.from('not a workbook')), /not an Excel/);
   const wb = new ExcelJS.Workbook(); wb.addWorksheet('Sheet1').addRow(['x']);
-  await assert.rejects(parseWorkbook(Buffer.from(await wb.xlsx.writeBuffer())), /No PnP Family, Dis-Chem/);
+  await assert.rejects(parseWorkbook(Buffer.from(await wb.xlsx.writeBuffer())), /No sheet with a Date \/ Store/);
 });
+
+test('detail: distribution, change, persistent gaps and concentration', () => {
+  const {detail} = require('../server/gap/report.cjs');
+  const row = (week, store, product, status, region = 'G') => ({banner: 'B', week, store_key: store.toLowerCase(), store, region, product, status});
+  const history = [row('w1', 'A', 'p', 'O'), row('w2', 'A', 'p', 'O'), row('w3', 'A', 'p', 'L'), row('w1', 'B', 'p', 'L'), row('w2', 'B', 'p', 'N'), row('w3', 'B', 'p', 'O'), row('w3', 'C', 'p', 'N'), row('w2', 'C', 'p', 'N')];
+  const d = detail({rows: history.filter(r => r.week === 'w3'), prevRows: history.filter(r => r.week === 'w2'), history, weeks: ['w1', 'w2', 'w3']});
+  assert.equal(d.summary.distribution, 1 / 3); assert.equal(d.summary.previous, 2 / 3);
+  assert.deepEqual(d.persistent.map(p => [p.store, p.weeks, p.always]), [['A', 3, true]]);   // B reopened after a no-gap week
+  assert.equal(d.summary.fullyRanged, 1); assert.equal(d.summary.concentration.topStores, 1);
+});
+
+test('rates: conversion, recovery and loss over what was compared', () => {
+  const {rates} = require('../server/gap/report.cjs');
+  const r = rates({N: {N: 8, O: 1, L: 1}, O: {N: 3, O: 1, L: 0}, L: {N: 1, O: 0, L: 1}}, 16);
+  assert.equal(r.conversion, 3 / 4); assert.equal(r.recovery, 1 / 2); assert.equal(r.loss, 1 / 10); assert.equal(r.distributionBefore, 10 / 16); assert.equal(r.distributionAfter, 12 / 16);
+});
+
+test('clients: list, add (admins only, no duplicates); other sheets become banners; colours are kept', () => serve(async (base, store) => {
+  const admin = {'x-ms-client-principal': principal(['Nexus.Admin']), 'content-type': 'application/json'};
+  const staff = {'x-ms-client-principal': principal(['Nexus.Reader']), 'content-type': 'application/json'};
+  assert.deepEqual((await (await fetch(`${base}/api/gaps`, {headers: staff})).json()).clients.map(c => c.id), ['sir-fruit']);
+  assert.equal((await fetch(`${base}/api/gaps/clients`, {method: 'POST', headers: staff, body: JSON.stringify({label: 'Acme Juice'})})).status, 403);
+  const made = await (await fetch(`${base}/api/gaps/clients`, {method: 'POST', headers: admin, body: JSON.stringify({label: 'Acme Juice'})})).json();
+  assert.equal(made.id, 'acme-juice');
+  assert.equal((await fetch(`${base}/api/gaps/clients`, {method: 'POST', headers: admin, body: JSON.stringify({label: 'ACME juice'})})).status, 409);
+  const wb = new ExcelJS.Workbook(), ws = wb.addWorksheet('Spar Gap Tracker');
+  ws.addRows([['Date', 'Store', 'JUICE'], ['31.08.2026', 'Spar One', 'No gap'], ['09.09.2026', 'Spar One', 'Lost']]);
+  ws.getCell('C2').fill = {type: 'pattern', pattern: 'solid', fgColor: {argb: 'FF00A650'}};
+  ws.getCell('C3').fill = {type: 'pattern', pattern: 'solid', fgColor: {argb: 'FFC00000'}};
+  const body = JSON.stringify({fileName: 'acme.xlsx', data: Buffer.from(await wb.xlsx.writeBuffer()).toString('base64')});
+  const saved = await (await fetch(`${base}/api/gaps/acme-juice/upload`, {method: 'POST', headers: admin, body})).json();
+  assert.deepEqual(saved.banners.map(b => b.banner), ['Spar']);
+  const overview = await (await fetch(`${base}/api/gaps/acme-juice`, {headers: staff})).json();
+  assert.deepEqual(overview.colors, {N: '#00A650', L: '#C00000'}); assert.equal(overview.label, 'Acme Juice');
+  assert.equal((await fetch(`${base}/api/gaps/nobody`, {headers: staff})).status, 404);
+}));
 
 test('movements: only pairs in both weeks count; the three tracked moves and net are right', () => {
   const r = compare([
@@ -122,6 +158,11 @@ test('upload flow: preview, save, overview, compare, export; staff cannot upload
   // Staff view and export, but never see the upload history.
   assert.equal((await fetch(`${base}/api/gaps/sir-fruit/compare?banner=all&from=2026-08-31&to=2026-09-09`, {headers: staff})).status, 200);
   assert.equal((await fetch(`${base}/api/gaps/sir-fruit/uploads`, {headers: staff})).status, 403);
+  // Week in depth: product / region / store distribution, heatmap and persistence.
+  const d = await (await fetch(`${base}/api/gaps/sir-fruit/detail?banner=Dis-Chem&week=2026-09-09`, {headers: staff})).json();
+  assert.equal(d.previousWeek, '2026-08-31'); assert.equal(d.summary.stores, 3);
+  assert.ok(d.products.every(p => p.distribution >= 0 && p.distribution <= 1));
+  assert.deepEqual(d.heatmap.columns.sort(), ['Gauteng', 'Not given']);
   // Workbooks over the 1 MB API limit still upload (padding past the end of the zip is ignored by Excel readers).
   const big = Buffer.concat([await workbook(), Buffer.alloc(1.5 * 1024 * 1024)]);
   const res = await fetch(`${base}/api/gaps/sir-fruit/preview`, {method: 'POST', headers: admin, body: JSON.stringify({fileName: 'big.xlsx', data: big.toString('base64')})});

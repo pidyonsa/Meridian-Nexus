@@ -12,6 +12,8 @@ const BANNERS = [
   {banner: 'Dis-Chem', test: /dis-?\s*chem/i},
   {banner: "Food Lover's Market", test: /\bflm\b|food\s*lover/i}
 ];
+// Any other sheet with a Date/Store header is a banner named after the sheet, e.g. "Spar Gap Tracker" -> "Spar".
+const bannerFromSheet = name => clean(name.replace(/\b(gap|gaps|matrix|tracker|report|sheet|\d+\s*ml)\b/gi, ' ').replace(/[-_]+/g, ' ')) || clean(name);
 const STATUS = {'no gap': 'N', 'nogap': 'N', opportunity: 'O', opportunities: 'O', lost: 'L', loss: 'L'};
 
 const clean = value => String(value ?? '').replace(/\s+/g, ' ').trim();
@@ -76,7 +78,8 @@ function readSheet(ws, banner) {
     seenNames.add(lower);
   }
 
-  const weeks = new Map(), unknown = new Map();
+  const weeks = new Map(), unknown = new Map(), fills = {N: new Map(), O: new Map(), L: new Map()};
+  const fillOf = (r, c) => { const f = ws.getRow(r).getCell(c).fill; const argb = f && f.type === 'pattern' && f.pattern === 'solid' ? f.fgColor?.argb : null; return argb && /^[0-9A-F]{8}$/i.test(argb) ? `#${argb.slice(2).toUpperCase()}` : null; };
   let blanks = 0, badDates = 0, noRegion = 0;
   for (let r = headerRow + 1; r <= rowCount; r++) {
     const row = cells(r);
@@ -97,6 +100,8 @@ function readSheet(ws, banner) {
       const status = STATUS[raw.toLowerCase()];
       if (!status) { unknown.set(raw, (unknown.get(raw) || 0) + 1); continue; }
       statuses[p.name] = status;
+      const fill = fillOf(r, p.i + 1);
+      if (fill) fills[status].set(fill, (fills[status].get(fill) || 0) + 1);
     }
     stores.set(key, {store, region, statuses});
   }
@@ -104,7 +109,8 @@ function readSheet(ws, banner) {
   for (const [value, n] of unknown) warnings.push(`${ws.name}: ${n} cell(s) with "${value.slice(0, 40)}" were skipped (expected No gap, Opportunity or Lost).`);
   if (noRegion) warnings.push(`${ws.name}: ${noRegion} row(s) have no region (#N/A); shown as Not given.`);
   if (!weeks.size) throw new AppError('invalid-argument', `${ws.name}: no weekly rows found under the header.`);
-  return {banner, sheet: ws.name, hasRegion, products: products.map(p => p.name), weeks, blanks, warnings};
+  const top = map => [...map].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  return {banner, sheet: ws.name, hasRegion, products: products.map(p => p.name), weeks, blanks, warnings, colors: {N: top(fills.N), O: top(fills.O), L: top(fills.L)}};
 }
 
 // Buffer -> {banners: [{banner, sheet, products, weeks: Map(week -> Map(storeKey -> {store, region, statuses}))}], warnings}
@@ -118,11 +124,16 @@ async function parseWorkbook(buffer) {
   const banners = [], warnings = [], seen = new Set();
   for (const ws of wb.worksheets) {
     if (ws.state && ws.state !== 'visible') continue;
-    const match = BANNERS.find(b => b.test.test(ws.name));
-    if (!match) { warnings.push(`Sheet "${ws.name}" was ignored (not a known banner).`); continue; }
-    if (seen.has(match.banner)) throw new AppError('invalid-argument', `Two sheets look like ${match.banner}; keep one.`);
-    seen.add(match.banner);
-    const sheet = readSheet(ws, match.banner);
+    const known = BANNERS.find(b => b.test.test(ws.name));
+    const banner = known ? known.banner : bannerFromSheet(ws.name);
+    let sheet;
+    try { sheet = readSheet(ws, banner); } catch (error) {
+      // A sheet without the Date / Store layout is notes or a summary, not a banner.
+      if (!known && error instanceof AppError && /no header row|second column/.test(error.message)) { warnings.push(`Sheet "${ws.name}" was ignored (no Date / Store table).`); continue; }
+      throw error;
+    }
+    if (seen.has(banner)) throw new AppError('invalid-argument', `Two sheets look like ${banner}; keep one.`);
+    seen.add(banner);
     banners.push(sheet);
     warnings.push(...sheet.warnings);
     // A week that repeats the previous week cell for cell usually means the client re-sent old data.
@@ -132,13 +143,20 @@ async function parseWorkbook(buffer) {
       if (fingerprint(ordered[i][1]) === fingerprint(ordered[i - 1][1])) warnings.push(`${sheet.banner}: week ${ordered[i][0]} is identical to ${ordered[i - 1][0]} for every store and product. The client may have repeated the previous week's data.`);
     }
   }
-  if (!banners.length) throw new AppError('invalid-argument', 'No PnP Family, Dis-Chem or Food Lover\'s Market sheet was found.');
-  return {banners, warnings};
+  if (!banners.length) throw new AppError('invalid-argument', 'No sheet with a Date / Store gap table was found.');
+  // The client's own status colours: the most common fill per status across all sheets.
+  const colors = {};
+  for (const st of ['N', 'O', 'L']) {
+    const votes = new Map();
+    for (const b of banners) if (b.colors[st]) votes.set(b.colors[st], (votes.get(b.colors[st]) || 0) + 1);
+    colors[st] = [...votes].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  }
+  return {banners, warnings, colors};
 }
 
 // A compact, JSON-safe summary for previews and the upload record.
 function summarise(parsed) {
-  return {banners: parsed.banners.map(b => ({banner: b.banner, sheet: b.sheet, products: b.products.length, blanks: b.blanks,
+  return {colors: parsed.colors || {}, banners: parsed.banners.map(b => ({banner: b.banner, sheet: b.sheet, products: b.products.length, blanks: b.blanks,
     weeks: [...b.weeks].sort(([a], [c]) => a.localeCompare(c)).map(([week, stores]) => {
       const counts = {N: 0, O: 0, L: 0};
       for (const s of stores.values()) for (const st of Object.values(s.statuses)) counts[st]++;

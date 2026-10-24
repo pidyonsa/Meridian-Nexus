@@ -1,5 +1,5 @@
 import {h, icon} from '../ui.js';
-import {MODULES, moduleState} from '../nav.js';
+import {MODULES, moduleState, moduleLink, anchorAttrs} from '../nav.js';
 import {UPDATES} from '../updates.js';
 import {openPalette} from '../main.js';
 
@@ -36,7 +36,7 @@ export async function renderHome(main, {user, sections}) {
     h('div.home-grid', {},
       h('section.glass', {'aria-labelledby': 'modulesHeading'},
         h('h2', {id: 'modulesHeading'}, 'Workspace Modules'),
-        h('div.module-grid', {}, MODULES.map((m, i) => h('a.module-card', {href: `/modules/${m.id}`, 'data-link': true},
+        h('div.module-grid', {}, MODULES.map((m, i) => h('a.module-card', anchorAttrs(moduleLink(m, sections)),
           h('div.module-top', {}, tile(m.icon, m.tone), h('strong', {}, m.short || m.label)),
           badge(states[i])
         )))

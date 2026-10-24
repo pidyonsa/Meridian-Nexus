@@ -88,7 +88,7 @@ for (const [from, to] of [['index.html', 'workspace.html'], ...['api.js', 'main.
 }
 const siteConfig = Buffer.from(`// Written by azure-field-dashboards/scripts/build.cjs for nexus.meridiangroup.co.za.
 export const CONFIG = {
-  built: ['attendance', 'franchiseorder', 'sirfruit-gaps', 'sirfruit-upload'],
+  built: ['attendance', 'franchiseorder', 'gaps', 'gap-upload'],
   currentNexus: '/nexus/',
   directLinks: true,
   pageTools: ['attendance', 'franchiseorder']

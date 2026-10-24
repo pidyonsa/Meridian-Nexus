@@ -16,7 +16,7 @@ function toolCard(tool, sections) {
   const s = toolState(tool, sections);
   const top = h('div.tool-top', {}, h('strong', {}, tool.label), s === 'locked' || s === 'restricted' ? h('span.pill.orange.small', {}, icon('lock'), 'Admin only') : s === 'available' ? badge('available') : null);
   if (s === 'link') {
-    return h('a.tool-card', {href: tool.external, target: '_blank', rel: 'noopener'}, top, h('p', {}, tool.desc), h('span.tool-action', {}, 'Open portal', icon('arrow')));
+    return h('a.tool-card', {href: tool.external, target: '_blank', rel: 'noopener'}, top, h('p', {}, tool.desc), h('span.tool-action', {}, tool.action || 'Open portal', icon('external')));
   }
   if (s === 'locked' || s === 'restricted') {
     return h('div.tool-card.locked', {}, top, h('p', {}, tool.desc), h('span.tool-foot', {}, s === 'restricted' ? 'Restricted – admin only' : 'Ask a Nexus administrator for access'));

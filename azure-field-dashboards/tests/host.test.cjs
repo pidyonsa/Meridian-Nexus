@@ -32,10 +32,12 @@ test('serves dashboard deep links with isolated Attendance and Franchise sidebar
     assert.match(response.headers.get('content-security-policy'), /frame-ancestors 'none'/);
     assert.equal(response.headers.get('x-robots-tag'), 'noindex, nofollow, noarchive');
   }
-  // Home goes to the Meridian Nexus landing page on this site.
-  assert.match(html, /<a href="\/" data-portal-home>/);
+  // "Home" goes to the existing Nexus portal until every tool is in the Azure Nexus (user decision, 24 October 2026);
+  // the Meridian Nexus brand opens the Azure Nexus workspace on this site.
+  const portal = 'https://meridian-group-za.github.io/Meridian-Nexus/portal.html';
+  assert.ok(html.includes(`<a href="${portal}" data-portal-home>`) && html.includes(`<a href="${portal}" data-attendance-home>`));
   assert.match(html, /<a class="orders-brand" href="\/"/);
-  assert.doesNotMatch(html, /github\.io/);
+  assert.equal((html.match(/github\.io/g) || []).length, 2);
   assert.match(html, /<aside id="attendance-sidebar"[^>]*hidden/);
   assert.match(html, /id="attendance-nav-toggle"/);
   assert.match(html, /id="report-tabs"/);

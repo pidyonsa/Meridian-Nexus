@@ -104,18 +104,24 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
   // The site config sends tools that have not moved to the full Nexus on this site.
   const config = await (await get('/app/config.js', {headers: as([])})).text();
-  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'sirfruit-gaps', 'sirfruit-upload'\]/);
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload'\]/);
 });
 
 test('Sir Fruit gap tracker: everyone views; only Nexus.Admin uploads', async t => {
   const get = await nexusHost(t);
-  for (const route of ['/insights/sir-fruit', '/api/gaps/sir-fruit']) assert.equal((await get(route, {headers: as([])})).status, 200, route);
-  for (const route of ['/insights/sir-fruit/upload', '/api/gaps/sir-fruit/uploads']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  for (const route of ['/gap-tracker', '/gap-tracker/sir-fruit', '/api/gaps', '/api/gaps/sir-fruit']) assert.equal((await get(route, {headers: as([])})).status, 200, route);
+  // Adding clients is for admins only.
+  assert.equal((await get('/api/gaps/clients', {method: 'POST', headers: {...as([]), 'content-type': 'application/json'}, body: '{"label":"Acme"}'})).status, 403);
+  for (const route of ['/admin/gap-upload', '/api/gaps/sir-fruit/uploads']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  // Old Insights addresses redirect.
+  for (const [from, to] of [['/insights/sir-fruit', '/gap-tracker/sir-fruit'], ['/insights/sir-fruit/upload', '/admin/gap-upload']]) {
+    const moved = await get(from, {headers: as([])}); assert.equal(moved.status, 301, from); assert.equal(moved.headers.get('location'), to, from);
+  }
   assert.equal((await get('/api/gaps/sir-fruit', {headers: {}})).status, 401);
   assert.equal((await (await get('/api/gaps/sir-fruit', {headers: as([])})).json()).manage, false);
   assert.ok((await (await get('/api/me', {headers: as([])})).json()).sections.includes('gaps'));
   assert.ok(!(await (await get('/api/me', {headers: as([])})).json()).sections.includes('gaps-upload'));
-  assert.equal((await get('/insights/sir-fruit/upload', {headers: as(['Nexus.Admin'])})).status, 200);
+  assert.equal((await get('/admin/gap-upload', {headers: as(['Nexus.Admin'])})).status, 200);
   const empty = await (await get('/api/gaps/sir-fruit', {headers: as(['Nexus.Admin'])})).json();
   assert.equal(empty.manage, true); assert.ok(empty.banners.every(b => !b.weeks.length));
   const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(), ws = wb.addWorksheet('PnP Family Gap Tracker');

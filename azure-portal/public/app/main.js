@@ -1,6 +1,6 @@
 import {h, icon, initials, toast} from './ui.js';
 import {api} from './api.js';
-import {MODULES, locate, moduleState, toolState, toolLink} from './nav.js';
+import {MODULES, locate, moduleState, toolState, toolLink, moduleLink, anchorAttrs} from './nav.js';
 import {renderHome} from './views/home.js';
 import {renderModule, renderLocked} from './views/module.js';
 import {renderAdmin} from './views/admin.js';
@@ -10,7 +10,7 @@ import {renderGaps, renderGapUpload} from './views/gaps.js';
 const $ = id => document.getElementById(id);
 const state = {user: null, sections: new Set(), controller: null};
 // Tools with a page on the Azure portal; the rest show where they still run.
-const TOOL_VIEWS = {'admin-overview': renderAdmin, 'admin-users': renderAdmin, 'sirfruit-gaps': renderGaps, 'sirfruit-upload': renderGapUpload};
+const TOOL_VIEWS = {'admin-overview': renderAdmin, 'admin-users': renderAdmin, gaps: renderGaps, 'gap-upload': renderGapUpload};
 
 async function boot() {
   try {
@@ -41,20 +41,40 @@ function renderChrome() {
     h('p.nav-label', {}, 'Modules'),
     h('ul', {}, MODULES.map(m => {
       const s = moduleState(m, state.sections);
-      // Tools that work on this site are listed by name under their module, one click away.
-      const ready = (m.tools || []).filter(t => toolState(t, state.sections) === 'available');
+      // Tools that work on this site are listed by name under their module, one click away. A module that opens its
+      // home tool directly lists that tool's entries instead (the gap tracker's clients, filled in by loadClients).
+      const ready = (m.tools || []).filter(t => t.id !== m.home && toolState(t, state.sections) === 'available');
+      const link = moduleLink(m, state.sections);
       return h('li', {},
-        h('a.nav-item', {href: `/modules/${m.id}`, 'data-link': true, 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), DOT[s] ? h(`span.dot.${DOT[s]}`, {title: s === 'locked' ? 'Admin only' : s === 'moving' ? 'On the current Nexus' : 'Available'}) : null),
+        h('a.nav-item', {...anchorAttrs(link), 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), link.newTab ? h('span.nav-ext', {title: 'Opens in a new tab'}, icon('external')) : null, DOT[s] ? h(`span.dot.${DOT[s]}`, {title: s === 'locked' ? 'Admin only' : s === 'moving' ? 'On the current Nexus' : 'Available'}) : null),
+        m.home && !link.newTab ? h('ul.nav-tools', {'data-entries': m.id}) : null,
         ready.length ? h('ul.nav-tools', {}, ready.map(t => {
           const link = toolLink(t);
           return h('li', {}, h('a.nav-tool', {...(link.spa ? {href: link.href, 'data-link': true} : {href: link.href}), 'data-tool': t.id}, t.navLabel || t.label));
         })) : null);
     }))
   );
+  if (state.sections.has('gaps')) loadClients();
+}
+
+// Gap tracker clients under the Gap tracker menu item.
+async function loadClients() {
+  try {
+    const {clients} = await api('/gaps');
+    const list = document.querySelector('[data-entries="gap-tracker"]');
+    if (!list) return;
+    list.replaceChildren(...clients.map(c => h('li', {}, h('a.nav-tool', {href: `/gap-tracker/${c.id}`, 'data-link': true, 'data-entry': `/gap-tracker/${c.id}`}, c.label))));
+    highlight(locate(location.pathname));
+  } catch { /* the menu works without the client list */ }
 }
 
 function highlight(found) {
   const active = found?.home ? 'home' : found?.module?.id;
+  for (const el of document.querySelectorAll('[data-entry]')) {
+    const on = location.pathname === el.dataset.entry;
+    el.classList.toggle('active', on);
+    if (on) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+  }
   for (const el of document.querySelectorAll('[data-tool]')) {
     const on = el.dataset.tool === found?.tool?.id;
     el.classList.toggle('active', on);
@@ -85,6 +105,7 @@ async function route() {
       if (s === 'locked' || s === 'restricted') await renderLocked(main, context);
       else await (TOOL_VIEWS[found.tool.id] || renderPending)(main, context);
     }
+    highlight(locate(location.pathname));   // a view may settle on a more specific address (e.g. a client)
     main.focus({preventScroll: true});
   } catch (error) {
     if (error.name === 'AbortError') return;
@@ -105,6 +126,8 @@ document.addEventListener('click', event => {
   navigate(new URL(link.href).pathname);
 });
 addEventListener('popstate', route);
+// A view that settles on a more specific address (e.g. a gap tracker client) asks the menu to follow.
+addEventListener('nexus:location', () => highlight(locate(location.pathname)));
 
 // Mobile drawer.
 function closeDrawer() { $('sidebar').classList.remove('open'); $('scrim').hidden = true; $('menuButton').setAttribute('aria-expanded', 'false'); }
