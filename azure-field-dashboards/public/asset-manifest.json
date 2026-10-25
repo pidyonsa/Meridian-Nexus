@@ -198,12 +198,12 @@
     },
     {
       "path": "app/main.js",
-      "sha256": "e1a485ccf65482acfaf7a73c756d7392ea60823b120d56e1cbcad57e28fcca25",
+      "sha256": "85ff2512fa2483b99f49c86f45bd070fd73d940da0ba280f1be62d3ff06efebf",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/nav.js",
-      "sha256": "290dfd60b46f91cbff77724792e8fa284dd38f51014e3d075477b70f2ee28184",
+      "sha256": "bad5e14f7bc79ba88e0e9dc74841f99737589551f31bdad22583dd1e03ed8e95",
       "adapter": "nexus-workspace"
     },
     {
@@ -228,12 +228,12 @@
     },
     {
       "path": "app/views/home.js",
-      "sha256": "adaca72bbaefb6d140312ef36e3e15e13c79d5b8db184892b4a1643e8d915eea",
+      "sha256": "41d574b6a42e61ef5146e75fe9d658347b6fe393645408e6f2cf7bf5e8a69210",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/views/module.js",
-      "sha256": "51742df9676f84b5b892d078907721e51161b908430253d0f200db10d15d8d62",
+      "sha256": "d9ec5015fac98b718fe3daa34ac55616f14aeb151788965dd45f7f41d3df9b81",
       "adapter": "nexus-workspace"
     },
     {
@@ -243,7 +243,7 @@
     },
     {
       "path": "styles/app.css",
-      "sha256": "fdf75983bac59c09291407e8674f121b1897ce1f42fd3885faca29e1affe0228",
+      "sha256": "9068890bc2f367033563ce2f5b196cbd71d806588550a60adfe443b37cb3be5e",
       "adapter": "nexus-workspace"
     },
     {

@@ -46,7 +46,7 @@ function renderChrome() {
       const ready = (m.tools || []).filter(t => t.id !== m.home && toolState(t, state.sections) === 'available');
       const link = moduleLink(m, state.sections);
       return h('li', {},
-        h('a.nav-item', {...anchorAttrs(link), 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), link.newTab ? h('span.nav-ext', {title: 'Opens in a new tab'}, icon('external')) : null, DOT[s] ? h(`span.dot.${DOT[s]}`, {title: s === 'locked' ? 'Admin only' : s === 'moving' ? 'On the current Nexus' : 'Available'}) : null),
+        h('a.nav-item', {...anchorAttrs(link), 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), link.newTab ? h('span.nav-ext', {title: 'Opens in a new tab'}, icon('external')) : null, (m.dot || DOT[s]) ? h(`span.dot.${m.dot || DOT[s]}`, {title: s === 'adminOnly' || s === 'locked' ? 'Admin only' : 'Available'}) : null),
         m.home && !link.newTab ? h('ul.nav-tools', {'data-entries': m.id}) : null,
         ready.length ? h('ul.nav-tools', {}, ready.map(t => {
           const link = toolLink(t);

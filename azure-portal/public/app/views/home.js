@@ -4,10 +4,11 @@ import {UPDATES} from '../updates.js';
 import {openPalette} from '../main.js';
 
 export const BADGE = {
-  available: ['Available', 'green'], moving: ['On current Nexus', 'blue'], dev: ['In development', 'orange'],
+  available: ['Available', 'green'], moving: ['Available', 'green'], dev: ['In development', 'orange'], adminOnly: ['Admin only', 'orange'],
   locked: ['Admin only', 'orange'], restricted: ['Admin only', 'orange'], link: ['Opens Geo', 'blue'], separate: ['Separate app', 'orange']
 };
-export const badge = s => h(`span.pill.${BADGE[s][1]}`, {}, BADGE[s][0]);
+// The old portal shows Sales dashboard's "Admin only" in blue and Admin's in orange (module.badgeTone).
+export const badge = (s, module) => h(`span.pill.${s === 'adminOnly' && module?.badgeTone ? module.badgeTone : BADGE[s][1]}`, {}, BADGE[s][0]);
 export const tile = (name, tone) => h(`span.tile.${tone}`, {}, icon(name));
 
 const shortDate = value => new Intl.DateTimeFormat('en-ZA', {day: 'numeric', month: 'short', timeZone: 'Africa/Johannesburg'}).format(new Date(`${value}T12:00:00Z`));
@@ -38,7 +39,8 @@ export async function renderHome(main, {user, sections}) {
         h('h2', {id: 'modulesHeading'}, 'Workspace Modules'),
         h('div.module-grid', {}, MODULES.map((m, i) => h('a.module-card', anchorAttrs(moduleLink(m, sections)),
           h('div.module-top', {}, tile(m.icon, m.tone), h('strong', {}, m.short || m.label)),
-          badge(states[i])
+          m.cardBlurb ? h('p', {}, m.blurb) : null,
+          badge(states[i], m)
         )))
       ),
       h('section.glass.updates', {'aria-labelledby': 'updatesHeading'},

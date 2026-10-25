@@ -15,23 +15,22 @@ export function moduleHead(module) {
 function toolCard(tool, sections) {
   const s = toolState(tool, sections);
   const top = h('div.tool-top', {}, h('strong', {}, tool.label), s === 'locked' || s === 'restricted' ? h('span.pill.orange.small', {}, icon('lock'), 'Admin only') : s === 'available' ? badge('available') : null);
+  if (s === 'dev') return h('div.tool-card.locked', {}, top, h('p', {}, tool.desc), h('span.tool-foot', {}, 'Under development'));
   if (s === 'link') {
     return h('a.tool-card', {href: tool.external, target: '_blank', rel: 'noopener'}, top, h('p', {}, tool.desc), h('span.tool-action', {}, tool.action || 'Open portal', icon('external')));
   }
   if (s === 'locked' || s === 'restricted') {
     return h('div.tool-card.locked', {}, top, h('p', {}, tool.desc), h('span.tool-foot', {}, s === 'restricted' ? 'Restricted – admin only' : 'Ask a Nexus administrator for access'));
   }
-  return h('a.tool-card', linkAttrs(toolLink(tool)), top, h('p', {}, tool.desc),
-    s === 'available' ? h('span.tool-action', {}, 'Open', icon('arrow'))
-      : h('span.tool-foot', {}, CONFIG.directLinks ? 'Opens in the current Nexus while it moves to Azure' : 'Opens on the current Nexus while it moves to Azure'));
+  return h('a.tool-card', linkAttrs(toolLink(tool)), top, h('p', {}, tool.desc), h('span.tool-action', {}, 'Open', icon(s === 'available' || CONFIG.directLinks ? 'arrow' : 'external')));
 }
 
 export async function renderModule(main, {module, sections}) {
   const s = moduleState(module, sections);
   main.replaceChildren(
     moduleHead(module),
-    s === 'dev'
-      ? h('div.tool-grid', {}, h('div.tool-card.locked', {}, h('div.tool-top', {}, h('strong', {}, module.label), badge('dev')), h('p', {}, module.blurb), h('span.tool-foot', {}, 'Under development')))
+    !module.tools?.length && s === 'dev'
+      ? h('div.tool-grid', {}, h('div.tool-card.locked.wide', {}, h('div.tool-top', {}, h('strong', {}, module.label), badge('dev')), h('p', {}, "This module is being built. When it's ready, its tools and links will appear here — same layout as StockFix and Geo.")))
       : module.tools?.length
         ? h('div.tool-grid', {}, module.tools.map(t => toolCard(t, sections)))
         : h('div.tool-grid', {}, h('div.tool-card.locked', {}, h('div.tool-top', {}, h('strong', {}, module.label)), h('p', {}, module.note || module.blurb), h('a.tool-action', {href: OLD_NEXUS, target: '_blank', rel: 'noopener'}, 'Open current Nexus', icon('external'))))
@@ -39,5 +38,5 @@ export async function renderModule(main, {module, sections}) {
 }
 
 export async function renderLocked(main, {module, tool}) {
-  main.replaceChildren(moduleHead(module), h('section.state-panel', {}, h('span.state-icon', {}, icon('lock')), h('h2', {}, `${tool.label} is admin only`), h('p', {}, 'Your account can open Syndicated Attendance and Franchise Orders. Ask a Nexus administrator if you need more.'), h('a.button', {href: `/modules/${module.id}`, 'data-link': true}, `Back to ${module.short || module.label}`)));
+  main.replaceChildren(moduleHead(module), h('section.state-panel', {}, h('span.state-icon', {}, icon('lock')), h('h2', {}, `${tool.label} is admin only`), h('p', {}, 'Your account can open Syndicated Attendance, Franchise Orders and the Gap tracker. Ask a Nexus administrator if you need more.'), h('a.button', {href: `/modules/${module.id}`, 'data-link': true}, `Back to ${module.short || module.label}`)));
 }

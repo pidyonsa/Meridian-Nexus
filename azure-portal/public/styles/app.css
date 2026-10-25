@@ -391,3 +391,6 @@ p.empty.panel { padding: 22px; }
 @media (max-width: 760px) { .region-row { grid-template-columns: 1fr 1fr; } .region-gaps { grid-column: 1 / -1; } }
 
 .nav-ext .icon { width: 14px; height: 14px; color: var(--muted); }
+
+.tool-card.wide { grid-column: span 2; max-width: 720px; }
+@media (max-width: 760px) { .tool-card.wide { grid-column: auto; } }
