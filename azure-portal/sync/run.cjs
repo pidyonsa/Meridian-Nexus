@@ -1,6 +1,7 @@
 'use strict';
 // Firestore -> Azure SQL sync (plan stage B). Runs as a Container Apps job:
-//   hourly:  hot collections in full, incremental collections from their checkpoint, subcollections in full.
+//   hourly:  hot collections in full, incremental collections from their checkpoint, recent collections for their
+//            last few days, subcollections in full; nightly-only collections are skipped.
 //   nightly: everything in full, and rows of deleted Firestore documents are removed.
 // SYNC_MODE=hourly|nightly overrides the automatic choice (nightly in the 00:00 UTC hour).
 // One collection failing does not stop the others; the run is marked "partial" and the job exits non-zero.
@@ -12,16 +13,19 @@ const {store} = require('./sql-store.cjs');
 
 const log = event => console.log(JSON.stringify({at: new Date().toISOString(), ...event}));
 
-async function syncCollection(c, {mode, fs, db}) {
+async function syncCollection(c, {mode, fs, db, now = Date.now()}) {
   const table = tableName(c);
-  const full = mode === 'nightly' || c.mode !== 'incremental';
+  if (c.mode === 'nightly' && mode !== 'nightly') return null;
+  const full = mode === 'nightly' || !['incremental', 'recent'].includes(c.mode);
   const since = full ? null : await db.checkpoint(table);
-  // An incremental collection that has never had a full pass gets one first.
-  const after = !full && since?.last_full_at && since.last_value ? {field: c.field, value: since.last_value} : null;
+  // A collection that has never had a full pass gets one first.
+  const after = full || !since?.last_full_at ? null
+    : c.mode === 'recent' ? {field: c.field, value: new Date(now - c.days * 86400000).toISOString()}
+    : since.last_value ? {field: c.field, value: since.last_value} : null;
   const complete = full || !after;
   const seen = new Set();
   let written = 0, maxValue = null, count = 0;
-  for await (const page of fs.scan({collection: c.id, group: c.mode === 'group', after})) {
+  for await (const page of fs.scan({collection: c.id, group: Boolean(c.parent), after})) {
     const docs = c.parent ? page.filter(d => d.path.startsWith(`${c.parent}/`)) : page;
     for (const d of docs) {
       seen.add(d.path);
@@ -32,7 +36,7 @@ async function syncCollection(c, {mode, fs, db}) {
     written += await db.upsert(table, docs);
   }
   const deleted = complete ? await db.removeMissing(table, seen) : 0;
-  await db.saveCheckpoint(table, {field: c.field || null, lastValue: maxValue, full: complete, count: complete ? count : null});
+  await db.saveCheckpoint(table, {field: c.field || null, lastValue: c.mode === 'recent' ? null : maxValue, full: complete, count: complete ? count : null});
   return {collection: table, pass: complete ? 'full' : 'incremental', read: count, written, deleted};
 }
 
@@ -46,6 +50,7 @@ async function main(env = process.env) {
   for (const c of COLLECTIONS) {
     try {
       const r = await syncCollection(c, {mode, fs, db});
+      if (!r) continue;
       results.push(r);
       if (r.written || r.deleted) log({event: 'sync-collection', ...r});
     } catch (error) {
