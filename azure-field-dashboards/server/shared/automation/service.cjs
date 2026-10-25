@@ -11,6 +11,7 @@
 const crypto = require('node:crypto');
 const {AppError} = require('../errors.cjs');
 const {SERVER_TIME} = require('../google/firestore.cjs');
+const {people} = require('../google/people.cjs');
 
 const ACTIVE = ['queued', 'running', 'waiting_otp', 'waiting_for_otp', 'waiting_approval', 'cancelling'];
 const TERMINAL = ['completed', 'completed_no_data', 'failed', 'cancelled', 'skipped_duplicate', 'rebuild_failed'];
@@ -111,19 +112,7 @@ const safeAlert = d => ({id: d.id, runId: text(d.data.runId, 160), type: text(d.
   message: text(d.data.message, 500), retailerName: text(d.data.retailerName, 160), createdAt: iso(d.data.createdAt), lastDetectedAt: iso(d.data.lastDetectedAt), resolvedAt: iso(d.data.resolvedAt)});
 
 function automationService({fs, storage, now = () => new Date()}) {
-  const uids = new Map();   // email -> {uid, at}
-
-  // The Firebase uid behind a Meridian email (adminUsers), so runs and prompts keep their owner across both Nexus sites.
-  async function actorOf(user) {
-    const email = String(user.email || '').toLowerCase();
-    const hit = uids.get(email);
-    if (!hit || Date.now() - hit.at > 10 * 60 * 1000) {
-      const [doc] = email ? await fs.query('adminUsers', {where: [['email', '==', email]], limit: 1}) : [];
-      uids.set(email, {uid: doc?.id || `entra:${email}`, name: doc?.data?.name ? [doc.data.name, doc.data.surname].filter(Boolean).join(' ') : null, at: Date.now()});
-    }
-    const {uid, name} = uids.get(email);
-    return {uid, email: email.slice(0, 320), name: text(user.name || name || email, 160), role: 'admin'};
-  }
+  const actorOf = people(fs);
 
   const auditWrite = (actor, name, details = {}) => fs.write('create', `accessAuditLogs/${crypto.randomUUID().replace(/-/g, '').slice(0, 20)}`, {
     event: name.slice(0, 80), actorUid: actor.uid.slice(0, 160), actorEmail: actor.email, actorName: actor.name, actorRole: 'admin', runId: details.runId || null, retailerId: details.retailerId || null,

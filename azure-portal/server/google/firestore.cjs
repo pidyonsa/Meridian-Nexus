@@ -128,8 +128,10 @@ function firestore({project = 'meridain-nexus', token, fetchImpl = fetch}) {
     return out;
   }
 
-  // Writes for commit: set (replace), update (merge the given fields; the document must exist unless upsert), create.
-  function write(kind, path, data) {
+  // Writes for commit: set (replace), update (merge the given fields; the document must exist), merge (upsert), create,
+// delete.
+  function write(kind, path, data = {}) {
+    if (kind === 'delete') return {delete: name(path)};
     const {fields, mask, transforms} = plan(data);
     const w = {update: {name: name(path), fields: encodeFields(fields)}};
     if (kind === 'update' || kind === 'merge') w.updateMask = {fieldPaths: mask};

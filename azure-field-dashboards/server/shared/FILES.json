@@ -41,18 +41,50 @@
   },
   {
     "file": "google/firestore.cjs",
-    "sha256": "33887c0ae9055f3035b602dfc09cf5ffdc4dba6dbbbd7a9764586a2ab248c712"
+    "sha256": "fe520d0f247a66f9195b96777a4e9ebeb4de6efbb962acded008fc2354f39be7"
   },
   {
     "file": "google/storage.cjs",
-    "sha256": "47ceca7132326f0f7ff6f70372425dca3f8df19ba05a8481d019bab2d5bf43c8"
+    "sha256": "30a8e26ce769a93d80753f404a78f8fb6d23e25fea5a39d890da744191861b44"
+  },
+  {
+    "file": "google/people.cjs",
+    "sha256": "c5c30e3f74bad45cbe4eb72e3e19f9cc67069b3df587ae3bc47fb13d23c8d8da"
+  },
+  {
+    "file": "google/services.cjs",
+    "sha256": "9639ae11fa504371afa21078002ee87503c1973ae69cf10470104261c60ac4ca"
   },
   {
     "file": "automation/service.cjs",
-    "sha256": "bfde18170d429bfa404af1941b7e39abfb5f295c3222ce07aafd99c9e6d92e96"
+    "sha256": "8bc42084b24c420ae6813679d2f6e36b9b6275f4249122a14e43316231e0ec20"
   },
   {
     "file": "automation/routes.cjs",
     "sha256": "0a6f29844a33f15a284f7f8d33004b4c987ae44685c657e71037a2929aaccf83"
+  },
+  {
+    "file": "resources/service.cjs",
+    "sha256": "f4c541784561eebc6acbc4a93e0ee24d7671b71d5433649da6a7789010de2270"
+  },
+  {
+    "file": "resources/routes.cjs",
+    "sha256": "16a74eb6a1cd43fb9126728a2fdbdaad606e5a1abcb99b80bbd1540239a6f521"
+  },
+  {
+    "file": "etl/pipelines.cjs",
+    "sha256": "16aa3d531116313f436ed29fedd3b80df7242162cfeff5ec6ea7d45540eb90f1"
+  },
+  {
+    "file": "etl/service.cjs",
+    "sha256": "34f3def067212daf8ffee73adebdca12f718d1a664f63cd2f74061c46e23bc51"
+  },
+  {
+    "file": "etl/launcher.cjs",
+    "sha256": "bf2782ed61301d7afe224f1c3b06717adbef1d422b8e03de33973c92913037bc"
+  },
+  {
+    "file": "etl/routes.cjs",
+    "sha256": "76266e33c913efc48d934d1bfe66bfbf278de6b7daf0ef138a46d341d6421473"
   }
 ]

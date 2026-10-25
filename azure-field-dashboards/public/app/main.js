@@ -8,11 +8,13 @@ import {renderPending} from './views/pending.js';
 import {renderGaps, renderGapUpload} from './views/gaps.js';
 import {renderSales} from './views/sales.js';
 import {renderAutomation} from './views/automation.js';
+import {renderResources} from './views/resources.js';
+import {renderEtls} from './views/etls.js';
 
 const $ = id => document.getElementById(id);
 const state = {user: null, sections: new Set(), controller: null};
 // Tools with a page on the Azure portal; the rest show where they still run.
-const TOOL_VIEWS = {'admin-overview': renderAdmin, 'admin-users': renderAdmin, gaps: renderGaps, 'gap-upload': renderGapUpload, sales: renderSales, automation: renderAutomation};
+const TOOL_VIEWS = {'admin-overview': renderAdmin, 'admin-users': renderAdmin, gaps: renderGaps, 'gap-upload': renderGapUpload, sales: renderSales, automation: renderAutomation, resources: renderResources, etls: renderEtls};
 
 async function boot() {
   try {

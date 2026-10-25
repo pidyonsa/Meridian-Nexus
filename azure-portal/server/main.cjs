@@ -44,7 +44,7 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
     next(origin && origin !== host && origin !== env.PUBLIC_ORIGIN ? new AppError('permission-denied', 'Requests must come from Nexus.') : undefined);
   });
   // 1 MB for ordinary API calls; workbook uploads parse their own larger bodies (server/gap/routes.cjs).
-  const UPLOADS = /^\/api\/gaps\/[a-z-]+\/(?:preview|upload)$/;
+  const UPLOADS = /^\/api\/(?:gaps\/[a-z-]+\/(?:preview|upload)|resources\/upload)$/;
   app.use('/api', express.json({limit: '1mb', type: req => !UPLOADS.test(req.originalUrl.split('?')[0]) && /json/.test(req.get('content-type') || '')}));
   app.get('/api/me', async (req, res, next) => {
     try {
@@ -94,11 +94,11 @@ if (require.main === module) {
   const {salesRoutes} = require('./sales/routes.cjs');
   const salesStore = sqlConfig() ? require('./sales/store.cjs').sqlSalesStore(() => pool()) : require('./sales/store.cjs').memorySalesStore();
   const sales = salesRoutes({store: salesStore, allow: req => Boolean(req.user?.admin)});
-  // Report automation: Nexus admins; reads and writes the Firebase-era Firestore documents through the keyless link.
-  const {automationRoutes} = require('./automation/routes.cjs');
-  const {googleConfigured, tokenSource} = require('./google/token.cjs');
-  const token = googleConfigured() ? tokenSource() : null;
-  const automationSvc = token ? require('./automation/service.cjs').automationService({fs: require('./google/firestore.cjs').firestore({token}), storage: require('./google/storage.cjs').storage({token})}) : null;
-  const automation = automationRoutes({service: automationSvc, allow: req => Boolean(req.user?.admin), userOf: req => ({email: req.user.email, name: req.user.name})});
-  createApp({api: [adminRoutes(repo), gaps, sales, automation], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  // Report automation, Resources and ETLs: Nexus admins; Firebase-era Firestore and Storage through the keyless link.
+  const google = require('./google/services.cjs').googleServices();
+  const asAdmin = req => Boolean(req.user?.admin), userOf = req => ({email: req.user.email, name: req.user.name});
+  const automation = require('./automation/routes.cjs').automationRoutes({service: google.automation, allow: asAdmin, userOf});
+  const resources = require('./resources/routes.cjs').resourceRoutes({service: google.resources, allow: asAdmin, userOf});
+  const etls = require('./etl/routes.cjs').etlRoutes({service: google.etls, allow: asAdmin, userOf});
+  createApp({api: [adminRoutes(repo), gaps, sales, automation, resources, etls], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

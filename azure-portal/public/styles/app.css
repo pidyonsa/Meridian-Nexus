@@ -508,3 +508,40 @@ button.link:hover { color: var(--orange-2); text-decoration: underline; }
 .plain-list.alerts li.open strong { color: var(--orange-2); }
 @media (max-width: 1080px) { .run-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 560px) { .prompt-list > li { grid-template-columns: minmax(0, 1fr); } .date-pair { grid-template-columns: minmax(0, 1fr); } .timeline li { grid-template-columns: minmax(0, 1fr); gap: 2px; } .table td.actions { justify-content: flex-start; } }
+
+/* Resources and ETLs (views/resources.js, views/etls.js) */
+.drill.narrow { width: min(760px, calc(100vw - 32px)); }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 12px; }
+.form-grid .wide, .form-grid progress { grid-column: 1 / -1; }
+.form-grid progress { width: 100%; accent-color: var(--orange); }
+.field textarea { padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: rgba(6, 20, 40, .7); color: var(--text); font: inherit; resize: vertical; }
+.field textarea:focus { border-color: rgba(242, 149, 92, .6); outline: none; box-shadow: 0 0 0 3px rgba(236, 109, 37, .18); }
+.field input[type=file] { padding: 8px 0; color: var(--text-2); }
+.form-actions { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+.spacer { flex: 1; }
+.button.danger { color: var(--danger); }
+.button.danger:hover { background: rgba(255, 123, 107, .12); }
+.tag-row, .issue-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.issue-row { padding: 14px 20px 0; }
+.tag { padding: 2px 8px; border: 1px solid var(--line-strong); border-radius: 99px; color: var(--text-2); font-size: 11.5px; }
+.versions { margin-top: 12px; border: 1px solid var(--line); border-radius: var(--radius); }
+.versions summary { padding: 10px 14px; color: var(--text-2); font-size: 13.5px; cursor: pointer; }
+.versions .pill { margin-left: 8px; }
+.raw-multi, .rules { display: grid; gap: 6px; margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); }
+.raw-multi legend, .rules legend { padding: 0 6px; color: var(--muted); font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.check-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 4px; font-size: 13.5px; cursor: pointer; }
+.check-row input { accent-color: var(--orange); }
+.check-row em { color: var(--muted); font-size: 12px; font-style: normal; }
+.facts dd.bad { color: var(--danger); }
+.etl-progress { display: grid; gap: 8px; padding: 14px 20px; }
+.etl-progress > div { display: flex; justify-content: space-between; color: var(--text-2); font-size: 13.5px; }
+.etl-progress progress { width: 100%; height: 10px; accent-color: var(--orange); }
+.etl-metrics { margin: 16px 20px; }
+.panel > .notice { margin: 14px 20px; }
+.pad { padding: 0 20px 14px; }
+.approve-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--line); }
+@media (max-width: 560px) { .form-grid { grid-template-columns: minmax(0, 1fr); } .check-row { grid-template-columns: auto minmax(0, 1fr); } .check-row em { grid-column: 2; } }
+/* Long option labels must not widen stacked forms past their panel. */
+.toolbar.stack > *, .toolbar.stack .field, .date-pair > .field { min-width: 0; }
+.toolbar.stack select, .toolbar.stack input:not([type=checkbox]), .date-pair select { width: 100%; max-width: 100%; min-width: 0; }
+.toolbar.stack fieldset { min-width: 0; }
