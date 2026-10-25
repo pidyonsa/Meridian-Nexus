@@ -1,7 +1,7 @@
 'use strict';
 const crypto = require('node:crypto');
 
-const STATUS = {'invalid-argument': 400, unauthenticated: 401, 'permission-denied': 403, 'not-found': 404, 'failed-precondition': 409, 'resource-exhausted': 413, 'too-many-requests': 429, unavailable: 503};
+const STATUS = {'invalid-argument': 400, unauthenticated: 401, 'permission-denied': 403, 'not-found': 404, 'already-exists': 409, 'failed-precondition': 409, 'resource-exhausted': 413, 'too-many-requests': 429, unavailable: 503};
 
 // An error whose message is safe to show the signed-in user. Anything else is reported as a generic failure.
 class AppError extends Error {

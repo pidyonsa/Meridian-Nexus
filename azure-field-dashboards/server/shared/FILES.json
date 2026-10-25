@@ -1,7 +1,7 @@
 [
   {
     "file": "errors.cjs",
-    "sha256": "5d3c032a1bda6e02a69ac28ca2915255cbe7faea43ee1d30c92808dd5f942f5f"
+    "sha256": "801c608db1855e8a2e456b411aae60c94cc1ec80ca94d2bb1c3691cdb3e7dd16"
   },
   {
     "file": "db.cjs",
@@ -34,5 +34,25 @@
   {
     "file": "sales/routes.cjs",
     "sha256": "aee588d7c1892120a56d6a41cb1cc723960ad2e806ee7b994aef80bee2df77e0"
+  },
+  {
+    "file": "google/token.cjs",
+    "sha256": "e1a91cb87c1e1fff08b16f6a41d5e9ced32037c8cc9601cf34620faebd546f01"
+  },
+  {
+    "file": "google/firestore.cjs",
+    "sha256": "33887c0ae9055f3035b602dfc09cf5ffdc4dba6dbbbd7a9764586a2ab248c712"
+  },
+  {
+    "file": "google/storage.cjs",
+    "sha256": "47ceca7132326f0f7ff6f70372425dca3f8df19ba05a8481d019bab2d5bf43c8"
+  },
+  {
+    "file": "automation/service.cjs",
+    "sha256": "bfde18170d429bfa404af1941b7e39abfb5f295c3222ce07aafd99c9e6d92e96"
+  },
+  {
+    "file": "automation/routes.cjs",
+    "sha256": "0a6f29844a33f15a284f7f8d33004b4c987ae44685c657e71037a2929aaccf83"
   }
 ]

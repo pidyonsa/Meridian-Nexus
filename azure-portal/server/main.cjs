@@ -94,5 +94,11 @@ if (require.main === module) {
   const {salesRoutes} = require('./sales/routes.cjs');
   const salesStore = sqlConfig() ? require('./sales/store.cjs').sqlSalesStore(() => pool()) : require('./sales/store.cjs').memorySalesStore();
   const sales = salesRoutes({store: salesStore, allow: req => Boolean(req.user?.admin)});
-  createApp({api: [adminRoutes(repo), gaps, sales], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  // Report automation: Nexus admins; reads and writes the Firebase-era Firestore documents through the keyless link.
+  const {automationRoutes} = require('./automation/routes.cjs');
+  const {googleConfigured, tokenSource} = require('./google/token.cjs');
+  const token = googleConfigured() ? tokenSource() : null;
+  const automationSvc = token ? require('./automation/service.cjs').automationService({fs: require('./google/firestore.cjs').firestore({token}), storage: require('./google/storage.cjs').storage({token})}) : null;
+  const automation = automationRoutes({service: automationSvc, allow: req => Boolean(req.user?.admin), userOf: req => ({email: req.user.email, name: req.user.name})});
+  createApp({api: [adminRoutes(repo), gaps, sales, automation], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

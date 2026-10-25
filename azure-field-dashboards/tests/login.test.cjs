@@ -104,7 +104,7 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
   // The site config sends tools that have not moved to the full Nexus on this site.
   const config = await (await get('/app/config.js', {headers: as([])})).text();
-  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales'\]/);
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales', 'automation'\]/);
 });
 
 test('Sir Fruit gap tracker: everyone views; only Nexus.Admin uploads', async t => {
@@ -185,4 +185,13 @@ test('Sales dashboard: Nexus.Admin only, from Azure SQL', async t => {
   assert.equal((await get('/api/sales?period=bad', {headers: as(['Nexus.Admin'])})).status, 400);
   const x = await get('/api/sales/export?period=2026-10', {headers: as(['Nexus.Admin'])});
   assert.equal(x.status, 200); assert.match(x.headers.get('content-type'), /spreadsheetml/);
+});
+
+test('Report automation: Nexus.Admin only; unavailable until the Google link is configured', async t => {
+  const get = await nexusHost(t);
+  for (const route of ['/automation', '/api/automation', '/api/automation/runs/abc']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  assert.equal((await get('/api/automation/runs', {method: 'POST', headers: {...as([]), 'content-type': 'application/json'}, body: '{"retailerId":"x"}'})).status, 403);
+  assert.equal((await get('/automation', {headers: as(['Nexus.Admin'])})).status, 200);
+  const r = await get('/api/automation', {headers: as(['Nexus.Admin'])});
+  assert.equal(r.status, 503); assert.equal((await r.json()).error.code, 'unavailable');
 });

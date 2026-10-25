@@ -1,7 +1,7 @@
 // Nexus modules and their tools: one definition drives the sidebar, home page, module pages, search and routing.
 // Modules, wording, statuses and tool cards mirror the Firebase-era Nexus workspace (meridain-nexus.web.app/portal.html,
 // read 25 October 2026); only tools with an Azure version are swapped in (Time and Attendance, Franchise orders, Gap
-// tracker, Sales dashboard), StockFix uses its new address, and everything else still opens the existing Nexus. A tool's `section`
+// tracker, Sales dashboard, Report automation), StockFix uses its new address, and everything else still opens the existing Nexus. A tool's `section`
 // must match server/access.cjs; the server decides which sections each person may open.
 
 import {CONFIG} from './config.js';
