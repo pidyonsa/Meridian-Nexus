@@ -1,7 +1,7 @@
 // Nexus modules and their tools: one definition drives the sidebar, home page, module pages, search and routing.
 // Modules, wording, statuses and tool cards mirror the Firebase-era Nexus workspace (meridain-nexus.web.app/portal.html,
 // read 25 October 2026); only tools with an Azure version are swapped in (Time and Attendance, Franchise orders, Gap
-// tracker), StockFix uses its new address, and everything else still opens the existing Nexus. A tool's `section`
+// tracker, Sales dashboard), StockFix uses its new address, and everything else still opens the existing Nexus. A tool's `section`
 // must match server/access.cjs; the server decides which sections each person may open.
 
 import {CONFIG} from './config.js';
@@ -53,7 +53,7 @@ export const MODULES = [
     {id: 'stockfix-data-admin', label: 'Data Admin', desc: 'Run the weekly scripts and refresh StockFix data.', section: 'admin', restricted: true}
   ]},
   {id: 'sales', label: 'Sales dashboard', icon: 'bars', tone: 'blue', status: 'adminOnly', badgeTone: 'blue', dot: 'blue', cardBlurb: true, home: 'sales', blurb: 'Review current-month Geo Rep orders by region, rep, store and product.', tools: [
-    {id: 'sales', label: 'Sales dashboard', desc: 'Month-to-date Geo Rep orders with drilldowns and reconciliation.', section: 'sales', path: '/sales', old: '#sales'}
+    {id: 'sales', label: 'Sales dashboard', desc: 'Month-to-date Geo Rep orders with drilldowns, month-on-month comparison and reconciliation.', section: 'sales', path: '/sales', old: '#sales'}
   ]},
   {id: 'automation', label: 'Report automation', icon: 'bolt', tone: 'green', status: 'available', dot: 'green', cardBlurb: true, home: 'automation', blurb: 'Run, schedule and deliver verified report extractions.', tools: [
     {id: 'automation', label: 'Report automation', desc: 'Run and schedule portal reports, answer verification prompts and review deliveries.', section: 'automation', path: '/automation', old: '#automation'},

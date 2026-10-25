@@ -90,5 +90,9 @@ if (require.main === module) {
   const gapStore = sqlConfig() ? require('./gap/store.cjs').sqlGapStore(() => pool()) : require('./gap/store.cjs').memoryGapStore();
   // Gap trackers: everyone may view; only Nexus admins upload.
   const gaps = gapRoutes({store: gapStore, allow: (req, kind) => Boolean(req.user && (kind === 'view' || req.user.admin)), who: req => req.user.email || req.user.name});
-  createApp({api: [adminRoutes(repo), gaps], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  // Sales dashboard: Nexus admins (section "sales" is admin only).
+  const {salesRoutes} = require('./sales/routes.cjs');
+  const salesStore = sqlConfig() ? require('./sales/store.cjs').sqlSalesStore(() => pool()) : require('./sales/store.cjs').memorySalesStore();
+  const sales = salesRoutes({store: salesStore, allow: req => Boolean(req.user?.admin)});
+  createApp({api: [adminRoutes(repo), gaps, sales], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

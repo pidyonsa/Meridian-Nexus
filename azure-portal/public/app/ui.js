@@ -91,3 +91,25 @@ export const formatNumber = (n, digits = 0) => new Intl.NumberFormat('en-ZA', {m
 export const formatRand = n => new Intl.NumberFormat('en-ZA', {style: 'currency', currency: 'ZAR', maximumFractionDigits: 0}).format(n || 0);
 export const formatDate = value => new Intl.DateTimeFormat('en-ZA', {day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Johannesburg'}).format(new Date(value));
 export const initials = name => String(name || '?').split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(part => part[0].toUpperCase()).join('') || '?';
+
+// Bars and cells sized from data-w (width), data-h (height) and data-a (shade) attributes, 0..1 (CSSOM: the content
+// security policy allows no inline styles).
+export function sizeBars(root) {
+  for (const el of root.querySelectorAll('[data-w]')) el.style.width = `${Math.max(0, Math.min(1, Number(el.dataset.w))) * 100}%`;
+  for (const el of root.querySelectorAll('[data-h]')) el.style.height = `${Math.max(0, Math.min(1, Number(el.dataset.h))) * 100}%`;
+  for (const el of root.querySelectorAll('[data-a]')) el.style.setProperty('--a', String(0.18 + 0.72 * Number(el.dataset.a)));
+}
+
+// Sortable table: columns [{label, key, num, render}], rows of objects.
+export function sortable(columns, rows, {initial, limit = 0} = {}) {
+  let sortKey = initial?.key || columns[0].key, dir = initial?.dir || 1;
+  const thead = h('thead'), tbody = h('tbody'), wrap = h('div.table-wrap', {}, h('table.table', {}, thead, tbody));
+  function draw() {
+    thead.replaceChildren(h('tr', {}, columns.map(c => h('th', {scope: 'col', class: c.num ? 'num' : ''}, c.key ? h('button.sort', {type: 'button', 'aria-sort': c.key === sortKey ? (dir > 0 ? 'ascending' : 'descending') : 'none', onclick: () => { dir = c.key === sortKey ? -dir : (c.num ? -1 : 1); sortKey = c.key; draw(); }}, c.label, c.key === sortKey ? (dir > 0 ? ' ↑' : ' ↓') : '') : c.label))));
+    const sorted = [...rows].sort((a, b) => { const x = a[sortKey], y = b[sortKey]; return (x == null) - (y == null) || (typeof x === 'number' ? (x - y) : String(x).localeCompare(String(y))) * dir; });
+    tbody.replaceChildren(...(sorted.length ? (limit ? sorted.slice(0, limit) : sorted).map(r => h('tr', {}, columns.map(c => h(`td${c.num ? '.num' : ''}`, {}, c.render ? c.render(r) : r[c.key])))) : [h('tr', {}, h('td.empty', {colspan: String(columns.length)}, 'Nothing to show.'))]));
+    sizeBars(tbody);
+  }
+  draw();
+  return wrap;
+}

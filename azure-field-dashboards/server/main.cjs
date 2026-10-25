@@ -32,6 +32,8 @@ const GAP_PAGES = /^\/(?:gap-tracker(?:\/[a-z0-9-]{2,60})?|admin\/gap-upload)\/?
 const GAP_VIEW = /^\/(?:gap-tracker(?:\/[a-z0-9-]{2,60})?\/?|api\/gaps(?:\/[a-z0-9-]{2,60}(?:\/(?:compare|detail|export))?)?)$/;
 // The tracker briefly lived under Insights (23-24 October 2026); old links keep working.
 const GAP_MOVED = {'/insights/sir-fruit': '/gap-tracker/sir-fruit', '/insights/sir-fruit/upload': '/admin/gap-upload'};
+// The Sales dashboard (Geo Rep Capture orders, from Azure SQL): Nexus.Admin only, like the Firebase-era #sales.
+const SALES_PAGE = /^\/sales\/?$/;
 const STAFF_SECTIONS = ['attendance', 'franchiseorder', 'gaps'];
 const everyoneMayOpen = (req, assets) => (GAP_VIEW.test(req.path) && ['GET', 'HEAD'].includes(req.method)) || WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
 
@@ -53,7 +55,7 @@ function signedInUser(req) {
   } catch { return null; }
 }
 
-function createApp({gapStore = null, fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
+function createApp({gapStore = null, salesStore = null, fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
   const app = express();
   const limits = new Map();
   const pending = new Map();
@@ -110,18 +112,23 @@ function createApp({gapStore = null, fetchImpl = fetch, functionsFetch = fetch, 
   });
   app.get(WORKSPACE_ROUTE, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
   app.get(GAP_PAGES, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
+  app.get(SALES_PAGE, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
   // Gap trackers (code shared with the Nexus portal, server/shared/). Viewing: any signed-in Meridian account;
   // uploads: Nexus.Admin. The sign-in check above already enforces this; allow() repeats it so the API is safe alone.
   const {gapRoutes} = require('./shared/gap/routes.cjs');
   const {AppError} = require('./shared/errors.cjs');
   const store = gapStore || (require('./shared/db.cjs').sqlConfig() ? require('./shared/gap/store.cjs').sqlGapStore(() => require('./shared/db.cjs').pool()) : require('./shared/gap/store.cjs').memoryGapStore());
   gapRoutes({store, allow: (req, kind) => { const user = signedInUser(req); return Boolean(user && (kind === 'view' || user.admin)); }, who: req => signedInUser(req)?.name || 'unknown'})(app);
-  app.use('/api/gaps', (error, req, res, next) => {
+  // Sales dashboard (shared code): Nexus.Admin only; the sign-in check above already refuses everyone else.
+  const {salesRoutes} = require('./shared/sales/routes.cjs');
+  const sales = salesStore || (require('./shared/db.cjs').sqlConfig() ? require('./shared/sales/store.cjs').sqlSalesStore(() => require('./shared/db.cjs').pool()) : require('./shared/sales/store.cjs').memorySalesStore());
+  salesRoutes({store: sales, allow: req => Boolean(signedInUser(req)?.admin)})(app);
+  app.use(['/api/gaps', '/api/sales'], (error, req, res, next) => {
     if (res.headersSent) return next(error);
     if (error instanceof AppError) return res.status(error.status).json({error: {code: error.code, message: error.message}});
     if (error.type === 'entity.too.large') return res.status(413).json({error: {code: 'resource-exhausted', message: 'The file is too large.'}});
-    console.error(JSON.stringify({event: 'gap-request-failed', path: req.path, error: String(error?.stack || error).slice(0, 1500)}));
-    res.status(500).json({error: {code: 'internal', message: 'The gap tracker could not complete this request. Try again.'}});
+    console.error(JSON.stringify({event: 'workspace-api-failed', path: req.originalUrl.split('?')[0], error: String(error?.stack || error).slice(0, 1500)}));
+    res.status(500).json({error: {code: 'internal', message: 'Nexus could not complete this request. Try again.'}});
   });
   mountNexusPortal(app, {fetchImpl: functionsFetch, ...(portalDir ? {portalDir} : {})});
   app.use('/api', (req, res, next) => {

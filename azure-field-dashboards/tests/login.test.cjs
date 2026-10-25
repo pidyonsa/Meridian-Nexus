@@ -76,9 +76,9 @@ test('every Meridian account sees Syndicated Attendance and Franchise Orders; th
   assert.equal((await get('/api/import', staff, 'POST')).status, 403);
 });
 
-const nexusHost = async (t, functionsFetch) => {
+const nexusHost = async (t, functionsFetch, salesStore = null) => {
   const reportProvider = {kind: 'test', request: async () => ({status: 200, data: {rows: []}})};
-  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch}).listen(0, '127.0.0.1');
+  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch, salesStore}).listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
   return (route, init = {}) => fetch(`http://127.0.0.1:${server.address().port}${route}`, {redirect: 'manual', ...init});
@@ -104,7 +104,7 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
   // The site config sends tools that have not moved to the full Nexus on this site.
   const config = await (await get('/app/config.js', {headers: as([])})).text();
-  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload'\]/);
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales'\]/);
 });
 
 test('Sir Fruit gap tracker: everyone views; only Nexus.Admin uploads', async t => {
@@ -171,4 +171,18 @@ test('Nexus function calls go to the Firebase function with the Nexus token, onl
   assert.equal(calls[0].init.body.toString(), JSON.stringify({data: {q: 1}}));
   assert.equal((await call('bad.name', as(['Nexus.Admin']))).status, 404);
   assert.equal(calls.length, 1);
+});
+
+test('Sales dashboard: Nexus.Admin only, from Azure SQL', async t => {
+  const {memorySalesStore} = require('../server/shared/sales/store.cjs');
+  const rows = [{periodKey: '2026-10', orderNumber: 'A1', orderDate: '2026-10-02', storeName: 'Store 1', region: 'Gauteng', rep: 'Rep 1', manager: 'M', product: 'P', sku: 'S', status: 'Ordered', quantity: 2, value: 100, mapped: true}];
+  const get = await nexusHost(t, undefined, memorySalesStore({rows}));
+  for (const route of ['/sales', '/api/sales', '/api/sales/drilldown?metric=orders', '/api/sales/export']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  assert.equal((await get('/api/sales', {headers: {}})).status, 401);
+  assert.equal((await get('/sales', {headers: as(['Nexus.Admin'])})).status, 200);
+  const d = await (await get('/api/sales?period=2026-10', {headers: as(['Nexus.Admin'])})).json();
+  assert.equal(d.metrics.salesValue, 100); assert.deepEqual(d.periods, [{period: '2026-10', lines: 1}]);
+  assert.equal((await get('/api/sales?period=bad', {headers: as(['Nexus.Admin'])})).status, 400);
+  const x = await get('/api/sales/export?period=2026-10', {headers: as(['Nexus.Admin'])});
+  assert.equal(x.status, 200); assert.match(x.headers.get('content-type'), /spreadsheetml/);
 });

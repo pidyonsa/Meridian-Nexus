@@ -198,22 +198,22 @@
     },
     {
       "path": "app/main.js",
-      "sha256": "85ff2512fa2483b99f49c86f45bd070fd73d940da0ba280f1be62d3ff06efebf",
+      "sha256": "b7b23a93261b530b6b2f1d768576c558ca1f1f52b1954f1e9423cfb7b16bb3ea",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/nav.js",
-      "sha256": "bad5e14f7bc79ba88e0e9dc74841f99737589551f31bdad22583dd1e03ed8e95",
+      "sha256": "44aba61bfd5fb32c1d77dbeb082c40a7a232cc48e33fdace2e4d51aa0c4ceff0",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/ui.js",
-      "sha256": "9d8302e2ccdb57d5d3f1ec7981e8ee2faa66943295d306b517d8c07dbc4b42ac",
+      "sha256": "f6ceb43a6af3bf2579a183b20debf06632a2b79e0381558fa053182e5b3ca07f",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/updates.js",
-      "sha256": "f8090aeee8553b4e7858834999cefd7c3a545677b7367129e7c5b9832e79140b",
+      "sha256": "1ee1a36adc999280d7f45390588eec2fc2f80302645bf246491cc8a440105d1b",
       "adapter": "nexus-workspace"
     },
     {
@@ -223,7 +223,12 @@
     },
     {
       "path": "app/views/gaps.js",
-      "sha256": "347533e99b524a967e63153c83002d267a9cb5e71b1ae4ec64e50b723439ae19",
+      "sha256": "17a74d86663546c1095ff700ac4105c84eed14f935c49f48e74e27be156c0eb1",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/views/sales.js",
+      "sha256": "1ecb6b7f38426efb59f81b69a0aa53dddf27aae81d624ea1e1d39550c2eda66a",
       "adapter": "nexus-workspace"
     },
     {
@@ -243,7 +248,7 @@
     },
     {
       "path": "styles/app.css",
-      "sha256": "9068890bc2f367033563ce2f5b196cbd71d806588550a60adfe443b37cb3be5e",
+      "sha256": "4e7872a8e4b67494779676f8a30e4c088f9f4ab85caeced2875d561ea1e6581c",
       "adapter": "nexus-workspace"
     },
     {
@@ -263,7 +268,7 @@
     },
     {
       "path": "app/config.js",
-      "sha256": "0d4be7e7930ff46124261815005372e50d5b25fbcbbbb3bbc43ca5d1d8b82f15",
+      "sha256": "5b85f6df5efdf61cac01008883c6dbc92aed787ef5e0f7b63775b2098387a7aa",
       "adapter": "nexus-workspace-site-config"
     }
   ]

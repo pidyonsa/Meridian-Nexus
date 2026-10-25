@@ -22,5 +22,17 @@
   {
     "file": "gap/routes.cjs",
     "sha256": "59c139c710d89d9956e3b73b63dcf97cd967a01c3965a280121188564f806249"
+  },
+  {
+    "file": "sales/report.cjs",
+    "sha256": "9411cb66e52a9f009de7e8cbde679a8ceebb17c0a8afe0f9b6f1583a122437ce"
+  },
+  {
+    "file": "sales/store.cjs",
+    "sha256": "9e9fb97d21e812dfd1c4e7b54a3775c7710d27e93609cf003c7cbd5096c797c3"
+  },
+  {
+    "file": "sales/routes.cjs",
+    "sha256": "aee588d7c1892120a56d6a41cb1cc723960ad2e806ee7b994aef80bee2df77e0"
   }
 ]
