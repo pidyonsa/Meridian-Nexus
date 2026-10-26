@@ -53,7 +53,7 @@
   },
   {
     "file": "google/services.cjs",
-    "sha256": "e6c2941dbdf01717e0f42c3a0f11ed9d6cfb5555cb700d8ede35d446a28abfea"
+    "sha256": "4aadc1edd6a199e59ef5392f67287abd1e954cd7c69aebde403851afa190179a"
   },
   {
     "file": "automation/service.cjs",
@@ -89,7 +89,7 @@
   },
   {
     "file": "profiles/credentials.cjs",
-    "sha256": "17969f2df05c8b599f7503a14da67be8eb5bb7696ab024486abd686aae2642e9"
+    "sha256": "8da21a70d86a4b7eabc08389b3bc4ae5071cbd35414077761de10a8ad6b9f78a"
   },
   {
     "file": "profiles/service.cjs",
@@ -98,5 +98,33 @@
   {
     "file": "profiles/routes.cjs",
     "sha256": "91bf5c2efa3dcf0ec89280d9e5897e1e74d10854c624718710b06fa503d05253"
+  },
+  {
+    "file": "azure/keyvault.cjs",
+    "sha256": "bebda8124cb8f985e3f8eb652db6b8ef38324ae4907e3d2dd308977f8821ba43"
+  },
+  {
+    "file": "azure/graph.cjs",
+    "sha256": "0dc605ac119a1bd5fa6ba89df6fd1bef63bbc63e6d1fb0852063e9c8c555f4ad"
+  },
+  {
+    "file": "attendance/hierarchy.json",
+    "sha256": "bccfef0c7990f73c286aefb8197d7c21e7f931b0fdb6a0259151d40767cd1bde"
+  },
+  {
+    "file": "attendance/exclusions.cjs",
+    "sha256": "11da65bf8ee0b2802b0bb8e2fddc5e187682c2567c9641f3f3803d6b7850d4b1"
+  },
+  {
+    "file": "attendance/geo.cjs",
+    "sha256": "a1455d1f8e07edc634eef739246fda63cc1330da9c533833b5793fdd5cb95b2e"
+  },
+  {
+    "file": "attendance/inventory.cjs",
+    "sha256": "15eed85c122457d5106d3497d09226f7297f1911139bf11cd8e65e2d3852be51"
+  },
+  {
+    "file": "attendance/routes.cjs",
+    "sha256": "13cc0d118409ea16173ea0eee254d303e8838334e4793afcdf6458b34d48985c"
   }
 ]

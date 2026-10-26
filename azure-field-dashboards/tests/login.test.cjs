@@ -104,7 +104,7 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
   // The site config sends tools that have not moved to the full Nexus on this site.
   const config = await (await get('/app/config.js', {headers: as([])})).text();
-  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales', 'automation', 'resources', 'etls', 'admin-profiles'\]/);
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales', 'automation', 'resources', 'etls', 'admin-profiles', 'admin-geo-attendance', 'admin-integrations'\]/);
 });
 
 test('Sir Fruit gap tracker: everyone views; only Nexus.Admin uploads', async t => {
@@ -210,4 +210,12 @@ test('Extraction profiles: Nexus.Admin only; unavailable until the Google link i
   assert.equal((await get('/api/profiles/profiles', {method: 'PUT', headers: {...as([]), 'content-type': 'application/json'}, body: '{}'})).status, 403);
   assert.equal((await get('/admin/profiles', {headers: as(['Nexus.Admin'])})).status, 200);
   assert.equal((await get('/api/profiles', {headers: as(['Nexus.Admin'])})).status, 503);
+});
+
+test('Geo attendance and SharePoint inventory: Nexus.Admin only; unavailable until the Google link is configured', async t => {
+  const get = await nexusHost(t);
+  for (const route of ['/admin/geo-attendance', '/admin/integrations', '/api/geo-attendance', '/api/integrations', '/api/geo-attendance/exclusions/template']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  assert.equal((await get('/api/geo-attendance/week', {method: 'PUT', headers: {...as([]), 'content-type': 'application/json'}, body: '{"operationalWeek":2}'})).status, 403);
+  for (const route of ['/admin/geo-attendance', '/admin/integrations']) assert.equal((await get(route, {headers: as(['Nexus.Admin'])})).status, 200, route);
+  for (const route of ['/api/geo-attendance', '/api/integrations']) assert.equal((await get(route, {headers: as(['Nexus.Admin'])})).status, 503, route);
 });

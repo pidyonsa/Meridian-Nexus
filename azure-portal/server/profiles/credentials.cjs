@@ -1,26 +1,15 @@
 'use strict';
 // Portal passwords for extraction profiles, encrypted exactly as the Firebase-era saveRetailer did (AES-256-GCM,
 // 12-byte IV, base64 fields, version 1) with RETAILER_CREDENTIAL_KEY, so the Azure workers that decrypt retailerSecrets
-// keep working. The key comes from Key Vault kv-nexusauto-p2fzlrpwgvn (secret retailer-credential-key) with the site's
-// managed identity, which may read that one secret only (approved 25 Oct 2026). It is fetched per save, never cached.
+// keep working. The key comes from Key Vault (secret retailer-credential-key), read per save and never cached.
 const crypto = require('node:crypto');
-
-const VAULT = 'https://kv-nexusauto-p2fzlrpwgvn.vault.azure.net';
-const SECRET = 'retailer-credential-key';
+const {keyVault} = require('../azure/keyvault.cjs');
 
 function keySource({env = process.env, fetchImpl = fetch} = {}) {
-  if (!env.IDENTITY_ENDPOINT) return null;
+  const vault = keyVault({env, fetchImpl});
+  if (!vault) return null;
   return async function credentialKey() {
-    const url = new URL(env.IDENTITY_ENDPOINT);
-    url.searchParams.set('api-version', '2019-08-01');
-    url.searchParams.set('resource', 'https://vault.azure.net');
-    if (env.AZURE_CLIENT_ID) url.searchParams.set('client_id', env.AZURE_CLIENT_ID);
-    const tokenRes = await fetchImpl(url, {headers: {'X-IDENTITY-HEADER': env.IDENTITY_HEADER}});
-    if (!tokenRes.ok) throw new Error(`Azure managed identity token: ${tokenRes.status}`);
-    const {access_token: token} = await tokenRes.json();
-    const res = await fetchImpl(`${env.KEY_VAULT_URL || VAULT}/secrets/${SECRET}?api-version=7.4`, {headers: {Authorization: `Bearer ${token}`}});
-    if (!res.ok) throw new Error(`Key Vault ${SECRET}: ${res.status}`);
-    const key = Buffer.from((await res.json()).value, 'base64');
+    const key = Buffer.from(await vault.read('retailer-credential-key'), 'base64');
     if (key.length !== 32) throw new Error('RETAILER_CREDENTIAL_KEY must decode to 32 bytes.');
     return key;
   };

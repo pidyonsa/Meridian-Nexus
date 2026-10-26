@@ -198,12 +198,12 @@
     },
     {
       "path": "app/main.js",
-      "sha256": "328bfeba3982f0b1a120369b3d6d51cde6114314d40d9971eab7eb808b42355b",
+      "sha256": "40e32e87e8265c31e7002c936a15b4f7728f04d896e0d8d04326af30dd287368",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/nav.js",
-      "sha256": "32bb4c0b72df969d3ed817448c49345accefaa77aa0f944a73867036534eb160",
+      "sha256": "bab147857b5657b02e9551b9de320946f98e5630d24ed09ff2332d527041e35f",
       "adapter": "nexus-workspace"
     },
     {
@@ -213,12 +213,12 @@
     },
     {
       "path": "app/updates.js",
-      "sha256": "d18ece304005e5a299d618ad23123b4f7605550b42ebb98db1551430173a1dda",
+      "sha256": "ec692626995f6444d351bad40c9aea935ec4169fdf1b76be89595afe3046c29a",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/views/admin.js",
-      "sha256": "e04ea3fff54480ff05583af21ebad71cc8e674ef74d30726dde36aa76ff6016b",
+      "sha256": "ddf8d3b290b5f9fd865bb5a798fc047a3b0404f7fad57d2ccb269c7cba1221cb",
       "adapter": "nexus-workspace"
     },
     {
@@ -252,6 +252,16 @@
       "adapter": "nexus-workspace"
     },
     {
+      "path": "app/views/geo-attendance.js",
+      "sha256": "98b8c08bb5dbc15c18bf22bfe7ac7ce5d5e673bd2c5fef1b5314f235612b1c8e",
+      "adapter": "nexus-workspace"
+    },
+    {
+      "path": "app/views/integrations.js",
+      "sha256": "bb1d217e942e2893e536a90b05c71d112f48fb04e9ea731b382ce3746e27dfec",
+      "adapter": "nexus-workspace"
+    },
+    {
       "path": "app/views/home.js",
       "sha256": "41d574b6a42e61ef5146e75fe9d658347b6fe393645408e6f2cf7bf5e8a69210",
       "adapter": "nexus-workspace"
@@ -268,7 +278,7 @@
     },
     {
       "path": "styles/app.css",
-      "sha256": "8466d5b128fb3cc219153ac27d5e6f5b4031fccba90e8edb3cb57478005c1f93",
+      "sha256": "f33c6e3c2fee2f8988b5f733be4e124c3cbe6860a4d2fac26adb4bb025622542",
       "adapter": "nexus-workspace"
     },
     {
@@ -288,7 +298,7 @@
     },
     {
       "path": "app/config.js",
-      "sha256": "1e68b81cb540cc77f6622a5c0ef7cd336def670930cad9042d755c3e48b443ee",
+      "sha256": "1f5c772ca16af08e8d908cc765c48b42738ec303f1da58389147732c92795806",
       "adapter": "nexus-workspace-site-config"
     }
   ]

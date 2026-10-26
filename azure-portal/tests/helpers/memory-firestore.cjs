@@ -26,8 +26,9 @@ function memoryFirestore(seed = {}) {
     docs.set(w.path, target);
   }
   const doc = path => (docs.has(path) ? {id: path.split('/').pop(), path, data: structuredClone(docs.get(path))} : null);
-  async function query(collection, {where = [], limit = 0} = {}) {
-    let out = [...docs.keys()].filter(p => p.split('/').length === 2 && p.startsWith(`${collection}/`)).map(doc);
+  async function query(collection, {where = [], limit = 0, parent = ''} = {}) {
+    const prefix = parent ? `${parent}/${collection}/` : `${collection}/`, depth = prefix.split('/').length;
+    let out = [...docs.keys()].filter(p => p.split('/').length === depth && p.startsWith(prefix)).map(doc);
     for (const [field, op, v] of where) out = out.filter(d => (op === 'in' ? v.includes(d.data[field]) : d.data[field] === v));
     return limit ? out.slice(0, limit) : out;
   }

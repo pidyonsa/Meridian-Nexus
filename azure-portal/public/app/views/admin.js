@@ -83,7 +83,7 @@ async function users(main, {signal}) {
 
   const select = (label, key, options) => h('label.field', {}, h('span', {}, label), h('select', {onchange: e => { state[key] = e.target.value; render(); }}, options.map(([v, t]) => h('option', {value: v, selected: state[key] === v}, t))));
   main.replaceChildren(
-    pageHead('Users', 'Who can open what in Nexus.', h('a.button', {href: 'https://meridian-nexus.web.app/#admin', target: '_blank', rel: 'noopener'}, 'Edit in current Nexus', icon('arrow'))),
+    pageHead('Users', 'Who can open what in Nexus.', h('a.button', {href: 'https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ManagedAppMenuBlade/~/Users/objectId/63942481-5a74-4ad5-be7e-a61b1ce0ed12/appId/748c496f-5033-415d-9d3f-f2bb85de1d71', target: '_blank', rel: 'noopener'}, 'Manage roles in Microsoft Entra', icon('external'))),
     sourceNote(data.sample),
     h('div.stat-grid', {}, stat('People', formatNumber(counts.total)), stat('Administrators', formatNumber(counts.admins)), stat('Active staff', formatNumber(counts.total - counts.disabled - counts.admins)), stat('Disabled', formatNumber(counts.disabled), counts.disabled ? 'warn' : '')),
     h('section.panel', {},

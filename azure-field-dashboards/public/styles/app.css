@@ -555,3 +555,13 @@ button.link:hover { color: var(--orange-2); text-decoration: underline; }
 .step-num { color: var(--orange-2); font-weight: 600; text-align: center; }
 .step-tools { display: flex; gap: 2px; }
 @media (max-width: 760px) { .step-head { display: none; } .step-list li { grid-template-columns: 28px minmax(0, 1fr) auto; } .step-list li input { grid-column: 2 / 4; } }
+
+/* Geo attendance and SharePoint inventory (views/geo-attendance.js, views/integrations.js) */
+.geo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 18px; }
+.exclusions .toolbar { border-bottom: 1px solid var(--line); }
+.exclusion-preview:empty { display: none; }
+.exclusion-preview { border-bottom: 1px solid var(--line); }
+.tracks li { grid-template-columns: minmax(0, 1fr) auto auto; }
+.tag.found { border-color: rgba(143, 214, 168, .45); color: var(--green); text-decoration: none; }
+.tag.missing { border-color: rgba(255, 123, 107, .45); color: var(--danger); }
+@media (max-width: 1080px) { .geo-grid { grid-template-columns: minmax(0, 1fr); } }

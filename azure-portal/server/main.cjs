@@ -44,7 +44,7 @@ function createApp({publicDir = path.join(__dirname, '..', 'public'), env = proc
     next(origin && origin !== host && origin !== env.PUBLIC_ORIGIN ? new AppError('permission-denied', 'Requests must come from Nexus.') : undefined);
   });
   // 1 MB for ordinary API calls; workbook uploads parse their own larger bodies (server/gap/routes.cjs).
-  const UPLOADS = /^\/api\/(?:gaps\/[a-z-]+\/(?:preview|upload)|resources\/upload)$/;
+  const UPLOADS = /^\/api\/(?:gaps\/[a-z-]+\/(?:preview|upload)|resources\/upload|geo-attendance\/(?:store-master|exclusions\/preview))$/;
   app.use('/api', express.json({limit: '1mb', type: req => !UPLOADS.test(req.originalUrl.split('?')[0]) && /json/.test(req.get('content-type') || '')}));
   app.get('/api/me', async (req, res, next) => {
     try {
@@ -101,5 +101,6 @@ if (require.main === module) {
   const resources = require('./resources/routes.cjs').resourceRoutes({service: google.resources, allow: asAdmin, userOf});
   const etls = require('./etl/routes.cjs').etlRoutes({service: google.etls, allow: asAdmin, userOf});
   const profiles = require('./profiles/routes.cjs').profileRoutes({service: google.profiles, allow: asAdmin, userOf});
-  createApp({api: [adminRoutes(repo), gaps, sales, automation, resources, etls, profiles], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  const attendanceAdmin = require('./attendance/routes.cjs').attendanceAdminRoutes({geo: google.geo, exclusions: google.exclusions, inventory: google.inventory, allow: asAdmin, userOf});
+  createApp({api: [adminRoutes(repo), gaps, sales, automation, resources, etls, profiles, attendanceAdmin], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

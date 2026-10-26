@@ -1,5 +1,6 @@
 // "Recent updates" on the home page: what changed on the Azure Nexus, newest first. Keep entries short and user-facing.
 export const UPDATES = [
+  {date: '2026-10-26', title: 'Geo attendance and SharePoint inventory on Azure', text: 'Admins: tracker, operational week, store master and dashboard exclusions; the SharePoint catalogue. Every Admin tool now runs here.'},
   {date: '2026-10-26', title: 'Extraction profiles on Azure', text: 'Admins: edit report portals, logins and step sets. Passwords are encrypted and write-only.'},
   {date: '2026-10-25', title: 'Resources and ETLs on Azure', text: 'Admins: upload and version shared files, run retailer ETLs, review exceptions, approve and download outputs.'},
   {date: '2026-10-25', title: 'Report automation on Azure', text: 'Admins: run and schedule reports, answer portal verification, follow and control jobs, and download delivered reports.'},

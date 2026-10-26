@@ -1,7 +1,7 @@
 // Nexus modules and their tools: one definition drives the sidebar, home page, module pages, search and routing.
 // Modules, wording, statuses and tool cards mirror the Firebase-era Nexus workspace (meridain-nexus.web.app/portal.html,
 // read 25 October 2026); only tools with an Azure version are swapped in (Time and Attendance, Franchise orders, Gap
-// tracker, Sales dashboard, Report automation, Resources, ETLs), StockFix uses its new address, and everything else still opens the existing Nexus. A tool's `section`
+// tracker, Sales dashboard, Report automation, Resources, ETLs and the Admin tools), StockFix uses its new address, and everything else still opens the existing Nexus. A tool's `section`
 // must match server/access.cjs; the server decides which sections each person may open.
 
 import {CONFIG} from './config.js';
@@ -64,7 +64,8 @@ export const MODULES = [
     {id: 'admin-users', label: 'Users', desc: 'Who can open what in Nexus.', section: 'admin', path: '/admin/users'},
     {id: 'gap-upload', label: 'Upload gap report', desc: "Upload a client's weekly gap workbook (or add a new client), check it, then save.", section: 'gaps-upload', path: '/admin/gap-upload'},
     {id: 'admin-profiles', label: 'Extraction profiles', desc: 'Portals, logins and the browser step sets report automation runs.', section: 'admin', path: '/admin/profiles'},
-    {id: 'admin-workspace', label: 'Admin workspace', desc: 'Geo attendance, integrations and Firebase users in the existing Nexus.', section: 'admin', path: '/admin/workspace', old: '#admin'},
+    {id: 'admin-geo-attendance', label: 'Geo attendance', desc: 'Rep TNA tracker, operational week, daily run, store enrichment and dashboard exclusions.', section: 'admin', path: '/admin/geo-attendance'},
+    {id: 'admin-integrations', label: 'SharePoint inventory', desc: 'What the Meridian Nexus SharePoint site holds and what still needs to move into Nexus.', section: 'admin', path: '/admin/integrations'},
     {id: 'resources', label: 'Resources', desc: 'Shared reference files and templates.', section: 'resources', path: '/resources', old: '#resources'}
   ]}
 ];
