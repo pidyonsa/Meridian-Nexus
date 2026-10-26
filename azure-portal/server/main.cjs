@@ -100,5 +100,6 @@ if (require.main === module) {
   const automation = require('./automation/routes.cjs').automationRoutes({service: google.automation, allow: asAdmin, userOf});
   const resources = require('./resources/routes.cjs').resourceRoutes({service: google.resources, allow: asAdmin, userOf});
   const etls = require('./etl/routes.cjs').etlRoutes({service: google.etls, allow: asAdmin, userOf});
-  createApp({api: [adminRoutes(repo), gaps, sales, automation, resources, etls], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  const profiles = require('./profiles/routes.cjs').profileRoutes({service: google.profiles, allow: asAdmin, userOf});
+  createApp({api: [adminRoutes(repo), gaps, sales, automation, resources, etls, profiles], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

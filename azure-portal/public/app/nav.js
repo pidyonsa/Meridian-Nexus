@@ -63,7 +63,8 @@ export const MODULES = [
     {id: 'admin-overview', label: 'Migration health', desc: 'Firestore to Azure sync status and recent runs.', section: 'admin', path: '/admin'},
     {id: 'admin-users', label: 'Users', desc: 'Who can open what in Nexus.', section: 'admin', path: '/admin/users'},
     {id: 'gap-upload', label: 'Upload gap report', desc: "Upload a client's weekly gap workbook (or add a new client), check it, then save.", section: 'gaps-upload', path: '/admin/gap-upload'},
-    {id: 'admin-workspace', label: 'Admin workspace', desc: 'Extraction profiles, schedules, jobs, users and integrations in the existing Nexus.', section: 'admin', path: '/admin/workspace', old: '#admin'},
+    {id: 'admin-profiles', label: 'Extraction profiles', desc: 'Portals, logins and the browser step sets report automation runs.', section: 'admin', path: '/admin/profiles'},
+    {id: 'admin-workspace', label: 'Admin workspace', desc: 'Geo attendance, integrations and Firebase users in the existing Nexus.', section: 'admin', path: '/admin/workspace', old: '#admin'},
     {id: 'resources', label: 'Resources', desc: 'Shared reference files and templates.', section: 'resources', path: '/resources', old: '#resources'}
   ]}
 ];

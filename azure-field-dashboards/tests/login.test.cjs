@@ -104,7 +104,7 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
   // The site config sends tools that have not moved to the full Nexus on this site.
   const config = await (await get('/app/config.js', {headers: as([])})).text();
-  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales', 'automation', 'resources', 'etls'\]/);
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales', 'automation', 'resources', 'etls', 'admin-profiles'\]/);
 });
 
 test('Sir Fruit gap tracker: everyone views; only Nexus.Admin uploads', async t => {
@@ -202,4 +202,12 @@ test('Resources and ETLs: Nexus.Admin only; unavailable until the Google link is
   assert.equal((await get('/api/resources/upload?name=x.xlsx', {method: 'POST', headers: {...as([]), 'content-type': 'application/octet-stream'}, body: 'x'})).status, 403);
   for (const route of ['/resources', '/etls']) assert.equal((await get(route, {headers: as(['Nexus.Admin'])})).status, 200, route);
   for (const route of ['/api/resources', '/api/etls']) assert.equal((await get(route, {headers: as(['Nexus.Admin'])})).status, 503, route);
+});
+
+test('Extraction profiles: Nexus.Admin only; unavailable until the Google link is configured', async t => {
+  const get = await nexusHost(t);
+  for (const route of ['/admin/profiles', '/api/profiles']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
+  assert.equal((await get('/api/profiles/profiles', {method: 'PUT', headers: {...as([]), 'content-type': 'application/json'}, body: '{}'})).status, 403);
+  assert.equal((await get('/admin/profiles', {headers: as(['Nexus.Admin'])})).status, 200);
+  assert.equal((await get('/api/profiles', {headers: as(['Nexus.Admin'])})).status, 503);
 });

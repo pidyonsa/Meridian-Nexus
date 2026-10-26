@@ -34,7 +34,7 @@ const GAP_VIEW = /^\/(?:gap-tracker(?:\/[a-z0-9-]{2,60})?\/?|api\/gaps(?:\/[a-z0
 const GAP_MOVED = {'/insights/sir-fruit': '/gap-tracker/sir-fruit', '/insights/sir-fruit/upload': '/admin/gap-upload'};
 // Admin tools moved off the Firebase-era Nexus (Nexus.Admin only, like their #sales / #automation originals): the Sales
 // dashboard (Azure SQL), Report automation, Resources and ETLs (Firestore and Storage through the keyless Google link).
-const ADMIN_TOOL_PAGES = /^\/(?:sales|automation|resources|etls)\/?$/;
+const ADMIN_TOOL_PAGES = /^\/(?:sales|automation|resources|etls|admin\/profiles)\/?$/;
 const STAFF_SECTIONS = ['attendance', 'franchiseorder', 'gaps'];
 const everyoneMayOpen = (req, assets) => (GAP_VIEW.test(req.path) && ['GET', 'HEAD'].includes(req.method)) || WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
 
@@ -124,15 +124,16 @@ function createApp({gapStore = null, salesStore = null, googleServices = {}, fet
   const {salesRoutes} = require('./shared/sales/routes.cjs');
   const sales = salesStore || (require('./shared/db.cjs').sqlConfig() ? require('./shared/sales/store.cjs').sqlSalesStore(() => require('./shared/db.cjs').pool()) : require('./shared/sales/store.cjs').memorySalesStore());
   salesRoutes({store: sales, allow: req => Boolean(signedInUser(req)?.admin)})(app);
-  // Report automation, Resources and ETLs (shared code): Nexus.Admin only. Firebase-era Firestore and Storage through
-  // the keyless Google link when the site has GOOGLE_* settings; otherwise their APIs answer 503.
+  // Report automation, Resources, ETLs and extraction profiles (shared code): Nexus.Admin only. Firebase-era Firestore
+  // and Storage through the keyless Google link when the site has GOOGLE_* settings; otherwise their APIs answer 503.
   const google = {...require('./shared/google/services.cjs').googleServices(), ...googleServices};
   const asAdmin = req => Boolean(signedInUser(req)?.admin);
   const userOf = req => { const user = signedInUser(req); return {email: user.name, name: user.displayName}; };
   require('./shared/automation/routes.cjs').automationRoutes({service: google.automation, allow: asAdmin, userOf})(app);
   require('./shared/resources/routes.cjs').resourceRoutes({service: google.resources, allow: asAdmin, userOf})(app);
   require('./shared/etl/routes.cjs').etlRoutes({service: google.etls, allow: asAdmin, userOf})(app);
-  app.use(['/api/gaps', '/api/sales', '/api/automation', '/api/resources', '/api/etls'], (error, req, res, next) => {
+  require('./shared/profiles/routes.cjs').profileRoutes({service: google.profiles, allow: asAdmin, userOf})(app);
+  app.use(['/api/gaps', '/api/sales', '/api/automation', '/api/resources', '/api/etls', '/api/profiles'], (error, req, res, next) => {
     if (res.headersSent) return next(error);
     if (error instanceof AppError) return res.status(error.status).json({error: {code: error.code, message: error.message}});
     if (error.type === 'entity.too.large') return res.status(413).json({error: {code: 'resource-exhausted', message: 'The file is too large.'}});

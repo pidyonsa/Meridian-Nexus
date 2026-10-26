@@ -545,3 +545,13 @@ button.link:hover { color: var(--orange-2); text-decoration: underline; }
 .toolbar.stack > *, .toolbar.stack .field, .date-pair > .field { min-width: 0; }
 .toolbar.stack select, .toolbar.stack input:not([type=checkbox]), .date-pair select { width: 100%; max-width: 100%; min-width: 0; }
 .toolbar.stack fieldset { min-width: 0; }
+
+/* Extraction profiles (views/profiles.js) */
+.step-head, .step-list li { display: grid; grid-template-columns: 28px minmax(150px, 1fr) minmax(0, 1.4fr) minmax(0, 1.2fr) auto; gap: 8px; align-items: center; }
+.step-head { margin: 16px 0 6px; padding: 0 2px; color: var(--muted); font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.step-list { display: grid; gap: 6px; margin: 0 0 10px; padding: 0; list-style: none; }
+.step-list select, .step-list input { min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: rgba(6, 20, 40, .7); color: var(--text); font: inherit; font-size: 13px; }
+.step-list input:disabled { opacity: .4; }
+.step-num { color: var(--orange-2); font-weight: 600; text-align: center; }
+.step-tools { display: flex; gap: 2px; }
+@media (max-width: 760px) { .step-head { display: none; } .step-list li { grid-template-columns: 28px minmax(0, 1fr) auto; } .step-list li input { grid-column: 2 / 4; } }

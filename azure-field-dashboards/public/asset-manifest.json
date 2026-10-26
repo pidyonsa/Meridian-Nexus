@@ -198,12 +198,12 @@
     },
     {
       "path": "app/main.js",
-      "sha256": "0f0e60c43087b387ef31f956d0b0019b2dc9962d7686aa8b321cbffd15191025",
+      "sha256": "328bfeba3982f0b1a120369b3d6d51cde6114314d40d9971eab7eb808b42355b",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/nav.js",
-      "sha256": "d111e6eeaa914bbfc60852f6ec671dc2a3ff9c62dc566f753a0eacc22e157260",
+      "sha256": "32bb4c0b72df969d3ed817448c49345accefaa77aa0f944a73867036534eb160",
       "adapter": "nexus-workspace"
     },
     {
@@ -213,7 +213,7 @@
     },
     {
       "path": "app/updates.js",
-      "sha256": "2078f8a5d3dc7017d9133b1769881d5ab9eea27f4c45d71b749be0c0188bdcfd",
+      "sha256": "d18ece304005e5a299d618ad23123b4f7605550b42ebb98db1551430173a1dda",
       "adapter": "nexus-workspace"
     },
     {
@@ -247,6 +247,11 @@
       "adapter": "nexus-workspace"
     },
     {
+      "path": "app/views/profiles.js",
+      "sha256": "ca7ee5c769d77e657d45570c67647215daecf825144003a29deadeaa1d387a20",
+      "adapter": "nexus-workspace"
+    },
+    {
       "path": "app/views/home.js",
       "sha256": "41d574b6a42e61ef5146e75fe9d658347b6fe393645408e6f2cf7bf5e8a69210",
       "adapter": "nexus-workspace"
@@ -263,7 +268,7 @@
     },
     {
       "path": "styles/app.css",
-      "sha256": "61b68a9a3da552cf86a6d98677ff76e5b2f9eda12b8597a02414c8067fd1a068",
+      "sha256": "8466d5b128fb3cc219153ac27d5e6f5b4031fccba90e8edb3cb57478005c1f93",
       "adapter": "nexus-workspace"
     },
     {
@@ -283,7 +288,7 @@
     },
     {
       "path": "app/config.js",
-      "sha256": "f71d81c4ecb88efc82875d3dc573e641eb5c30583562e3f8b23fdef818998bf5",
+      "sha256": "1e68b81cb540cc77f6622a5c0ef7cd336def670930cad9042d755c3e48b443ee",
       "adapter": "nexus-workspace-site-config"
     }
   ]
