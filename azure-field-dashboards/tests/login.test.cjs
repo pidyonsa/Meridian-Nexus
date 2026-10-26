@@ -219,3 +219,13 @@ test('Geo attendance and SharePoint inventory: Nexus.Admin only; unavailable unt
   for (const route of ['/admin/geo-attendance', '/admin/integrations']) assert.equal((await get(route, {headers: as(['Nexus.Admin'])})).status, 200, route);
   for (const route of ['/api/geo-attendance', '/api/integrations']) assert.equal((await get(route, {headers: as(['Nexus.Admin'])})).status, 503, route);
 });
+
+test('Nexus.GapUploader: gap report uploads and the upload page, nothing else an admin may open', async t => {
+  const get = await nexusHost(t);
+  const uploader = as(['Nexus.GapUploader']);
+  assert.deepEqual((await (await get('/api/me', {headers: uploader})).json()).sections, ['attendance', 'franchiseorder', 'gaps', 'gaps-upload']);
+  assert.equal((await get('/admin/gap-upload', {headers: uploader})).status, 200);
+  assert.equal((await get('/api/gaps/sir-fruit/uploads', {headers: uploader})).status, 200);
+  for (const route of ['/automation', '/api/automation', '/admin/profiles', '/sales', '/api/resources', '/nexus/']) assert.equal((await get(route, {headers: uploader})).status, 403, route);
+  assert.equal((await get('/api/gaps/sir-fruit/uploads', {headers: as([])})).status, 403);
+});

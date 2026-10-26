@@ -9,7 +9,8 @@ const ROLE_CLAIMS = new Set(['roles', 'http://schemas.microsoft.com/ws/2008/06/i
 // Guests invited into the Meridian tenant carry an identity-provider claim naming their home provider; staff do not.
 const IDP_CLAIMS = new Set(['idp', 'http://schemas.microsoft.com/identity/claims/identityprovider']);
 // Entra app roles on the "Meridian Nexus Azure" registration. Admin implies everything a Reader may do.
-const ROLES = {admin: 'Nexus.Admin', reader: 'Nexus.Reader'};
+// Nexus.GapUploader (26 Oct 2026): uploads client gap reports and adds gap tracker clients, nothing else.
+const ROLES = {admin: 'Nexus.Admin', reader: 'Nexus.Reader', gapUploader: 'Nexus.GapUploader'};
 
 // Local development only: never on App Service (WEBSITE_* is always set there).
 function previewAllowed(env = process.env) {
@@ -30,7 +31,7 @@ function principalFromHeader(header, tenant = MERIDIAN_TENANT) {
     const id = value(OBJECT_CLAIMS);
     if (!id) return null;
     const roles = new Set(claims.filter(claim => ROLE_CLAIMS.has(claim.typ) || claim.typ === principal.role_typ).map(claim => claim.val));
-    return {id, email: String(value(EMAIL_CLAIMS) || '').toLowerCase(), name: String(claims.find(claim => claim.typ === 'name')?.val || value(EMAIL_CLAIMS) || 'Meridian staff'), admin: roles.has(ROLES.admin), reader: roles.has(ROLES.admin) || roles.has(ROLES.reader), preview: false};
+    return {id, email: String(value(EMAIL_CLAIMS) || '').toLowerCase(), name: String(claims.find(claim => claim.typ === 'name')?.val || value(EMAIL_CLAIMS) || 'Meridian staff'), admin: roles.has(ROLES.admin), reader: roles.has(ROLES.admin) || roles.has(ROLES.reader) || roles.has(ROLES.gapUploader), gapUploader: roles.has(ROLES.gapUploader), preview: false};
   } catch {
     return null;
   }

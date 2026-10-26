@@ -36,7 +36,11 @@ const GAP_MOVED = {'/insights/sir-fruit': '/gap-tracker/sir-fruit', '/insights/s
 // dashboard (Azure SQL), Report automation, Resources and ETLs (Firestore and Storage through the keyless Google link).
 const ADMIN_TOOL_PAGES = /^\/(?:sales|automation|resources|etls|admin\/(?:profiles|geo-attendance|integrations))\/?$/;
 const STAFF_SECTIONS = ['attendance', 'franchiseorder', 'gaps'];
-const everyoneMayOpen = (req, assets) => (GAP_VIEW.test(req.path) && ['GET', 'HEAD'].includes(req.method)) || WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
+// Entra role Nexus.GapUploader (26 October 2026): the gap report upload page, adding clients, previews, uploads and the
+// upload history, and nothing else an admin may open.
+const GAP_UPLOADER_ROLE = 'Nexus.GapUploader';
+const GAP_UPLOAD = /^\/(?:admin\/gap-upload\/?|api\/gaps\/(?:clients|[a-z0-9-]{2,60}\/(?:uploads|preview|upload)))$/;
+const everyoneMayOpen =(req, assets) => (GAP_VIEW.test(req.path) && ['GET', 'HEAD'].includes(req.method)) || WORKSPACE_ROUTE.test(req.path) || PAGE_ROUTE.test(req.path) || assets.has(req.path) || req.path === '/api/health' || req.path === '/api/me' || API_ROUTES.has(req.path);
 
 // Microsoft sign-in is done by App Service Authentication (Entra ID, Meridian tenant). It passes the signed-in
 // user in X-MS-CLIENT-PRINCIPAL and strips that header from incoming requests, so a caller cannot supply it.
@@ -52,7 +56,7 @@ function signedInUser(req) {
     if (idp && !String(idp).includes(MERIDIAN_TENANT)) return null;
     const roles = new Set(claims.filter(claim => ROLE_CLAIMS.has(claim.typ) || claim.typ === principal.role_typ).map(claim => claim.val));
     const email = req.get('x-ms-client-principal-name') || '';
-    return {name: email, displayName: String(claims.find(claim => claim.typ === 'name')?.val || email), admin: roles.has(ADMIN_ROLE)};
+    return {name: email, displayName: String(claims.find(claim => claim.typ === 'name')?.val || email), admin: roles.has(ADMIN_ROLE), gapUploader: roles.has(GAP_UPLOADER_ROLE)};
   } catch { return null; }
 }
 
@@ -102,14 +106,14 @@ function createApp({gapStore = null, salesStore = null, googleServices = {}, fet
       return res.redirect(302, '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(req.originalUrl));
     }
     if (!user) return res.status(401).json({error: 'Sign in with your Meridian Microsoft account to view the dashboards.'});
-    if (!user.admin && !everyoneMayOpen(req, assets)) return res.status(403).json({error: 'Your account can view Syndicated Attendance and Franchise Orders only.'});
+    if (!user.admin && !everyoneMayOpen(req, assets) && !(user.gapUploader && GAP_UPLOAD.test(req.path))) return res.status(403).json({error: 'Your account can view Syndicated Attendance and Franchise Orders only.'});
     next();
   });
   // The workspace asks who is signed in and which sections they may open; the checks above already enforce it.
   app.get('/api/me', (req, res) => {
     const user = signedInUser(req);
     if (!user) return res.status(401).json({error: {code: 'unauthenticated', message: 'Sign in with your Meridian Microsoft account.'}});
-    res.json({email: user.name.toLowerCase(), name: user.displayName, admin: user.admin, preview: false, sections: user.admin ? ALL_SECTIONS : STAFF_SECTIONS});
+    res.json({email: user.name.toLowerCase(), name: user.displayName, admin: user.admin, preview: false, sections: user.admin ? ALL_SECTIONS : [...STAFF_SECTIONS, ...(user.gapUploader ? ['gaps-upload'] : [])]});
   });
   app.get(WORKSPACE_ROUTE, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
   app.get(GAP_PAGES, (req, res) => res.sendFile(path.join(publicDir, 'workspace.html')));
@@ -119,7 +123,7 @@ function createApp({gapStore = null, salesStore = null, googleServices = {}, fet
   const {gapRoutes} = require('./shared/gap/routes.cjs');
   const {AppError} = require('./shared/errors.cjs');
   const store = gapStore || (require('./shared/db.cjs').sqlConfig() ? require('./shared/gap/store.cjs').sqlGapStore(() => require('./shared/db.cjs').pool()) : require('./shared/gap/store.cjs').memoryGapStore());
-  gapRoutes({store, allow: (req, kind) => { const user = signedInUser(req); return Boolean(user && (kind === 'view' || user.admin)); }, who: req => signedInUser(req)?.name || 'unknown'})(app);
+  gapRoutes({store, allow: (req, kind) => { const user = signedInUser(req); return Boolean(user && (kind === 'view' || user.admin || user.gapUploader)); }, who: req => signedInUser(req)?.name || 'unknown'})(app);
   // Sales dashboard (shared code): Nexus.Admin only; the sign-in check above already refuses everyone else.
   const {salesRoutes} = require('./shared/sales/routes.cjs');
   const sales = salesStore || (require('./shared/db.cjs').sqlConfig() ? require('./shared/sales/store.cjs').sqlSalesStore(() => require('./shared/db.cjs').pool()) : require('./shared/sales/store.cjs').memorySalesStore());

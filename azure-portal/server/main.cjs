@@ -89,7 +89,7 @@ if (require.main === module) {
   const {sqlConfig, pool} = require('./db.cjs');
   const gapStore = sqlConfig() ? require('./gap/store.cjs').sqlGapStore(() => pool()) : require('./gap/store.cjs').memoryGapStore();
   // Gap trackers: everyone may view; only Nexus admins upload.
-  const gaps = gapRoutes({store: gapStore, allow: (req, kind) => Boolean(req.user && (kind === 'view' || req.user.admin)), who: req => req.user.email || req.user.name});
+  const gaps = gapRoutes({store: gapStore, allow: (req, kind) => Boolean(req.user && (kind === 'view' || req.user.admin || req.user.gapUploader)), who: req => req.user.email || req.user.name});
   // Sales dashboard: Nexus admins (section "sales" is admin only).
   const {salesRoutes} = require('./sales/routes.cjs');
   const salesStore = sqlConfig() ? require('./sales/store.cjs').sqlSalesStore(() => pool()) : require('./sales/store.cjs').memorySalesStore();
