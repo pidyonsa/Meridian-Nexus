@@ -233,7 +233,7 @@
     },
     {
       "path": "app/views/automation.js",
-      "sha256": "eef57e5d948e976afbbcb8c6ce44503caabbfd94172667b8452317be77b1e7cc",
+      "sha256": "b8e4fe1a86cf6ef835a738683ebb9c93b38ed2186a7033a770af1b73c350029f",
       "adapter": "nexus-workspace"
     },
     {
@@ -243,7 +243,7 @@
     },
     {
       "path": "app/views/etls.js",
-      "sha256": "7833cc8f63a9ba3cf73b3200959c4f47039abbf9ebf7ea8420cb92da85f6bd9f",
+      "sha256": "ea6c932bd96550ea6293997d22e3cc2a5aaf87007968ec6d9b0e2d2fdcb4068a",
       "adapter": "nexus-workspace"
     },
     {

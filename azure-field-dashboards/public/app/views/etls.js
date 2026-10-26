@@ -1,6 +1,5 @@
 import {h, icon, formatNumber, toast} from '../ui.js';
 import {api} from '../api.js';
-import {OLD_NEXUS} from '../nav.js';
 
 // ETLs (/etls, Nexus admins): retailer sales and inventory pipelines. Pick the raw export from Resources, the worker
 // (job-nexus-etl) transforms it against the shared masters, then an admin reviews exceptions and approves the output.
@@ -28,7 +27,7 @@ export async function renderEtls(main, context) {
   dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
   main.replaceChildren(
     h('header.page-head', {}, h('div', {}, h('p.eyebrow', {}, 'Data operations'), h('h1', {}, 'ETLs'), h('p.lede.compact', {}, 'Retailer sales and inventory: transform raw exports against the shared masters, review exceptions, approve and download.')),
-      h('div.head-actions', {}, h('a.button.ghost', {href: `${OLD_NEXUS}#etls`}, icon('external'), 'Portal sales (DataOrbis)'), h('button.button', {type: 'button', onclick: () => load()}, icon('refresh'), 'Refresh'),
+      h('div.head-actions', {}, h('a.button.ghost', {href: '/automation?profile=dataorbis-game-sales', 'data-link': true}, 'Portal sales (DataOrbis)'), h('button.button', {type: 'button', onclick: () => load()}, icon('refresh'), 'Refresh'),
         h('button.button', {type: 'button', onclick: () => addPipeline()}, 'Add pipeline'), h('button.button.primary', {type: 'button', onclick: () => go('run')}, icon('play'), 'New run'))),
     tabs, body, dialog);
 

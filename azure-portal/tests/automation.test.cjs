@@ -43,7 +43,7 @@ test('start queues the run the trigger expects, under the person\'s Firebase uid
   assert.equal(run.extractionName, 'Transaction report steps'); assert.equal(run.workflowMode, 'geo-rep-report'); assert.equal(run.executionTimeline[0].event, 'queued');
   assert.ok(!('executor' in run), 'the trigger decides Azure or Google');
   assert.equal(audits(fs).at(-1).event, 'run-queued');
-  await assert.rejects(service.start(admin, {retailerId: 'dataorbis-game-sales'}), /existing Nexus/);
+  await assert.rejects(service.start(admin, {retailerId: 'dataorbis-game-sales'}), /not set up for its client/);
   await assert.rejects(service.start(admin, {retailerId: 'no-steps'}), /Link extraction steps/);
   await assert.rejects(service.start(admin, {retailerId: 'geo-rep-sales-transactions', reportStartDate: '25/10/2026'}), /YYYY-MM-DD/);
   await assert.rejects(service.start(admin, {retailerId: 'geo-rep-sales-transactions', reportStartDate: '2026-10-20', reportEndDate: '2026-10-01'}), /on or before/);
@@ -103,7 +103,7 @@ test('workspace: ready profiles, live and recent runs (stall flagged), prompts m
   const {service} = make();
   const w = await service.workspace(admin);
   assert.deepEqual(w.profiles.map(p => p.id), ['dataorbis-game-sales', 'geo-rep-sales-transactions']);
-  assert.equal(w.profiles.find(p => p.id === 'dataorbis-game-sales').startable, false);
+  assert.equal(w.profiles.find(p => p.id === 'dataorbis-game-sales').monthly, true);
   assert.equal(w.runs.find(r => r.id === 'stuck').stalled, true);
   assert.deepEqual(w.prompts.filter(p => p.mine).map(p => p.id).sort(), ['p-app', 'p-live']);
   assert.deepEqual(w.reports.map(r => r.name), ['Report.xlsx']);
@@ -131,4 +131,25 @@ test('routes: admin only, same-site changes, 503 when Google is not connected, r
   assert.equal(file.status, 200); assert.match(file.headers.get('content-disposition'), /Report\.xlsx/);
   assert.equal((await (await serve({service: null}))('/api/automation')).status, 503);
   assert.equal((await (await serve({service, admin: false}))('/api/automation')).status, 403);
+});
+
+test('DataOrbis: one run per client and complete month, with the approved inputs; the starter answers the OTP', async () => {
+  const sha = 'a'.repeat(64);
+  const fs = memoryFirestore({...seed(),
+    'retailers/dataorbis-game-sales': {name: 'Wilmar - Game / Makro / Jumbo', webAddress: 'https://pyramid.dataorbis.com/login', username: 'wilmar', extractionProfileId: 'dataorbis-steps', salesProcedure: {clientCode: 'WILMAR', automationReady: true, supplier: 'WILMAR SA', excludeGameOnlineAndNonSa: true}},
+    'dataorbisMonthlyTemplates/2026-09': {approved: true, template: {storagePath: 'dataorbis-inputs/2026-09/template.xlsx', sha256: sha}, cleanup: {storagePath: 'dataorbis-inputs/2026-09/cleanup.xlsx', sha256: sha}, callCycle: {storagePath: 'uploads/cc/cycle.xlsx', sha256: sha}}
+  });
+  const {service} = make(fs);
+  await assert.rejects(service.start(admin, {retailerId: 'dataorbis-game-sales', reportStartDate: '2026-10-01', reportEndDate: '2026-10-31'}), /must be complete/);
+  await assert.rejects(service.start(admin, {retailerId: 'dataorbis-game-sales', reportStartDate: '2026-09-02', reportEndDate: '2026-09-30'}), /first day/);
+  await assert.rejects(service.start(admin, {retailerId: 'dataorbis-game-sales', reportStartDate: '2026-08-01', reportEndDate: '2026-08-31'}), /approved all-clients template/);
+  const r = await service.start(admin, {retailerId: 'dataorbis-game-sales'});   // defaults to September 2026
+  const run = fs.docs.get(`extractionRuns/${r.runId}`);
+  assert.equal(run.workflowMode, 'dataorbis-monthly-sales'); assert.equal(run.reportMonth, '2026-09'); assert.equal(run.outputFileName, 'Sep26- ALL Clients by SKU.xlsx');
+  assert.equal(run.promptOwnerUid, 'uid-jp'); assert.equal(run.dataorbis.client, 'WILMAR'); assert.equal(run.dataorbis.inputs.callCycle.storagePath, 'uploads/cc/cycle.xlsx');
+  assert.equal(fs.docs.get('dataorbisMonthlyTemplates/2026-09').activeRunId, r.runId);
+  assert.equal(fs.docs.get('dataorbisMonthlyBatches/WILMAR-2026-09').status, 'queued');
+  await assert.rejects(service.start(admin, {retailerId: 'dataorbis-game-sales'}), /Another monthly DataOrbis job is active/);
+  fs.docs.get('dataorbisMonthlyBatches/WILMAR-2026-09').status = 'completed';
+  assert.deepEqual((await service.start(admin, {retailerId: 'dataorbis-game-sales'})).reused, true);
 });

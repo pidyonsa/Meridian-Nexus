@@ -114,24 +114,28 @@ export async function renderAutomation(main, context) {
 
   function profilePicker(onchange) {
     return h('label.field.grow', {}, h('span', {}, 'Extraction profile'), h('select', {onchange: e => { state.profile = e.target.value; onchange(); }},
-      state.data.profiles.map(p => h('option', {value: p.id, selected: p.id === state.profile}, `${p.name}${p.startable ? '' : ' (existing Nexus)'}`))));
+      state.data.profiles.map(p => h('option', {value: p.id, selected: p.id === state.profile}, `${p.name}${p.monthly ? ' · monthly' : ''}`))));
   }
   const current = () => state.data.profiles.find(p => p.id === state.profile);
 
   function runPanel() {
     const p = current();
-    if (!p) return h('section.state-panel', {}, h('h2', {}, 'No approved extraction profiles'), h('p', {}, 'Profiles are set up in the existing Nexus Admin workspace.'));
+    if (!p) return h('section.state-panel', {}, h('h2', {}, 'No approved extraction profiles'), h('p', {}, 'Add one in Admin › Extraction profiles.'), h('a.button', {href: '/admin/profiles', 'data-link': true}, 'Extraction profiles'));
     const start = h('input', {type: 'date', 'aria-label': 'Report start date'}), end = h('input', {type: 'date', 'aria-label': 'Report end date'});
-    const note = p.attendance ? 'Leave blank for yesterday. Attendance always runs from the 1st of the end date\'s month.' : p.defaultsToMonth ? 'Leave blank for month to date.' : 'Leave blank for today, or choose the report period.';
+    // DataOrbis runs cover one complete month (default: last month).
+    const lastMonth = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth() - 1, 1)).toISOString().slice(0, 7);
+    const month = h('input', {type: 'month', value: lastMonth, max: lastMonth, 'aria-label': 'Reporting month'});
+    const monthRange = () => { const [y, m] = month.value.split('-').map(Number); return {reportStartDate: `${month.value}-01`, reportEndDate: new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)}; };
+    const note = p.monthly ? 'One complete month per run. You enter the DataOrbis OTP here when the portal asks for it.' : p.attendance ? 'Leave blank for yesterday. Attendance always runs from the 1st of the end date\'s month.' : p.defaultsToMonth ? 'Leave blank for month to date.' : 'Leave blank for today, or choose the report period.';
     const run = h('button.button.primary.run-button', {type: 'submit', disabled: !p.startable}, icon('play'), 'Run job now');
     const lastRuns = state.data.runs.filter(r => r.retailerId === p.id).slice(0, 5);
     return h('div.run-grid', {},
-      h('form.panel.run-form', {onsubmit: e => { e.preventDefault(); act(run, () => post('/automation/runs', {retailerId: p.id, reportStartDate: start.value, reportEndDate: end.value}), r => `Queued: ${p.name}, ${r.reportStartDate} to ${r.reportEndDate}.`).then(r => { if (r) { state.tab = 'jobs'; state.filter = 'live'; draw(); } }); }},
+      h('form.panel.run-form', {onsubmit: e => { e.preventDefault(); act(run, () => post('/automation/runs', {retailerId: p.id, ...(p.monthly ? monthRange() : {reportStartDate: start.value, reportEndDate: end.value})}), r => `Queued: ${p.name}, ${r.reportStartDate} to ${r.reportEndDate}.`).then(r => { if (r) { state.tab = 'jobs'; state.filter = 'live'; draw(); } }); }},
         h('div.panel-head', {}, h('div', {}, h('p.eyebrow', {}, '01 · Run'), h('h2', {}, 'Run an approved report')), p.executor === 'azure' ? h('span.pill.small.blue', {}, 'Runs on Azure') : null),
         h('div.toolbar.stack', {}, profilePicker(draw),
           h('dl.facts.compact', {}, h('dt', {}, 'Portal'), h('dd', {}, p.portal || '–'), h('dt', {}, 'Steps'), h('dd', {}, p.extractionName || '–'), h('dt', {}, 'Schedule'), h('dd', {}, p.reportSchedule.enabled ? `${p.reportSchedule.time} · ${dayNames(p.reportSchedule.daysOfWeek)}` : 'Manual only')),
-          p.startable ? [h('div.date-pair', {}, h('label.field', {}, h('span', {}, 'Report start date'), start), h('label.field', {}, h('span', {}, 'Report end date'), end)), h('p.muted.small-note', {}, note), run]
-            : h('div.notice.warning', {}, icon('alert'), h('span', {}, 'This profile still runs from the existing Nexus. ', h('a', {href: `${OLD_NEXUS}#automation`}, 'Open it there'), '.')))),
+          p.startable ? [p.monthly ? h('label.field', {}, h('span', {}, 'Reporting month'), month) : h('div.date-pair', {}, h('label.field', {}, h('span', {}, 'Report start date'), start), h('label.field', {}, h('span', {}, 'Report end date'), end)), h('p.muted.small-note', {}, note), run]
+            : h('div.notice.warning', {}, icon('alert'), h('span', {}, 'This profile belongs to a feature retired in October 2026 and can no longer be run.')))),
       h('section.panel', {}, h('div.panel-head', {}, h('div', {}, h('p.eyebrow', {}, 'This profile'), h('h2', {}, 'Recent runs'))),
         lastRuns.length ? h('ul.run-list', {}, lastRuns.map(r => h('li', {}, h('button', {type: 'button', onclick: () => detail(r.id)}, h('span', {}, statusPill(r.status), ` ${r.reportStartDate || ''}${r.reportEndDate && r.reportEndDate !== r.reportStartDate ? ` → ${r.reportEndDate}` : ''}`), h('span.muted', {}, `${ago(r.lastActivity || r.createdAt)} · ${who(r)}`))))) : h('p.empty', {}, 'No runs yet.')));
   }
@@ -163,7 +167,7 @@ export async function renderAutomation(main, context) {
           h('div.date-pair', {}, h('label.field', {}, h('span', {}, 'Run time'), time), h('label.field', {}, h('span', {}, 'Report period'), mode)), fixed,
           h('fieldset.days', {}, h('legend', {}, 'Run on these days'), dayBoxes), summaryEl,
           s.updatedAt ? h('p.muted.small-note', {}, `Last changed ${when(s.updatedAt)} by ${s.configuredByName || s.configuredByEmail || 'Nexus'}${s.lastQueuedAt ? ` · last queued ${when(s.lastQueuedAt)}` : ''}.`) : null, save
-        ] : h('div.notice.warning', {}, icon('alert'), h('span', {}, 'This profile\'s schedule is managed in the existing Nexus.'))));
+        ] : h('div.notice.warning', {}, icon('alert'), h('span', {}, p.monthly ? 'DataOrbis monthly runs are started by hand once the month is complete (Run job).' : 'This profile was retired in October 2026.'))));
   }
 
   function jobsPanel() {

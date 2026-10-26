@@ -6,8 +6,7 @@
 // triggers and the Azure workers (processExtraction bundle) keep doing the work: a new `queued` run is picked up on
 // create, cancellations are polled, prompts are answered through automationPrompts.
 // Differences from Firebase: status checks and writes run in one transaction (no double abort or double answer);
-// removed features (Salesforce, Display Compliance, Monthly Attendance, SmartSell) are refused instead of queued;
-// DataOrbis monthly runs still start from the existing Nexus.
+// removed features (Salesforce, Display Compliance, Monthly Attendance, SmartSell) are refused instead of queued.
 const crypto = require('node:crypto');
 const {AppError} = require('../errors.cjs');
 const {SERVER_TIME} = require('../google/firestore.cjs');
@@ -21,7 +20,9 @@ const STALL_MS = 90 * 1000;
 const RUNS_LIMIT = 300;
 const GEO_ATTENDANCE = new Set(['geo-rep-attendance-for-reps', 'geo-rep-merch-attendance']);
 const GEO_MONTH_TO_DATE = new Set(['geo-rep', 'geo-rep-sales-transactions', 'geo-rep-orders', ...GEO_ATTENDANCE]);
-const DATAORBIS = new Set(['dataorbis-game-sales', 'dataorbis-makro-sales']);
+const DATAORBIS_CLIENTS = {'dataorbis-game-sales': 'WILMAR', 'dataorbis-makro-sales': 'ESPEN'};
+const DATAORBIS = new Set(Object.keys(DATAORBIS_CLIENTS));
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 // Salesforce profiles and the Geo Rep blueprint ('geo-rep') were retired in October 2026.
 const RETIRED = id => /^sales-force-|^salesforce-/.test(id) || id === 'geo-rep';
 // The run fields the job list needs (timelines are read only when a job is opened).
@@ -100,7 +101,7 @@ function safeProfile(id, d) {
   return {
     id, name: text(d.name, 120) || id, portal, extractionName: text(d.extractionName, 160), executor: text(d.executor, 24),
     ready: DATAORBIS.has(id) ? d.salesProcedure?.automationReady === true : Boolean(d.extractionProfileId || (Array.isArray(d.steps) && d.steps.length)),
-    startable: !DATAORBIS.has(id) && !RETIRED(id), defaultsToMonth: GEO_MONTH_TO_DATE.has(id), attendance: GEO_ATTENDANCE.has(id),
+    startable: !RETIRED(id), monthly: DATAORBIS.has(id), defaultsToMonth: GEO_MONTH_TO_DATE.has(id), attendance: GEO_ATTENDANCE.has(id),
     reportSchedule: {enabled: s.enabled === true, frequency: text(s.frequency, 16) || 'daily', dateMode: s.dateMode === 'fixed' ? 'fixed' : 'daily', time: text(s.time, 5), daysOfWeek: (Array.isArray(s.daysOfWeek) ? s.daysOfWeek : []).map(Number).filter(n => Number.isInteger(n) && n >= 0 && n <= 6),
       businessDaysOnly: s.businessDaysOnly === true, startDate: text(s.startDate, 10), endDate: text(s.endDate, 10), lastQueuedAt: iso(s.lastQueuedAt), lastQueuedRunId: text(s.lastQueuedRunId, 160),
       configuredByName: text(s.configuredByName, 160), configuredByEmail: text(s.configuredByEmail, 320), updatedAt: iso(s.updatedAt)}
@@ -174,7 +175,7 @@ function automationService({fs, storage, now = () => new Date()}) {
     if (startDate && endDate && startDate > endDate) throw new AppError('invalid-argument', 'The report start date must be on or before the end date.');
     const retailer = await fs.get(`retailers/${retailerId}`);
     if (!retailer) throw new AppError('not-found', 'Extraction profile configuration was not found.');
-    if (DATAORBIS.has(retailerId)) throw new AppError('failed-precondition', 'DataOrbis monthly sales runs still start from ETLs › Portal sales in the existing Nexus.');
+    if (DATAORBIS.has(retailerId)) return startDataOrbis(user, retailer, body);
     if (RETIRED(retailerId)) throw new AppError('failed-precondition', 'This report was retired in October 2026 and can no longer be run.');
     const r = retailer.data;
     if (!r.extractionProfileId && !(Array.isArray(r.steps) && r.steps.length)) throw new AppError('failed-precondition', 'Link extraction steps before running this extraction profile.');
@@ -197,6 +198,58 @@ function automationService({fs, storage, now = () => new Date()}) {
       auditWrite(actor, 'run-queued', {runId, retailerId, retailerName: r.name, result: 'queued', message: 'A manual extraction was queued.'})
     ]);
     return {runId, reportStartDate: dates.start, reportEndDate: dates.end};
+  }
+
+  // DataOrbis monthly sales (Game / Makro / Jumbo per client): one run per client and complete month, with the month's
+  // approved template, clean-up and call-cycle inputs (functions/dataorbis-runtime.js queue). The operator who starts
+  // it answers the portal OTP.
+  async function startDataOrbis(user, retailer, body) {
+    const id = retailer.id, r = retailer.data, client = DATAORBIS_CLIENTS[id];
+    const fail = message => { throw new AppError('failed-precondition', message); };
+    if (r.salesProcedure?.clientCode !== client) fail('This DataOrbis profile is not set up for its client.');
+    if (r.salesProcedure?.automationReady !== true) fail('The client workflow has not passed validation.');
+    let origin = '';
+    try { origin = new URL(r.webAddress).origin; } catch { /* checked below */ }
+    if (origin !== 'https://pyramid.dataorbis.com') fail('The DataOrbis portal address is not the approved one.');
+    if (!r.username) fail('Save the client\'s portal username in Extraction profiles.');
+    if (typeof r.salesProcedure.supplier !== 'string' || !r.salesProcedure.supplier.trim()) fail('Configure this client\'s exact DataOrbis supplier name.');
+    if (r.salesProcedure.excludeGameOnlineAndNonSa !== true) fail('The approved Game exclusion policy is missing.');
+    // The previous complete month unless a month is chosen.
+    let start = optionalDate(body.reportStartDate, 'Report start date'), end = optionalDate(body.reportEndDate, 'Report end date');
+    const today = local(now()).date;
+    if (!start && !end) { start = `${addDays(`${today.slice(0, 8)}01`, -1).slice(0, 8)}01`; end = addDays(`${today.slice(0, 8)}01`, -1); }
+    if (!/^\d{4}-(0[1-9]|1[0-2])-01$/.test(start || '')) fail('Choose the first day of a complete reporting month.');
+    const month = start.slice(0, 7);
+    const last = new Date(Date.UTC(Number(start.slice(0, 4)), Number(start.slice(5, 7)), 0)).toISOString().slice(0, 10);
+    if (end !== last) fail('Choose the last day of the same reporting month.');
+    if (!(end < today)) fail('The reporting month must be complete.');
+    const fileName = `${MONTHS[Number(start.slice(5, 7)) - 1]}${start.slice(2, 4)}- ALL Clients by SKU.xlsx`;
+    const descriptor = input => {
+      if (!input || typeof input.storagePath !== 'string' || !/^(?:dataorbis-inputs|uploads)\//.test(input.storagePath) || input.storagePath.split('/').includes('..') || !/^[a-f0-9]{64}$/.test(input.sha256 || '')) fail('The approved monthly inputs are incomplete.');
+      return {storagePath: input.storagePath, sha256: input.sha256};
+    };
+    const actor = await actorOf(user);
+    const runId = crypto.randomUUID().replace(/-/g, '').slice(0, 20);
+    const result = await fs.transaction(async tx => {
+      const [monthDoc, batchDoc] = await Promise.all([tx.get(`dataorbisMonthlyTemplates/${month}`), tx.get(`dataorbisMonthlyBatches/${client}-${month}`)]);
+      if (batchDoc?.data?.status === 'completed') return {runId: batchDoc.data.runId, reused: true};
+      const config = monthDoc?.data;
+      if (!config?.approved || !config.template) fail('An approved all-clients template and store mappings are required for this reporting month.');
+      if (config.activeRunId) {
+        const active = (await tx.get(`extractionRuns/${config.activeRunId}`))?.data;
+        if (active && !active.cancellationRequestedAt && !['failed', 'cancelled', 'completed', 'skipped_duplicate'].includes(active.status)) throw new AppError('already-exists', 'Another monthly DataOrbis job is active. Finish or cancel that job before starting another.');
+      }
+      const inputs = {template: descriptor(config.template), cleanup: descriptor(config.cleanup), callCycle: descriptor(config.callCycle)};
+      tx.create(`extractionRuns/${runId}`, {retailerId: id, retailerName: r.name, extractionName: `${client} monthly Game / Makro / Jumbo sales`, workflowMode: 'dataorbis-monthly-sales', extractionProfileId: r.extractionProfileId || null,
+        status: 'queued', message: 'Monthly sales extraction queued; enter the OTP in Nexus when prompted.', reportStartDate: start, reportEndDate: end, reportMonth: month, outputFileName: fileName,
+        createdBy: actor.uid, promptOwnerUid: actor.uid, createdByEmail: actor.email || null, createdAt: SERVER_TIME, requestedVia: 'azure-nexus',
+        dataorbis: {client, supplier: r.salesProcedure.supplier, inputs, excludeGameOnlineAndNonSa: true}, executionTimeline: [event('queued', 'Manual monthly sales extraction queued.')]});
+      tx.update(`dataorbisMonthlyTemplates/${month}`, {activeRunId: runId, updatedAt: SERVER_TIME});
+      tx.set(`dataorbisMonthlyBatches/${client}-${month}`, {runId, status: 'queued', month, client, updatedAt: SERVER_TIME});
+      return {runId};
+    });
+    await audit(actor, 'run-queued', {runId: result.runId, retailerId: id, retailerName: r.name, result: result.reused ? 'reused' : 'queued', message: 'DataOrbis monthly sales run requested.'});
+    return {...result, reportStartDate: start, reportEndDate: end};
   }
 
   // Waiting prompts of a run, closed with it.
@@ -316,7 +369,7 @@ function automationService({fs, storage, now = () => new Date()}) {
     if (dateMode === 'fixed' && startDate && endDate && startDate > endDate) throw new AppError('invalid-argument', 'The report start date must be on or before the end date.');
     const retailer = await fs.get(`retailers/${id}`);
     if (!retailer) throw new AppError('not-found', 'Extraction profile configuration was not found.');
-    if (RETIRED(id) || DATAORBIS.has(id)) throw new AppError('failed-precondition', 'This report\'s schedule is managed in the existing Nexus.');
+    if (RETIRED(id) || DATAORBIS.has(id)) throw new AppError('failed-precondition', DATAORBIS.has(id) ? 'DataOrbis monthly runs are started by hand once the month is complete.' : 'This report was retired in October 2026.');
     const actor = await actorOf(user);
     const s = {enabled, frequency: 'daily', dayOfMonth: null, daysOfWeek: days, businessDaysOnly: days.join() === '1,2,3,4,5', monthlyRunCadence: null, dateMode, time, timezone: 'Africa/Johannesburg',
       startDate: dateMode === 'fixed' ? startDate : '', endDate: dateMode === 'fixed' ? endDate || startDate : '', monthlyActualWeek: null, monthlyReconcileAllWeeks: false, dailySmartSellWeekOverride: null,
