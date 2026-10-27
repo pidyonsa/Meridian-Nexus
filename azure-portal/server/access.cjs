@@ -1,9 +1,9 @@
 'use strict';
 // Which Nexus sections a user may open. Same section ids as the Firebase portal's NAVIGATION_OPTIONS, minus the
 // features removed in October (Insights, Stock Fix, Salesforce, Display Compliance, Geo Rep blueprint).
-const SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'gaps', 'gaps-upload', 'automation', 'etls', 'resources', 'chat', 'support', 'admin'];
+const SECTIONS = ['home', 'attendance', 'callcycle', 'franchiseorder', 'sales', 'training', 'gaps', 'gaps-upload', 'automation', 'etls', 'resources', 'profiles', 'geo-attendance', 'integrations', 'users', 'chat', 'support', 'admin'];
 // gaps: view client gap trackers (Sir Fruit), open to everyone since 24 Oct 2026; gaps-upload: upload their reports.
-const ADMIN_ONLY = new Set(['home', 'sales', 'gaps-upload', 'etls', 'resources', 'admin']);
+const ADMIN_ONLY = new Set(['home', 'sales', 'gaps-upload', 'etls', 'resources', 'profiles', 'geo-attendance', 'integrations', 'users', 'admin']);
 // Firebase defaults for a normal user: Report automation and Chat, plus Support always.
 const DEFAULT_SECTIONS = ['automation', 'chat'];
 

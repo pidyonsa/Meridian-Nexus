@@ -102,7 +102,8 @@ const sharedServer = ['errors.cjs', 'db.cjs', 'gap/parse.cjs', 'gap/store.cjs', 
   'google/token.cjs', 'google/firestore.cjs', 'google/storage.cjs', 'google/people.cjs', 'google/services.cjs', 'automation/service.cjs', 'automation/routes.cjs',
   'resources/service.cjs', 'resources/routes.cjs', 'etl/pipelines.cjs', 'etl/service.cjs', 'etl/launcher.cjs', 'etl/routes.cjs',
   'profiles/credentials.cjs', 'profiles/service.cjs', 'profiles/routes.cjs', 'azure/keyvault.cjs', 'azure/graph.cjs',
-  'attendance/hierarchy.json', 'attendance/exclusions.cjs', 'attendance/geo.cjs', 'attendance/inventory.cjs', 'attendance/routes.cjs'];
+  'attendance/hierarchy.json', 'attendance/exclusions.cjs', 'attendance/geo.cjs', 'attendance/inventory.cjs', 'attendance/routes.cjs',
+  'permissions/catalogue.cjs', 'permissions/store.cjs', 'permissions/service.cjs', 'permissions/routes.cjs'];
 for (const file of sharedServer) {
   const target = path.join(root, 'server/shared', file);
   fs.mkdirSync(path.dirname(target), {recursive: true});

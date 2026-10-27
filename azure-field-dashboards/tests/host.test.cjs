@@ -49,7 +49,7 @@ test('serves dashboard deep links with isolated Attendance and Franchise sidebar
 test('no admin, source code, manifest, arbitrary proxy or mutation routes', async t => {
   let calls = 0;
   const {url} = await host(t, {fetchImpl: async () => {calls++; return json({});}});
-  for (const route of ['/admin', '/api/admin', '/api/imports', '/api/proxy', '/api/orders/other', '/server/main.cjs', '/package.json', '/.env', '/asset-manifest.json', '/attendance/client/overview', '/attendance/rep/exclusions', '/attendance/merchandiser/exclusions', '/franchise-orders/admin']) {
+  for (const route of ['/admin/secret', '/api/admin', '/api/imports', '/api/proxy', '/api/orders/other', '/server/main.cjs', '/package.json', '/.env', '/asset-manifest.json', '/attendance/client/overview', '/attendance/rep/exclusions', '/attendance/merchandiser/exclusions', '/franchise-orders/admin']) {
     assert.equal((await fetch(url + route)).status, 404, route);
   }
   for (const method of ['GET', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']) assert.equal((await fetch(url + '/api/orders', {method})).status, 405);

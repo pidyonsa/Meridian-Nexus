@@ -61,11 +61,11 @@ export const MODULES = [
   ]},
   {id: 'admin', label: 'Admin', icon: 'bank', tone: 'orange', status: 'adminOnly', badgeTone: 'orange', dot: 'orange', cardBlurb: true, blurb: 'Manage extraction profile connections, extraction steps and secure access.', tools: [
     {id: 'admin-overview', label: 'Migration health', desc: 'Firestore to Azure sync status and recent runs.', section: 'admin', path: '/admin'},
-    {id: 'admin-users', label: 'Users', desc: 'Who can open what in Nexus.', section: 'admin', path: '/admin/users'},
+    {id: 'admin-users', label: 'Users', desc: 'Give people access to Nexus tools, administrators and blocking.', section: 'users', path: '/admin/users'},
     {id: 'gap-upload', label: 'Upload gap report', desc: "Upload a client's weekly gap workbook (or add a new client), check it, then save.", section: 'gaps-upload', path: '/admin/gap-upload'},
-    {id: 'admin-profiles', label: 'Extraction profiles', desc: 'Portals, logins and the browser step sets report automation runs.', section: 'admin', path: '/admin/profiles'},
-    {id: 'admin-geo-attendance', label: 'Geo attendance', desc: 'Rep TNA tracker, operational week, daily run, store enrichment and dashboard exclusions.', section: 'admin', path: '/admin/geo-attendance'},
-    {id: 'admin-integrations', label: 'SharePoint inventory', desc: 'What the Meridian Nexus SharePoint site holds and what still needs to move into Nexus.', section: 'admin', path: '/admin/integrations'},
+    {id: 'admin-profiles', label: 'Extraction profiles', desc: 'Portals, logins and the browser step sets report automation runs.', section: 'profiles', path: '/admin/profiles'},
+    {id: 'admin-geo-attendance', label: 'Geo attendance', desc: 'Rep TNA tracker, operational week, daily run, store enrichment and dashboard exclusions.', section: 'geo-attendance', path: '/admin/geo-attendance'},
+    {id: 'admin-integrations', label: 'SharePoint inventory', desc: 'What the Meridian Nexus SharePoint site holds and what still needs to move into Nexus.', section: 'integrations', path: '/admin/integrations'},
     {id: 'resources', label: 'Resources', desc: 'Shared reference files and templates.', section: 'resources', path: '/resources', old: '#resources'}
   ]}
 ];

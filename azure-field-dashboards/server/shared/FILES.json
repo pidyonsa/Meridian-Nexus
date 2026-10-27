@@ -126,5 +126,21 @@
   {
     "file": "attendance/routes.cjs",
     "sha256": "13cc0d118409ea16173ea0eee254d303e8838334e4793afcdf6458b34d48985c"
+  },
+  {
+    "file": "permissions/catalogue.cjs",
+    "sha256": "6bd4f1d26b659c125638f8053624fe790236084038bacb775cf6e0ca0b32bdb1"
+  },
+  {
+    "file": "permissions/store.cjs",
+    "sha256": "1c02b3668493b7dac3285630c613307c30e8f7d84117d6fab3d9867d34d1037a"
+  },
+  {
+    "file": "permissions/service.cjs",
+    "sha256": "2508e41a5e00ef6818bc19767fb360a75fdee7e0e4ee17d6bd338efc45a97da7"
+  },
+  {
+    "file": "permissions/routes.cjs",
+    "sha256": "888ec5d47f8215a5c40dfbd28486fdf15029b5e4fa1c661daa526f95439747b1"
   }
 ]

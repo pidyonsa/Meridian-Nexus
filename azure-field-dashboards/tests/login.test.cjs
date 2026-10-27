@@ -69,16 +69,18 @@ test('every Meridian account sees Syndicated Attendance and Franchise Orders; th
   }
   // Anything outside the two dashboards is the full Nexus: refused for staff, passed through for the admin
   // (this site has no such page yet, so the admin gets "not found").
-  for (const route of ['/admin', '/files', '/api/etl']) {
+  // Admin › Migration health is a workspace page for administrators.
+  assert.equal((await get('/admin', staff)).status, 403); assert.equal((await get('/admin', admin)).status, 200);
+  for (const route of ['/admin/secret', '/files', '/api/etl']) {
     assert.equal((await get(route, staff)).status, 403, route);
     assert.equal((await get(route, admin)).status, 404, route);
   }
   assert.equal((await get('/api/import', staff, 'POST')).status, 403);
 });
 
-const nexusHost = async (t, functionsFetch, salesStore = null) => {
+const nexusHost = async (t, functionsFetch, salesStore = null, permissionStore = null) => {
   const reportProvider = {kind: 'test', request: async () => ({status: 200, data: {rows: []}})};
-  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch, salesStore}).listen(0, '127.0.0.1');
+  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch, salesStore, permissionStore}).listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
   return (route, init = {}) => fetch(`http://127.0.0.1:${server.address().port}${route}`, {redirect: 'manual', ...init});
@@ -228,4 +230,34 @@ test('Nexus.GapUploader: gap report uploads and the upload page, nothing else an
   assert.equal((await get('/api/gaps/sir-fruit/uploads', {headers: uploader})).status, 200);
   for (const route of ['/automation', '/api/automation', '/admin/profiles', '/sales', '/api/resources', '/nexus/']) assert.equal((await get(route, {headers: uploader})).status, 403, route);
   assert.equal((await get('/api/gaps/sir-fruit/uploads', {headers: as([])})).status, 403);
+});
+
+test('Permissions set in Admin › Users open exactly their tools; blocked people see nothing; only administrators manage them', async t => {
+  const {memoryPermissionStore} = require('../server/shared/permissions/store.cjs');
+  const store = memoryPermissionStore({permissions: [
+    {email: 'someone@meridiangroup.co.za', sections: ['automation', 'gaps-upload']},
+    {email: 'blocked@meridiangroup.co.za', disabled: true},
+    {email: 'boss@meridiangroup.co.za', admin: true}
+  ]});
+  const get = await nexusHost(t, undefined, null, store);
+  const asEmail = (email, roles = []) => ({'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', roles), 'x-ms-client-principal-name': email});
+  const someone = asEmail('someone@meridiangroup.co.za');
+  assert.deepEqual((await (await get('/api/me', {headers: someone})).json()).sections, ['attendance', 'franchiseorder', 'gaps', 'gaps-upload', 'automation']);
+  assert.equal((await get('/automation', {headers: someone})).status, 200);
+  assert.equal((await get('/api/automation', {headers: someone})).status, 503, 'allowed through; Google is not configured in tests');
+  assert.equal((await get('/admin/gap-upload', {headers: someone})).status, 200);
+  for (const route of ['/etls', '/api/sales', '/admin/users', '/api/permissions', '/nexus/']) assert.equal((await get(route, {headers: someone})).status, 403, route);
+  const blocked = asEmail('blocked@meridiangroup.co.za');
+  assert.equal((await (await get('/api/me', {headers: blocked})).json()).blocked, true);
+  assert.equal((await get('/franchise-orders/overview', {headers: blocked})).status, 403);
+  const boss = asEmail('boss@meridiangroup.co.za');
+  assert.equal((await (await get('/api/me', {headers: boss})).json()).admin, true);
+  const list = await (await get('/api/permissions', {headers: boss})).json();
+  assert.ok(list.people.some(p => p.email === 'someone@meridiangroup.co.za'));
+  const grant = await get('/api/permissions/new.person@meridiangroup.co.za', {method: 'PUT', headers: {...boss, 'content-type': 'application/json'}, body: JSON.stringify({sections: ['etls'], admin: false, disabled: false})});
+  assert.equal(grant.status, 200);
+  assert.equal((await get('/etls', {headers: asEmail('new.person@meridiangroup.co.za')})).status, 200, 'takes effect immediately');
+  const crossSite = await get('/api/permissions/x@meridiangroup.co.za', {method: 'PUT', headers: {...boss, origin: 'https://evil.example', 'content-type': 'application/json'}, body: '{"sections":[],"admin":true}'});
+  assert.equal(crossSite.status, 403);
+  assert.equal((await get('/api/permissions/x@meridiangroup.co.za', {method: 'PUT', headers: {...someone, 'content-type': 'application/json'}, body: '{"sections":[],"admin":true}'})).status, 403);
 });

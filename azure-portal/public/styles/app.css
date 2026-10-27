@@ -565,3 +565,14 @@ button.link:hover { color: var(--orange-2); text-decoration: underline; }
 .tag.found { border-color: rgba(143, 214, 168, .45); color: var(--green); text-decoration: none; }
 .tag.missing { border-color: rgba(255, 123, 107, .45); color: var(--danger); }
 @media (max-width: 1080px) { .geo-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Users and permissions (views/admin.js) */
+.add-person { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.switch-row { display: flex; flex-wrap: wrap; gap: 20px; margin: 4px 0 14px; }
+.permission-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.permission-groups.dim { opacity: .45; }
+.permission-group { display: grid; gap: 6px; align-content: start; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); }
+.permission { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; cursor: pointer; }
+.permission input { margin-top: 3px; accent-color: var(--orange); }
+.permission em { color: var(--muted); font-size: 12px; font-style: normal; }
+@media (max-width: 560px) { .permission-groups { grid-template-columns: minmax(0, 1fr); } }
