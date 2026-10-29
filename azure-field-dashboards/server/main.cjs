@@ -34,7 +34,7 @@ const GAP_VIEW = /^\/(?:gap-tracker(?:\/[a-z0-9-]{2,60})?\/?|api\/gaps(?:\/[a-z0
 // The tracker briefly lived under Insights (23-24 October 2026); old links keep working.
 const GAP_MOVED = {'/insights/sir-fruit': '/gap-tracker/sir-fruit', '/insights/sir-fruit/upload': '/admin/gap-upload'};
 // Workspace pages of the tools moved off the Firebase-era Nexus; each needs its section (checked before serving).
-const TOOL_PAGES = /^\/(?:sales|automation|resources|etls|admin(?:\/(?:profiles|geo-attendance|integrations|users))?)\/?$/;
+const TOOL_PAGES = /^\/(?:sales|stockfix|automation|resources|etls|admin(?:\/(?:profiles|geo-attendance|integrations|users))?)\/?$/;
 // Entra role Nexus.GapUploader (26 October 2026) also grants gap uploads (permissions can now be set in Nexus instead).
 const GAP_UPLOADER_ROLE = 'Nexus.GapUploader';
 const OID_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/objectidentifier', 'oid']);
@@ -59,7 +59,7 @@ function signedInUser(req) {
   } catch { return null; }
 }
 
-function createApp({gapStore = null, salesStore = null, permissionStore = null, googleServices = {}, fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
+function createApp({gapStore = null, salesStore = null, stockfixSource, permissionStore = null, googleServices = {}, fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
   const app = express();
   const limits = new Map();
   const pending = new Map();
@@ -142,6 +142,11 @@ function createApp({gapStore = null, salesStore = null, permissionStore = null, 
   const {salesRoutes} = require('./shared/sales/routes.cjs');
   const sales = salesStore || (db.sqlConfig() ? require('./shared/sales/store.cjs').sqlSalesStore(() => db.pool()) : require('./shared/sales/store.cjs').memorySalesStore());
   salesRoutes({store: sales, allow: req => has(req, 'sales')})(app);
+  // StockFix reporting (shared code), every Meridian account (section "stockfix"); read-only from the StockFix data on SharePoint through the
+  // Nexus SharePoint app (Key Vault secrets, the site's identity). Reps keep capturing in the StockFix app.
+  const stockfix = stockfixSource !== undefined ? stockfixSource
+    : require('./shared/stockfix/source.cjs').sharePointStockFixSource({graph: require('./shared/azure/graph.cjs').graphClient({vault: require('./shared/azure/keyvault.cjs').keyVault()})});
+  require('./shared/stockfix/routes.cjs').stockfixRoutes({source: stockfix, allow: req => has(req, 'stockfix')})(app);
   // Report automation, Resources, ETLs, extraction profiles, Geo attendance and the SharePoint inventory (shared code),
   // each behind its own permission. Firebase-era Firestore and Storage through the keyless Google link when the site
   // has GOOGLE_* settings; otherwise their APIs answer 503.
@@ -166,7 +171,7 @@ function createApp({gapStore = null, salesStore = null, permissionStore = null, 
         collections: collections.map(c => ({name: c.collection, field: c.field, lastFullAt: iso(c.last_full_at), documents: c.document_count, updatedAt: iso(c.updated_at)}))});
     } catch (error) { next(error); }
   });
-  app.use(['/api/gaps', '/api/sales', '/api/automation', '/api/resources', '/api/etls', '/api/profiles', '/api/geo-attendance', '/api/integrations', '/api/permissions', '/api/admin'], (error, req, res, next) => {
+  app.use(['/api/gaps', '/api/sales', '/api/stockfix', '/api/automation', '/api/resources', '/api/etls', '/api/profiles', '/api/geo-attendance', '/api/integrations', '/api/permissions', '/api/admin'], (error, req, res, next) => {
     if (res.headersSent) return next(error);
     if (error instanceof AppError) return res.status(error.status).json({error: {code: error.code, message: error.message}});
     if (error.type === 'entity.too.large') return res.status(413).json({error: {code: 'resource-exhausted', message: 'The file is too large.'}});

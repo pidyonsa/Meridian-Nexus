@@ -78,9 +78,9 @@ test('every Meridian account sees Syndicated Attendance and Franchise Orders; th
   assert.equal((await get('/api/import', staff, 'POST')).status, 403);
 });
 
-const nexusHost = async (t, functionsFetch, salesStore = null, permissionStore = null) => {
+const nexusHost = async (t, functionsFetch, salesStore = null, permissionStore = null, stockfixSource = undefined) => {
   const reportProvider = {kind: 'test', request: async () => ({status: 200, data: {rows: []}})};
-  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch, salesStore, permissionStore}).listen(0, '127.0.0.1');
+  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch, salesStore, permissionStore, stockfixSource}).listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
   return (route, init = {}) => fetch(`http://127.0.0.1:${server.address().port}${route}`, {redirect: 'manual', ...init});
@@ -97,7 +97,7 @@ test('Nexus workspace: home and module pages for every Meridian account; section
     assert.ok(!/fonts\.googleapis|fonts\.gstatic/.test(html), 'no third-party fonts');
   }
   const staff = await (await get('/api/me', {headers: as([])})).json();
-  assert.deepEqual(staff.sections, ['attendance', 'franchiseorder', 'gaps']);
+  assert.deepEqual(staff.sections, ['attendance', 'franchiseorder', 'gaps', 'stockfix']);
   assert.equal(staff.admin, false); assert.equal(staff.email, 'someone@meridiangroup.co.za'); assert.equal(staff.name, 'Test User');
   const admin = await (await get('/api/me', {headers: as(['Nexus.Admin'])})).json();
   assert.equal(admin.admin, true); assert.ok(admin.sections.includes('admin') && admin.sections.includes('automation'));
@@ -106,7 +106,7 @@ test('Nexus workspace: home and module pages for every Meridian account; section
   assert.equal((await get('/modules/../nexus', {headers: as([])})).status, 403);
   // The site config sends tools that have not moved to the full Nexus on this site.
   const config = await (await get('/app/config.js', {headers: as([])})).text();
-  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales', 'automation', 'resources', 'etls', 'admin-profiles', 'admin-geo-attendance', 'admin-integrations'\]/);
+  assert.match(config, /currentNexus: '\/nexus\/'/); assert.match(config, /built: \['attendance', 'franchiseorder', 'gaps', 'gap-upload', 'sales', 'stockfix', 'automation', 'resources', 'etls', 'admin-profiles', 'admin-geo-attendance', 'admin-integrations'\]/);
 });
 
 test('Sir Fruit gap tracker: everyone views; only Nexus.Admin uploads', async t => {
@@ -189,6 +189,29 @@ test('Sales dashboard: Nexus.Admin only, from Azure SQL', async t => {
   assert.equal(x.status, 200); assert.match(x.headers.get('content-type'), /spreadsheetml/);
 });
 
+test('StockFix reporting: every Meridian account (not blocked people); unavailable until SharePoint is connected', async t => {
+  const {memoryPermissionStore} = require('../server/shared/permissions/store.cjs');
+  const {memoryStockFixSource} = require('../server/shared/stockfix/source.cjs');
+  const source = memoryStockFixSource({weeks: [{week: '2026-10-18'}], summary: [{week: '2026-10-18', client: 'C', banner: 'B', region: 'R', classification: 'Overstock', actionStatus: 'Completed', count: 3}],
+    rows: {'2026-10-18': [{week: '2026-10-18', client: 'C', banner: 'B', region: 'R', store: 'S1', barcode: '1', article: 'A', actionStatus: 'Completed'}]}});
+  const store = memoryPermissionStore({permissions: [{email: 'blocked@meridiangroup.co.za', disabled: true}]});
+  const get = await nexusHost(t, undefined, null, store, source);
+  const staff = {headers: as([])};
+  assert.ok((await (await get('/api/me', staff)).json()).sections.includes('stockfix'));
+  assert.equal((await get('/stockfix', staff)).status, 200);
+  const d = await (await get('/api/stockfix', staff)).json();
+  assert.equal(d.week, '2026-10-18'); assert.equal(d.overview.totals.actioned, 3); assert.equal(d.overview.totals.stores, 1);
+  assert.equal((await (await get('/api/stockfix/rows', staff)).json()).totalRows, 1);
+  assert.match((await get('/api/stockfix/export', staff)).headers.get('content-type'), /spreadsheetml/);
+  assert.equal((await get('/api/stockfix?week=bad', staff)).status, 400);
+  assert.equal((await get('/api/stockfix', {headers: {}})).status, 401);
+  const blocked = {'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', []), 'x-ms-client-principal-name': 'blocked@meridiangroup.co.za'};
+  for (const route of ['/stockfix', '/api/stockfix']) assert.equal((await get(route, {headers: blocked})).status, 403, route);
+  // Without a source (no SharePoint link on the site) the API says so.
+  const bare = await nexusHost(t);
+  assert.equal((await bare('/api/stockfix', {headers: as(['Nexus.Admin'])})).status, 503);
+});
+
 test('Report automation: Nexus.Admin only; unavailable until the Google link is configured', async t => {
   const get = await nexusHost(t);
   for (const route of ['/automation', '/api/automation', '/api/automation/runs/abc']) assert.equal((await get(route, {headers: as([])})).status, 403, route);
@@ -225,7 +248,7 @@ test('Geo attendance and SharePoint inventory: Nexus.Admin only; unavailable unt
 test('Nexus.GapUploader: gap report uploads and the upload page, nothing else an admin may open', async t => {
   const get = await nexusHost(t);
   const uploader = as(['Nexus.GapUploader']);
-  assert.deepEqual((await (await get('/api/me', {headers: uploader})).json()).sections, ['attendance', 'franchiseorder', 'gaps', 'gaps-upload']);
+  assert.deepEqual((await (await get('/api/me', {headers: uploader})).json()).sections, ['attendance', 'franchiseorder', 'gaps', 'stockfix', 'gaps-upload']);
   assert.equal((await get('/admin/gap-upload', {headers: uploader})).status, 200);
   assert.equal((await get('/api/gaps/sir-fruit/uploads', {headers: uploader})).status, 200);
   for (const route of ['/automation', '/api/automation', '/admin/profiles', '/sales', '/api/resources', '/nexus/']) assert.equal((await get(route, {headers: uploader})).status, 403, route);
@@ -242,7 +265,7 @@ test('Permissions set in Admin › Users open exactly their tools; blocked peopl
   const get = await nexusHost(t, undefined, null, store);
   const asEmail = (email, roles = []) => ({'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', roles), 'x-ms-client-principal-name': email});
   const someone = asEmail('someone@meridiangroup.co.za');
-  assert.deepEqual((await (await get('/api/me', {headers: someone})).json()).sections, ['attendance', 'franchiseorder', 'gaps', 'gaps-upload', 'automation']);
+  assert.deepEqual((await (await get('/api/me', {headers: someone})).json()).sections, ['attendance', 'franchiseorder', 'gaps', 'stockfix', 'gaps-upload', 'automation']);
   assert.equal((await get('/automation', {headers: someone})).status, 200);
   assert.equal((await get('/api/automation', {headers: someone})).status, 503, 'allowed through; Google is not configured in tests');
   assert.equal((await get('/admin/gap-upload', {headers: someone})).status, 200);

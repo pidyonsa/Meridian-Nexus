@@ -6,6 +6,8 @@ const SECTIONS = [
   {id: 'attendance', label: 'Syndicated Attendance', group: 'Dashboards', everyone: true},
   {id: 'franchiseorder', label: 'Franchise Orders', group: 'Dashboards', everyone: true},
   {id: 'gaps', label: 'Gap tracker', group: 'Dashboards', everyone: true},
+  // StockFix reporting: every Meridian account (user decision, 29 October 2026).
+  {id: 'stockfix', label: 'StockFix', group: 'Dashboards', everyone: true},
   {id: 'gaps-upload', label: 'Upload gap reports', group: 'Gap tracker', hint: 'Upload client gap workbooks and add clients'},
   {id: 'sales', label: 'Sales dashboard', group: 'Tools', hint: 'Geo Rep orders by month'},
   {id: 'automation', label: 'Report automation', group: 'Tools', hint: 'Run, schedule and control report jobs; answer portal verification'},
@@ -25,6 +27,7 @@ const ALL = [...SECTIONS.map(s => s.id), 'users'];
 const ROUTES = [
   ['gaps-upload', /^\/(?:admin\/gap-upload\/?|api\/gaps\/(?:clients|[a-z0-9-]{2,60}\/(?:uploads|preview|upload)))$/],
   ['sales', /^\/(?:sales\/?|api\/sales(?:\/.*)?)$/],
+  ['stockfix', /^\/(?:stockfix\/?|api\/stockfix(?:\/.*)?)$/],
   ['automation', /^\/(?:automation\/?|api\/automation(?:\/.*)?)$/],
   ['etls', /^\/(?:etls\/?|api\/etls(?:\/.*)?)$/],
   ['resources', /^\/(?:resources\/?|api\/resources(?:\/.*)?)$/],

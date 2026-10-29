@@ -94,6 +94,13 @@ if (require.main === module) {
   const {salesRoutes} = require('./sales/routes.cjs');
   const salesStore = sqlConfig() ? require('./sales/store.cjs').sqlSalesStore(() => pool()) : require('./sales/store.cjs').memorySalesStore();
   const sales = salesRoutes({store: salesStore, allow: req => Boolean(req.user?.admin)});
+  // StockFix reporting: Nexus admins (section "stockfix" is admin only here); read-only from SharePoint, invented
+  // sample weeks in a local preview.
+  const {graphClient} = require('./azure/graph.cjs');
+  const {sharePointStockFixSource, memoryStockFixSource} = require('./stockfix/source.cjs');
+  const stockfixSource = sharePointStockFixSource({graph: graphClient({vault: require('./azure/keyvault.cjs').keyVault()})})
+    || (require('./auth.cjs').previewAllowed() ? memoryStockFixSource(require('./fixtures.cjs').stockfixSample()) : null);
+  const stockfix = require('./stockfix/routes.cjs').stockfixRoutes({source: stockfixSource, allow: req => Boolean(req.user?.admin)});
   // Report automation, Resources and ETLs: Nexus admins; Firebase-era Firestore and Storage through the keyless link.
   const google = require('./google/services.cjs').googleServices();
   const asAdmin = req => Boolean(req.user?.admin), userOf = req => ({email: req.user.email, name: req.user.name});
@@ -102,5 +109,5 @@ if (require.main === module) {
   const etls = require('./etl/routes.cjs').etlRoutes({service: google.etls, allow: asAdmin, userOf});
   const profiles = require('./profiles/routes.cjs').profileRoutes({service: google.profiles, allow: asAdmin, userOf});
   const attendanceAdmin = require('./attendance/routes.cjs').attendanceAdminRoutes({geo: google.geo, exclusions: google.exclusions, inventory: google.inventory, allow: asAdmin, userOf});
-  createApp({api: [adminRoutes(repo), gaps, sales, automation, resources, etls, profiles, attendanceAdmin], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  createApp({api: [adminRoutes(repo), gaps, sales, stockfix, automation, resources, etls, profiles, attendanceAdmin], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

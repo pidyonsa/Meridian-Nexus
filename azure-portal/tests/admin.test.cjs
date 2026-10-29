@@ -22,7 +22,7 @@ async function serve(fn) {
 }
 
 test('directory entries carry no credential-like fields and drop removed sections', () => {
-  const e = directoryEntry({id: 'u1', data: {email: 'A@B.co', name: 'A', role: 'normal', passwordHash: 'x', permissions: {allowedNavigationIds: ['attendance', 'stockfix'], allowedRetailerIds: ['r1']}}}, new Map([['r1', 'Retailer One']]));
+  const e = directoryEntry({id: 'u1', data: {email: 'A@B.co', name: 'A', role: 'normal', passwordHash: 'x', permissions: {allowedNavigationIds: ['attendance', 'insights'], allowedRetailerIds: ['r1']}}}, new Map([['r1', 'Retailer One']]));
   assert.deepEqual(e.sections, ['attendance']); assert.deepEqual(e.retailers, [{id: 'r1', name: 'Retailer One'}]);
   assert.equal(e.email, 'a@b.co'); assert.ok(!JSON.stringify(e).includes('password'));
 });
