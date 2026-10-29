@@ -50,12 +50,15 @@ function renderChrome() {
     h('ul', {}, MODULES.map(m => {
       const s = moduleState(m, state.sections);
       // Tools that work on this site are listed by name under their module, one click away. A module that opens its
-      // home tool directly lists that tool's entries instead (the gap tracker's clients, filled in by loadClients).
+      // home tool directly lists that tool's entries instead (the gap tracker's clients, filled in by loadClients; a
+      // home tool marked `menu` lists its own pages, e.g. StockFix › Overview and Captures).
       const ready = (m.tools || []).filter(t => t.id !== m.home && toolState(t, state.sections) === 'available');
       const link = moduleLink(m, state.sections);
+      const home = m.home && (m.tools || []).find(t => t.id === m.home);
+      const menu = home?.menu && toolState(home, state.sections) === 'available' ? home.pages.map(p => h('li', {}, h('a.nav-tool', {href: p.path, 'data-link': true, 'data-entry': p.path}, p.label))) : [];
       return h('li', {},
         h('a.nav-item', {...anchorAttrs(link), 'data-nav': m.id}, icon(m.icon), h('span', {}, m.label), link.newTab ? h('span.nav-ext', {title: 'Opens in a new tab'}, icon('external')) : null, (m.dot || DOT[s]) ? h(`span.dot.${m.dot || DOT[s]}`, {title: s === 'adminOnly' || s === 'locked' ? 'Admin only' : 'Available'}) : null),
-        m.home && !link.newTab ? h('ul.nav-tools', {'data-entries': m.id}) : null,
+        m.home && !link.newTab ? h('ul.nav-tools', {'data-entries': m.id}, menu) : null,
         ready.length ? h('ul.nav-tools', {}, ready.map(t => {
           const link = toolLink(t);
           return h('li', {}, h('a.nav-tool', {...(link.spa ? {href: link.href, 'data-link': true} : {href: link.href}), 'data-tool': t.id}, t.navLabel || t.label));

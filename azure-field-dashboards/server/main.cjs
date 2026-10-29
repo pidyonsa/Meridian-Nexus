@@ -34,7 +34,7 @@ const GAP_VIEW = /^\/(?:gap-tracker(?:\/[a-z0-9-]{2,60})?\/?|api\/gaps(?:\/[a-z0
 // The tracker briefly lived under Insights (23-24 October 2026); old links keep working.
 const GAP_MOVED = {'/insights/sir-fruit': '/gap-tracker/sir-fruit', '/insights/sir-fruit/upload': '/admin/gap-upload'};
 // Workspace pages of the tools moved off the Firebase-era Nexus; each needs its section (checked before serving).
-const TOOL_PAGES = /^\/(?:sales|stockfix|automation|resources|etls|admin(?:\/(?:profiles|geo-attendance|integrations|users))?)\/?$/;
+const TOOL_PAGES = /^\/(?:sales|stockfix(?:\/captures)?|automation|resources|etls|admin(?:\/(?:profiles|geo-attendance|integrations|users))?)\/?$/;
 // Entra role Nexus.GapUploader (26 October 2026) also grants gap uploads (permissions can now be set in Nexus instead).
 const GAP_UPLOADER_ROLE = 'Nexus.GapUploader';
 const OID_CLAIMS = new Set(['http://schemas.microsoft.com/identity/claims/objectidentifier', 'oid']);

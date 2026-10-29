@@ -7,7 +7,6 @@ import {api} from '../api.js';
 // saved week, a month or a custom period of weeks, with Excel exports. Figures from /api/stockfix/adoption.
 const FILTERS = [['client', 'Client', 'clients', 'All clients'], ['store', 'Store', 'stores', 'All stores'], ['region', 'Region', 'regions', 'All regions'], ['manager', 'Manager', 'managers', 'All managers'],
   ['banner', 'Banner', 'banners', 'All banners'], ['rtype', 'Resource type', 'types', 'All resource types']];
-const PAGES = [['overview', 'Overview'], ['captures', 'Captures']];
 const monthLabel = ym => new Intl.DateTimeFormat('en-ZA', {month: 'long', year: 'numeric', timeZone: 'UTC'}).format(new Date(`${ym}-01T00:00:00Z`));
 const qs = params => new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
 const SEGMENTS = [['active', 'Active'], ['dormant', 'Dormant'], ['all', 'All']];
@@ -60,10 +59,9 @@ export async function renderAdoption(body, {state, signal, remember}) {
     : d.mode === 'period' ? [h('strong', {}, `Custom period · ${d.period.length} weeks`), ` · ${weekLabel(d.period[0])} to ${weekLabel(d.period.at(-1))} combined`]
     : [h('strong', {}, d.week ? `Week ending ${weekLabel(d.week)}` : 'This week'), d.live ? ' · live from the StockFix app' : ' · saved snapshot'];
   const status = h('div.notice', {role: 'status'}, icon('clock'), h('span', {}, ...scope, ` · ${active ? `${active} filter${active > 1 ? 's' : ''} applied` : 'full network, no filters'}`));
-  const pages = h('div.segmented.sf-pages', {role: 'tablist', 'aria-label': 'Adoption pages'}, PAGES.map(([key, label]) => h('button', {type: 'button', role: 'tab', 'aria-selected': String(state.page === key), class: state.page === key ? 'on' : '',
-    onclick: () => { state.page = key; remember(); renderAdoption(body, {state, signal, remember}); }}, key === 'captures' ? `${label} (${formatNumber(d.captures.total)})` : label)));
+  // Overview and Captures are StockFix's two sidebar entries (/stockfix and /stockfix/captures).
   if (state.page === 'captures') {
-    body.replaceChildren(filterPanel, status, pages, h('div.sf-captures'));
+    body.replaceChildren(filterPanel, status, h('div.sf-captures'));
     return capturesPage(body.querySelector('.sf-captures'), {state, signal, selection, exportHref, remember});
   }
 
@@ -79,7 +77,7 @@ export async function renderAdoption(body, {state, signal, remember}) {
     tile(`${x.label} adoption`, p1(x.adoptionPct), `${of(x.people.active, x.people.total)} active · Reps ${p1(x.repsPct)} · Merch ${p1(x.merchPct)}`))) : null;
 
   const panels = () => [regionPanel(d), managerPanel(d, state, setFilter, draw, exportHref), typePanel(d), resourcePanel(d, state, draw, exportHref), storePanel(d, state, draw, exportHref), mixPanel(d)];
-  body.replaceChildren(filterPanel, status, pages, trendPanel(d), kpis, divisionCards || '', h('div.sales-grid', {}, panels()));
+  body.replaceChildren(filterPanel, status, trendPanel(d), kpis, divisionCards || '', h('div.sales-grid', {}, panels()));
   sizeBars(body);
 
   // Panels with their own search or segment redraw in place, without asking the StockFix app again.

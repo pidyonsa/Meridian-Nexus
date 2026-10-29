@@ -145,7 +145,7 @@
   },
   {
     "file": "permissions/catalogue.cjs",
-    "sha256": "032b4e1ffca03eff0eda8ba034c61b4103fc8c793b1de3a19c5e06f3541bd3b1"
+    "sha256": "0dc135f18ab21a24b9a12c4a7b9580e06949455f5db515f0982aa352e4972753"
   },
   {
     "file": "permissions/store.cjs",

@@ -198,12 +198,12 @@
     },
     {
       "path": "app/main.js",
-      "sha256": "4913efc4f0240446c6428ec7aeeaee343b155a2fce78ffd847a78862bdca0c3c",
+      "sha256": "20583f459960b2b5e7d2fff53b9416baa808d46ab2093cc6dfe47bcd09594d09",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/nav.js",
-      "sha256": "8471f37ad62d65954eace66733cd59b7a4cf9282f4b1bf6284e62810b3905ce1",
+      "sha256": "b0b4a73d878e3c5b4002a4e459039514f41f5c32725510a105b4c233093eee73",
       "adapter": "nexus-workspace"
     },
     {
@@ -233,12 +233,12 @@
     },
     {
       "path": "app/views/stockfix.js",
-      "sha256": "809eabcb9973b7fb96d4bcf0f081330170de60fa0926a623ef5b9c8a803c1c84",
+      "sha256": "0df8f0abb807c645ee5e1b11228f58727ff688e0303ed7a0c1f0a20f9344138c",
       "adapter": "nexus-workspace"
     },
     {
       "path": "app/views/stockfix-adoption.js",
-      "sha256": "52f080a2f646b145b5df609642a7dc829ca346ebeb5c471ce3a1691e86da4f42",
+      "sha256": "7fa089d09cf9e2df2428f37eacbb5f2b530848d876d4d0ef13685429b2492b0d",
       "adapter": "nexus-workspace"
     },
     {

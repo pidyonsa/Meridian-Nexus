@@ -5,7 +5,9 @@ import {renderAdoption} from './stockfix-adoption.js';
 // StockFix (/stockfix): Adoption (the StockFix app's Adoption page, the default view) and the weekly StockFix
 // reporting read from the files the StockFix backend publishes to SharePoint: Overview, Leaderboard, Action impact
 // and Store detail for one week ending, filtered by client, banner and region.
-const VIEWS = [['adoption', 'Adoption'], ['overview', 'Overview'], ['leaderboard', 'Leaderboard'], ['impact', 'Action impact'], ['detail', 'Store detail']];
+const VIEWS = [['adoption', 'Adoption'], ['overview', 'Store tasks'], ['leaderboard', 'Leaderboard'], ['impact', 'Action impact'], ['detail', 'Store detail']];
+// StockFix › Captures (sidebar) is its own address; StockFix › Overview is /stockfix with the tabs above.
+const CAPTURES = '/stockfix/captures';
 const ADOPTION_FILTERS = ['client', 'store', 'region', 'manager', 'banner', 'rtype'];
 const FILTERS = [['client', 'Client', 'clients', 'All clients'], ['banner', 'Banner', 'banners', 'All banners'], ['region', 'Region', 'regions', 'All regions']];
 const STATUSES = [['', 'All statuses'], ['actioned', 'Actioned'], ['pending', 'Pending'], ['escalated', 'Escalated']];
@@ -16,7 +18,8 @@ const numCell = v => (v == null ? '' : formatNumber(v, Number.isInteger(v) ? 0 :
 
 export async function renderStockFix(main, context) {
   const params = new URLSearchParams(location.search);
-  const view = VIEWS.some(([v]) => v === params.get('view')) ? params.get('view') : 'adoption';
+  const captures = location.pathname === CAPTURES || params.get('page') === 'captures';   // ?page=captures: earlier links
+  const view = !captures && VIEWS.some(([v]) => v === params.get('view')) ? params.get('view') : 'adoption';
   const asked = /^\d{4}-\d{2}-\d{2}$/.test(params.get('week') || '') ? params.get('week') : '';
   // The address carries the open view's week and filters only: Adoption's (StockFix app weeks) or the reporting views'.
   const state = {
@@ -24,7 +27,7 @@ export async function renderStockFix(main, context) {
     week: view === 'adoption' ? '' : asked,
     filters: view === 'adoption' ? {} : Object.fromEntries(FILTERS.map(([k]) => [k, params.get(k) || '']).filter(([, v]) => v)),
     rows: {classification: params.get('classification') || '', status: params.get('status') || '', q: params.get('q') || '', page: 1},
-    adoption: view === 'adoption' ? {page: params.get('page') === 'captures' ? 'captures' : 'overview', week: asked, month: /^\d{4}-\d{2}$/.test(params.get('month') || '') ? params.get('month') : '',
+    adoption: view === 'adoption' ? {page: captures ? 'captures' : 'overview', week: asked, month: /^\d{4}-\d{2}$/.test(params.get('month') || '') ? params.get('month') : '',
       weeks: (params.get('weeks') || '').split(',').filter(w => /^\d{4}-\d{2}-\d{2}$/.test(w)), filters: Object.fromEntries(ADOPTION_FILTERS.map(k => [k, params.get(k) || '']).filter(([, v]) => v)),
       seg: 'active', storeQuery: '', managerQuery: '', captureQuery: '', capturePage: 1}
       : {page: 'overview', week: '', month: '', weeks: [], filters: {}, seg: 'active', storeQuery: '', managerQuery: '', captureQuery: '', capturePage: 1}
@@ -42,7 +45,8 @@ export async function renderStockFix(main, context) {
   const body = h('div.sf-body');
   main.replaceChildren(
     h('header.page-head', {},
-      h('div', {}, h('p.eyebrow', {}, 'Weekly store actions'), h('h1', {}, 'StockFix'), h('p.lede.compact', {}, 'Who is using StockFix, the store tasks it raises from client stock on hand, what reps actioned, and whether stock and sales recovered.')),
+      captures ? h('div', {}, h('p.eyebrow', {}, 'StockFix'), h('h1', {}, 'Captures'), h('p.lede.compact', {}, 'Every completed capture in scope, with the detail each one carries.'))
+        : h('div', {}, h('p.eyebrow', {}, 'StockFix'), h('h1', {}, 'Overview'), h('p.lede.compact', {}, 'Who is using StockFix, the store tasks it raises from client stock on hand, what reps actioned, and whether stock and sales recovered.')),
       h('div.head-actions', {}, weekField, refresh)),
     filterPanel, tabs, body);
   weekSel.addEventListener('change', () => { state.week = weekSel.value; state.rows.page = 1; load(); });
@@ -50,9 +54,9 @@ export async function renderStockFix(main, context) {
   // The address keeps the view, week and filters, so a view can be bookmarked or shared.
   function remember() {
     const a = state.adoption;
-    const q = state.view === 'adoption' ? new URLSearchParams(Object.entries({page: a.page === 'captures' ? 'captures' : '', week: a.week, month: a.month, weeks: a.weeks.join(','), ...a.filters}).filter(([, v]) => v)).toString()
+    const q = state.view === 'adoption' ? new URLSearchParams(Object.entries({week: a.week, month: a.month, weeks: a.weeks.join(','), ...a.filters}).filter(([, v]) => v)).toString()
       : state.view === 'detail' ? rowQuery({view: state.view}) : query({view: state.view});
-    history.replaceState(null, '', `/stockfix${q ? `?${q}` : ''}`);
+    history.replaceState(null, '', `${a.page === 'captures' ? CAPTURES : '/stockfix'}${q ? `?${q}` : ''}`);
   }
   const loading = () => h('div.page-loading', {role: 'status'}, h('span.spinner'), 'Loading…');
   const failed = (title, error, retry) => h('section.state-panel.error', {}, icon('alert'), h('h2', {}, title), h('p', {}, error.message), error.requestId ? h('p.muted', {}, `Reference ${error.requestId}`) : null, h('button.button', {type: 'button', onclick: retry}, icon('refresh'), 'Try again'));
@@ -62,7 +66,7 @@ export async function renderStockFix(main, context) {
     drawTabs();
     // Adoption has its own weeks and filters (inside the view); the reporting views share the ones above.
     const adoption = state.view === 'adoption';
-    weekField.hidden = adoption; filterPanel.hidden = adoption;
+    weekField.hidden = adoption; filterPanel.hidden = adoption; tabs.hidden = state.adoption.page === 'captures';
     if (adoption) return renderAdoption(body, {state: state.adoption, signal: context.signal, remember});
     body.replaceChildren(loading());
     try {

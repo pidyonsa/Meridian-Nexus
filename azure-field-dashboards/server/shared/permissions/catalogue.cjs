@@ -27,7 +27,7 @@ const ALL = [...SECTIONS.map(s => s.id), 'users'];
 const ROUTES = [
   ['gaps-upload', /^\/(?:admin\/gap-upload\/?|api\/gaps\/(?:clients|[a-z0-9-]{2,60}\/(?:uploads|preview|upload)))$/],
   ['sales', /^\/(?:sales\/?|api\/sales(?:\/.*)?)$/],
-  ['stockfix', /^\/(?:stockfix\/?|api\/stockfix(?:\/.*)?)$/],
+  ['stockfix', /^\/(?:stockfix(?:\/captures)?\/?|api\/stockfix(?:\/.*)?)$/],
   ['automation', /^\/(?:automation\/?|api\/automation(?:\/.*)?)$/],
   ['etls', /^\/(?:etls\/?|api\/etls(?:\/.*)?)$/],
   ['resources', /^\/(?:resources\/?|api\/resources(?:\/.*)?)$/],

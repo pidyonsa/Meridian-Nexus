@@ -10,7 +10,7 @@ const {chromium} = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:4200';
 const OUT = path.join(__dirname, '..', 'test-results');
 // [path, module that should be highlighted]
-const PAGES = [['/', 'home'], ['/modules/geo', 'geo'], ['/modules/call-cycle', 'call-cycle'], ['/modules/activate', 'activate'], ['/attendance/rep/overview', 'geo'], ['/sales', 'sales'], ['/stockfix', 'stockfix'], ['/stockfix?page=captures', 'stockfix'], ['/stockfix?month=2026-09', 'stockfix'], ['/stockfix?view=overview', 'stockfix'], ['/stockfix?view=leaderboard', 'stockfix'], ['/stockfix?view=impact', 'stockfix'], ['/stockfix?view=detail', 'stockfix'], ['/admin', 'admin'], ['/admin/users', 'admin']];
+const PAGES = [['/', 'home'], ['/modules/geo', 'geo'], ['/modules/call-cycle', 'call-cycle'], ['/modules/activate', 'activate'], ['/attendance/rep/overview', 'geo'], ['/sales', 'sales'], ['/stockfix', 'stockfix'], ['/stockfix/captures', 'stockfix'], ['/stockfix?month=2026-09', 'stockfix'], ['/stockfix?view=overview', 'stockfix'], ['/stockfix?view=leaderboard', 'stockfix'], ['/stockfix?view=impact', 'stockfix'], ['/stockfix?view=detail', 'stockfix'], ['/admin', 'admin'], ['/admin/users', 'admin']];
 const SIZES = {desktop: {width: 1440, height: 900}, phone: {width: 390, height: 844}};
 const shot = route => route.replace(/[^\w-]/g, '_') || '_home';
 

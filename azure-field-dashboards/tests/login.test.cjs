@@ -198,7 +198,8 @@ test('StockFix reporting: every Meridian account (not blocked people); unavailab
   const get = await nexusHost(t, undefined, null, store, source);
   const staff = {headers: as([])};
   assert.ok((await (await get('/api/me', staff)).json()).sections.includes('stockfix'));
-  assert.equal((await get('/stockfix', staff)).status, 200);
+  for (const page of ['/stockfix', '/stockfix/captures']) assert.equal((await get(page, staff)).status, 200, page);
+  assert.equal((await get('/stockfix/other', staff)).status, 403, 'only the two StockFix pages are served');
   const d = await (await get('/api/stockfix', staff)).json();
   assert.equal(d.week, '2026-10-18'); assert.equal(d.overview.totals.actioned, 3); assert.equal(d.overview.totals.stores, 1);
   assert.equal((await (await get('/api/stockfix/rows', staff)).json()).totalRows, 1);
