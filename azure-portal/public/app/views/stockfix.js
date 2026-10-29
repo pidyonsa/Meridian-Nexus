@@ -6,7 +6,7 @@ import {renderAdoption} from './stockfix-adoption.js';
 // reporting read from the files the StockFix backend publishes to SharePoint: Overview, Leaderboard, Action impact
 // and Store detail for one week ending, filtered by client, banner and region.
 const VIEWS = [['adoption', 'Adoption'], ['overview', 'Overview'], ['leaderboard', 'Leaderboard'], ['impact', 'Action impact'], ['detail', 'Store detail']];
-const ADOPTION_FILTERS = ['client', 'region', 'manager', 'banner', 'rtype'];
+const ADOPTION_FILTERS = ['client', 'store', 'region', 'manager', 'banner', 'rtype'];
 const FILTERS = [['client', 'Client', 'clients', 'All clients'], ['banner', 'Banner', 'banners', 'All banners'], ['region', 'Region', 'regions', 'All regions']];
 const STATUSES = [['', 'All statuses'], ['actioned', 'Actioned'], ['pending', 'Pending'], ['escalated', 'Escalated']];
 const weekLabel = (iso, style = 'medium') => new Intl.DateTimeFormat('en-ZA', style === 'short' ? {day: 'numeric', month: 'short', timeZone: 'UTC'} : {day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'}).format(new Date(`${iso}T00:00:00Z`));
@@ -24,7 +24,10 @@ export async function renderStockFix(main, context) {
     week: view === 'adoption' ? '' : asked,
     filters: view === 'adoption' ? {} : Object.fromEntries(FILTERS.map(([k]) => [k, params.get(k) || '']).filter(([, v]) => v)),
     rows: {classification: params.get('classification') || '', status: params.get('status') || '', q: params.get('q') || '', page: 1},
-    adoption: {week: view === 'adoption' ? asked : '', filters: view === 'adoption' ? Object.fromEntries(ADOPTION_FILTERS.map(k => [k, params.get(k) || '']).filter(([, v]) => v)) : {}, seg: 'active', storeQuery: '', managerQuery: ''}
+    adoption: view === 'adoption' ? {page: params.get('page') === 'captures' ? 'captures' : 'overview', week: asked, month: /^\d{4}-\d{2}$/.test(params.get('month') || '') ? params.get('month') : '',
+      weeks: (params.get('weeks') || '').split(',').filter(w => /^\d{4}-\d{2}-\d{2}$/.test(w)), filters: Object.fromEntries(ADOPTION_FILTERS.map(k => [k, params.get(k) || '']).filter(([, v]) => v)),
+      seg: 'active', storeQuery: '', managerQuery: '', captureQuery: '', capturePage: 1}
+      : {page: 'overview', week: '', month: '', weeks: [], filters: {}, seg: 'active', storeQuery: '', managerQuery: '', captureQuery: '', capturePage: 1}
   };
   let data = null;
   const query = (extra = {}) => new URLSearchParams(Object.entries({week: state.week, ...state.filters, ...extra}).filter(([, v]) => v)).toString();
@@ -47,7 +50,7 @@ export async function renderStockFix(main, context) {
   // The address keeps the view, week and filters, so a view can be bookmarked or shared.
   function remember() {
     const a = state.adoption;
-    const q = state.view === 'adoption' ? new URLSearchParams(Object.entries({week: a.week, ...a.filters}).filter(([, v]) => v)).toString()
+    const q = state.view === 'adoption' ? new URLSearchParams(Object.entries({page: a.page === 'captures' ? 'captures' : '', week: a.week, month: a.month, weeks: a.weeks.join(','), ...a.filters}).filter(([, v]) => v)).toString()
       : state.view === 'detail' ? rowQuery({view: state.view}) : query({view: state.view});
     history.replaceState(null, '', `/stockfix${q ? `?${q}` : ''}`);
   }

@@ -89,7 +89,10 @@ function stockfixAppSample() {
       return {manager, totalPeople: mine.length, activePeople: active, adoptionPct: Math.round(active / mine.length * 1000) / 10, reps: role(t => !t.includes('MERCH')), merchandisers: role(t => t.includes('MERCH'))};
     });
     return {week: weeks[w], totals: {completed: reps.reduce((s, r) => s + r.completed, 0), open: reps.reduce((s, r) => s + r.open, 0)}, byRep: reps, byStore, byRegion, byManager,
-      byClient: [{client: 'Sample Foods'}, {client: 'Example Drinks'}], recent: []};
+      byClient: [{client: 'Sample Foods'}, {client: 'Example Drinks'}],
+      recent: reps.filter(r => r.completed).flatMap((r, i) => Array.from({length: Math.min(r.completed, 2)}, (_, k) => ({weekEnding: weeks[w], actionDate: weeks[w], client: r.client, region: r.region, banner: r.banner, store: `Sample Store ${String((i + k) % 40 + 1).padStart(2, '0')}`,
+        rep: r.rep, manager: r.manager, barcode: String(6001000 + i), articleDescription: `Sample item ${(i + k) % 9 + 1}`, stockClassification: ['Overstock', 'Out of Stock', 'Negative SOH'][k % 3], action: 'Check count', actionStatus: 'Completed',
+        reasonCode: k ? 'Stock count corrected' : '', storeSoh: 10 + k, feedback: k ? '' : 'Checked and corrected', image1: k ? '' : '/objects/sample-photo'})))};
   };
   const parse = qs => Object.fromEntries(new URLSearchParams(qs || ''));
   const stats = w => { const reps = week(w).byRep, rate = m => { const c = reps.filter(r => m(r.resourceType)); return Math.round(c.filter(r => r.completed > 0).length / c.length * 1000) / 10; }; return {week: weeks[w], repPct: rate(t => !t.includes('MERCH')), merchPct: rate(t => t.includes('MERCH'))}; };
@@ -97,6 +100,9 @@ function stockfixAppSample() {
     weeks: async () => ({weeks: weeks.map((weekEnding, i) => ({weekEnding, live: i === weeks.length - 1})).reverse()}),
     live: async qs => week(weeks.length - 1, parse(qs)),
     snapshot: async (w, qs) => (weeks.includes(w) ? week(weeks.indexOf(w), parse(qs)) : null),
+    month: async (m, qs) => { const inMonth = weeks.filter(w => w.startsWith(m)); return inMonth.length ? {...week(weeks.indexOf(inMonth.at(-1)), parse(qs)), week: null, month: m, weeksIncluded: inMonth} : null; },
+    period: async (list, qs) => { const known = list.filter(w => weeks.includes(w)); return known.length ? {...week(weeks.indexOf(known.at(-1)), parse(qs)), week: null, weeksIncluded: known} : null; },
+    clients: async () => ({clients: ['Example Drinks', 'Sample Foods']}),
     trend: async () => { const trend = weeks.map((_, i) => stats(i)); return {trend, overall: {repPct: trend.reduce((s, r) => s + r.repPct, 0) / trend.length, merchPct: trend.reduce((s, r) => s + r.merchPct, 0) / trend.length}}; }
   };
 }

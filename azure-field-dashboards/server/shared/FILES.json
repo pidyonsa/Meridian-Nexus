@@ -37,7 +37,7 @@
   },
   {
     "file": "stockfix/source.cjs",
-    "sha256": "7e8ce463a3bc92d9df7a77c08272bc0ad36e0e14e09623684d71b224eebe1b6c"
+    "sha256": "f322308833c282b3b3b8b36bb1626d8d22571535e2081c75e142717e2e0720df"
   },
   {
     "file": "stockfix/report.cjs",
@@ -49,7 +49,7 @@
   },
   {
     "file": "stockfix/adoption.cjs",
-    "sha256": "78d1c9ca3cf7e030fa9d31c3af87cbdb7eab7f57b14a80893ac7c93bc849b41f"
+    "sha256": "7f37c74cbd9eaeb8c2f87edae0cae65c2776e3ef25aaf8173ad437b315b9e041"
   },
   {
     "file": "google/token.cjs",

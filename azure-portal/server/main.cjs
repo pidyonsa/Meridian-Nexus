@@ -112,5 +112,10 @@ if (require.main === module) {
   const etls = require('./etl/routes.cjs').etlRoutes({service: google.etls, allow: asAdmin, userOf});
   const profiles = require('./profiles/routes.cjs').profileRoutes({service: google.profiles, allow: asAdmin, userOf});
   const attendanceAdmin = require('./attendance/routes.cjs').attendanceAdminRoutes({geo: google.geo, exclusions: google.exclusions, inventory: google.inventory, allow: asAdmin, userOf});
-  createApp({api: [adminRoutes(repo), gaps, sales, adoption, stockfix, automation, resources, etls, profiles, attendanceAdmin], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  // Admin › Users: on nexus.meridiangroup.co.za; here only in a local preview (invented people, in memory).
+  const preview = require('./auth.cjs').previewAllowed();
+  const permissions = preview ? [require('./permissions/routes.cjs').permissionRoutes({service: require('./permissions/service.cjs').permissionService({store: require('./permissions/store.cjs').memoryPermissionStore({
+    permissions: [{email: 'field.lead@example.com', sections: ['automation']}], signIns: [{email: 'preview@meridiangroup.co.za', name: 'Local Preview', entraAdmin: true, lastSeenAt: new Date().toISOString()}]})}),
+  allow: asAdmin, actorOf: req => ({email: req.user.email, entraAdmin: true})})] : [];
+  createApp({api: [adminRoutes(repo), gaps, sales, adoption, stockfix, ...permissions, automation, resources, etls, profiles, attendanceAdmin], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

@@ -46,11 +46,11 @@ export const MODULES = [
     {id: 'learning', label: 'Learning', desc: 'Track recent courses loaded on Geo, leaderboards and courses completed.', dev: true},
     {id: 'training-academy', label: 'Meridian Training Academy', desc: 'Courses, guided journeys and quizzes for field and office teams.', external: 'https://training.meridiangroup.co.za/app/learn/landing', action: 'Open'}
   ]},
-  // StockFix reporting is a Nexus tab, read from the StockFix data on SharePoint (user decision, 29 October 2026; it
-  // replaces the link to the StockFix app's dashboard; no link to the StockFix capture app, user decision, 29 October 2026).
+  // StockFix is a Nexus tab: Adoption from the StockFix app's data, reporting from the StockFix files on SharePoint
+  // (user decisions, 29 October 2026: it replaces the link to the StockFix app's dashboard; no link to the StockFix
+  // capture app; the admin-only "Data Admin" entry, which had no page, removed).
   {id: 'stockfix', label: 'StockFix', icon: 'box', tone: 'orange', status: 'available', dot: 'orange', home: 'stockfix', blurb: 'Out-of-stock detection, listing gaps and replenishment across all clients.', tools: [
-    {id: 'stockfix', label: 'Dashboard', desc: 'Weekly store tasks, completion, rep capture and action impact by client, banner, region and store.', section: 'stockfix', path: '/stockfix'},
-    {id: 'stockfix-data-admin', label: 'Data Admin', desc: 'Run the weekly scripts and refresh StockFix data.', section: 'admin', restricted: true}
+    {id: 'stockfix', label: 'Dashboard', desc: 'Adoption, weekly store tasks, completion, rep capture and action impact by client, banner, region and store.', section: 'stockfix', path: '/stockfix'}
   ]},
   {id: 'sales', label: 'Sales dashboard', icon: 'bars', tone: 'blue', status: 'adminOnly', badgeTone: 'blue', dot: 'blue', cardBlurb: true, home: 'sales', blurb: 'Review current-month Geo Rep orders by region, rep, store and product.', tools: [
     {id: 'sales', label: 'Sales dashboard', desc: 'Month-to-date Geo Rep orders with drilldowns, month-on-month comparison and reconciliation.', section: 'sales', path: '/sales', old: '#sales'}

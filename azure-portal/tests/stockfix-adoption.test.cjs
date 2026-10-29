@@ -96,3 +96,46 @@ test('StockFix app source: caches each address for a minute; an unreachable or f
   const failing = stockfixAppSource({fetchImpl: async () => new Response('x', {status: 500})});
   await assert.rejects(failing.trend(''), e => e.code === 'unavailable');
 });
+
+const ExcelJS = require('exceljs');
+const captured = (store, extra = {}) => ({store, rep: 'Rep 1', banner: 'PnP', region: 'Gauteng', manager: 'Manager A', category: 'Juice', action: 'Check count', actionStatus: 'Completed', weekEnding: '2026-10-21', actionDate: '2026-10-20',
+  articleDescription: 'Apple juice', stockClassification: 'Overstock', storeSoh: '4', ...extra});
+const withCaptures = {...live, recent: [captured('S1', {image1: '/objects/a', feedback: 'Moved'}), captured('S3', {region: 'Western Cape', manager: 'Manager B', banner: 'Checkers', reasonCode: 'Count'}), captured('S1', {actionTakenComment: 'Fixed', image2: 'https://img.example/b'})],
+  byRep: live.byRep.map(r => (r.rep === 'Merch 1' ? {...r, directManager: 'Rep 1', stores: 'S3; S4'} : r))};
+
+test('adoption: month and custom period ask the StockFix app for combined weeks; bad values refused', async t => {
+  const calls = [];
+  const app = {...fakeApp(calls), month: async (m, q) => { calls.push(`month ${m}?${q}`); return {...live, week: null, weeksIncluded: ['2026-10-14', '2026-10-21']}; },
+    period: async (w, q) => { calls.push(`period ${w.join(',')}?${q}`); return {...live, week: null, weeksIncluded: w}; }, clients: async () => ({clients: ['Clover', 'Sir Fruit', 'New Client']}),
+    storesForClient: async c => { calls.push(`stores ${c}`); return {stores: ['S1', 'S9']}; }};
+  const get = await serve(t, app);
+  const m = await (await get('/api/stockfix/adoption?month=2026-10')).json();
+  assert.equal(m.mode, 'month'); assert.equal(m.month, '2026-10'); assert.deepEqual(m.weeksIncluded, ['2026-10-14', '2026-10-21']); assert.deepEqual(m.months, ['2026-10']);
+  assert.deepEqual(m.filters.clients, ['Clover', 'New Client', 'Sir Fruit'], 'clients from the StockFix roster');
+  const p = await (await get('/api/stockfix/adoption?weeks=2026-10-21,2026-10-14&client=Clover')).json();
+  assert.equal(p.mode, 'period'); assert.deepEqual(p.period, ['2026-10-14', '2026-10-21']); assert.deepEqual(p.filters.stores, ['S1', 'S9'], 'stores for the chosen client');
+  assert.ok(calls.includes('period 2026-10-14,2026-10-21?client=Clover') && calls.includes('stores Clover'));
+  assert.ok(calls.some(c => c.startsWith('trend?client=Clover&onlyWeeks=2026-10-14%2C2026-10-21')), calls.join(' | '));
+  for (const bad of ['month=2026-1', 'weeks=2026-10-21,yesterday', 'weeks=' + Array.from({length: 27}, (_, i) => new Date(Date.UTC(2026, 0, 7 + 7 * i)).toISOString().slice(0, 10)).join(',')]) assert.equal((await get(`/api/stockfix/adoption?${bad}`)).status, 400, bad);
+});
+
+test('adoption: captures page, search and the four Excel exports', async t => {
+  const app = {...fakeApp([]), live: async () => withCaptures};
+  const get = await serve(t, app);
+  const c = await (await get('/api/stockfix/adoption/captures')).json();
+  assert.deepEqual(c.stats, {total: 3, withPhoto: 2, withFeedback: 2, withReason: 1});
+  assert.equal(c.totalRows, 3); assert.deepEqual(c.records[0].photos, ['https://stock-fix.replit.app/objects/a']); assert.equal(c.records[2].comment, 'Fixed');
+  assert.equal((await (await get('/api/stockfix/adoption/captures?q=western')).json()).totalRows, 1);
+  assert.equal((await (await get('/api/stockfix/adoption/captures?region=Gauteng')).json()).totalRows, 2, 'captures follow the region filter');
+  const sheet = async kind => { const res = await get(`/api/stockfix/adoption/export?kind=${kind}`); const book = new ExcelJS.Workbook(); await book.xlsx.load(Buffer.from(await res.arrayBuffer())); return {res, ws: book.worksheets[0]}; };
+  const r = await sheet('resources');
+  assert.match(r.res.headers.get('content-disposition'), /StockFix resource adoption 2026-10-21\.xlsx/);
+  assert.equal(r.ws.getRow(1).getCell(5).value, 'Reports to (Rep)'); assert.equal(r.ws.rowCount, 7);
+  const merch = r.ws.getSheetValues().find(row => row && row[1] === 'Merch 1');
+  assert.equal(merch[5], 'Rep 1'); assert.equal(merch[8], 'S3; S4');
+  assert.equal((await sheet('managers')).ws.getRow(2).getCell(6).value, 66.7);
+  assert.equal((await sheet('stores')).ws.rowCount, 4);
+  const cap = await sheet('captures');
+  assert.equal(cap.ws.rowCount, 4); assert.equal(cap.ws.getRow(1).getCell(16).value, 'Photo 1');
+  assert.equal((await get('/api/stockfix/adoption/export?kind=everything')).status, 400);
+});
