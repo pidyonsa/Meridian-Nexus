@@ -6,6 +6,38 @@ On 21 September the user approved moving both report APIs and their verified
 source snapshot to Azure. Attendance automatic publishing was restored on
 22 September; source extraction still runs in the existing Google project.
 
+## StockFix in Nexus, 29 October
+
+The sidebar's StockFix entry used to open the StockFix app (`stock-fix.replit.app/adoption/`) in a new tab. It is now
+a Nexus page, `/stockfix`, open to every Meridian account (section `stockfix`, a default in Admin › Users; blocked
+people are refused). Tabs:
+
+- **Adoption** (default): the StockFix app's Adoption page, from the StockFix app's own API
+  (`/api/live-dashboard`, `/api/adoption-snapshot`, `/api/admin/adoption-weeks|-trend|-month|-period`,
+  `/api/roster/*`), read server-side and cached a minute (`server/shared/stockfix/adoption.cjs`). Its rules follow the
+  page Replit serves, which is older than the code in `cpillay2404/Stockfix` and counts the Rep/Merchandiser cards
+  from the app's `adoptionByRole`; checked against live data (week ending 21 October: Reps 106 of 180, 58.9%;
+  Merchandisers 894 of 2,134, 41.9%; store coverage 1,043 of 3,469). Live week, saved weeks, month, custom period;
+  client, store, region, manager, banner and resource type filters; Overview and Captures; Excel exports.
+- **Overview, Leaderboard, Action impact, Store detail**: read-only from SharePoint
+  `Stock Fix/Reporting/dashboard-data` (the StockFix dashboard-generator's output) through the Nexus SharePoint app
+  (`server/shared/stockfix/source.cjs`). The folder was rebuilt 22 October 09:30 UTC, after the week ending
+  14 October was exported. `leaderboard_rollup.json` is ~140 MB and week files ~400,000 rows, so repeated text is kept
+  once in memory and two week files at a time (measured: ~250 MB per week file).
+
+There is no link to the StockFix capture app; reps use it directly. The StockFix app's API has no sign-in of its
+own (anyone with the address can read it); that is for its owners to fix (see `../TODO.md`, section 2).
+
+| Time (UTC) | Deployment | Change |
+| --- | --- | --- |
+| 11:46 | `4e1811ab-7728-49df-adc0-d9bc2d965c25` | StockFix tab (SharePoint reporting), open to everyone |
+| 12:55 | `49fd85f4-eeb4-4840-aa98-7ee8e1a1dd70` | Adoption tab; link to the StockFix capture app removed |
+| 13:18 | `c006caaa-00b3-44fe-a61b-d4065809480a` | Adoption cards and regions follow the page Replit serves |
+| 13:35 | `e7b6c6d8-592c-4e5c-bb92-36c40c1d7b24` | Month, custom period, store filter, exports, Captures; memory limits; Data Admin entry removed |
+
+All four deployments completed (status 4) and `/healthz` answered 200 afterwards. Signed-out requests to `/stockfix`
+and `/api/stockfix*` get only the Microsoft sign-in redirect.
+
 ## Reports Load Again Behind Sign-In, 20 October
 
 After Microsoft sign-in went live, signed-in users saw "Report unavailable: The report service is

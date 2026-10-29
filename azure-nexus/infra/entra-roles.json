@@ -1,4 +1,0 @@
-[
-  {"allowedMemberTypes":["User"],"description":"View syndicated attendance and Franchise Orders","displayName":"Nexus Reader","id":"4c64f60e-bff5-4612-9124-a09d7c8c6d05","isEnabled":true,"value":"Nexus.Reader"},
-  {"allowedMemberTypes":["User"],"description":"View dashboards and import approved source workbooks","displayName":"Nexus Administrator","id":"4973d086-0a70-4503-87ed-b1df70a92d6c","isEnabled":true,"value":"Nexus.Admin"}
-]
