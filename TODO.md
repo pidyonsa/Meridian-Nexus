@@ -32,9 +32,10 @@ Live site: https://nexus.meridiangroup.co.za (Azure App Service `meridian-field-
 - [x] StockFix › Data Admin (admin-only entry with no page): removed.
 - [ ] **Look at the StockFix tab signed in** (any Meridian account) and confirm the four SharePoint tabs load with real
       data; the first open of a week downloads its file, so allow a few seconds.
-- [ ] Optional, for you to add (Claude Code may not change its own permissions): to let releases deploy without a
-      prompt, add this to `C:\Users\PC\.claude\settings.json` under `"permissions": {"allow": [...]}`:
-      `"PowerShell(& 'C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd' webapp deploy --subscription 02b268fe-e01a-453e-b287-eec83ccc0676 --resource-group rg-meridian-field-dashboards --name meridian-field-dashboards --src-path dist/meridian-field-dashboards.zip *)"`
+- [x] Claude Code permission rule for releases (added at the user's request, 29 Oct, in `C:\Users\PC\.claude\settings.json`):
+      allows only `az webapp deploy … --resource-group rg-meridian-field-dashboards --name meridian-field-dashboards
+      --src-path dist/meridian-field-dashboards.zip …`, run from `azure-field-dashboards`.
+- [x] StockFix › Overview and Captures as sidebar sub-items (deployed 29 Oct 14:26 UTC, `e13fab65…`).
 
 ## 2. StockFix app (Replit): risks to resolve with its owners
 

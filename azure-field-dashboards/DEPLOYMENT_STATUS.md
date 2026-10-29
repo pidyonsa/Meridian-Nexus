@@ -34,8 +34,9 @@ own (anyone with the address can read it); that is for its owners to fix (see `.
 | 12:55 | `49fd85f4-eeb4-4840-aa98-7ee8e1a1dd70` | Adoption tab; link to the StockFix capture app removed |
 | 13:18 | `c006caaa-00b3-44fe-a61b-d4065809480a` | Adoption cards and regions follow the page Replit serves |
 | 13:35 | `e7b6c6d8-592c-4e5c-bb92-36c40c1d7b24` | Month, custom period, store filter, exports, Captures; memory limits; Data Admin entry removed |
+| 14:26 | `e13fab65-10f4-468a-89bc-69919b0ae75f` | StockFix › Overview and Captures as sidebar sub-items (`/stockfix`, `/stockfix/captures`) |
 
-All four deployments completed (status 4) and `/healthz` answered 200 afterwards. Signed-out requests to `/stockfix`
+All five deployments completed (status 4) and `/healthz` answered 200 afterwards. Signed-out requests to `/stockfix`
 and `/api/stockfix*` get only the Microsoft sign-in redirect.
 
 ## Reports Load Again Behind Sign-In, 20 October
