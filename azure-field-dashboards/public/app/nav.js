@@ -10,7 +10,6 @@ import {CONFIG} from './config.js';
 export const OLD_NEXUS = CONFIG.currentNexus;
 export const BUILT = new Set(CONFIG.built);
 const PAGE_TOOLS = new Set(CONFIG.pageTools);
-const STOCKFIX_APP = 'https://stock-fix.replit.app/';
 
 // Module fields: status (as the old portal shows it: available | dev | adminOnly), dot (sidebar dot colour),
 // badgeTone (Admin only pill colour), cardBlurb (description on the home card), home (tool opened directly).
@@ -48,10 +47,9 @@ export const MODULES = [
     {id: 'training-academy', label: 'Meridian Training Academy', desc: 'Courses, guided journeys and quizzes for field and office teams.', external: 'https://training.meridiangroup.co.za/app/learn/landing', action: 'Open'}
   ]},
   // StockFix reporting is a Nexus tab, read from the StockFix data on SharePoint (user decision, 29 October 2026; it
-  // replaces the link to the StockFix app's dashboard). Reps still capture their store tasks in the StockFix app.
+  // replaces the link to the StockFix app's dashboard; no link to the StockFix capture app, user decision, 29 October 2026).
   {id: 'stockfix', label: 'StockFix', icon: 'box', tone: 'orange', status: 'available', dot: 'orange', home: 'stockfix', blurb: 'Out-of-stock detection, listing gaps and replenishment across all clients.', tools: [
     {id: 'stockfix', label: 'Dashboard', desc: 'Weekly store tasks, completion, rep capture and action impact by client, banner, region and store.', section: 'stockfix', path: '/stockfix'},
-    {id: 'stockfix-app', label: 'StockFix app', desc: 'Reps capture their weekly store tasks in the StockFix app (its own sign-in).', external: STOCKFIX_APP, action: 'Open app'},
     {id: 'stockfix-data-admin', label: 'Data Admin', desc: 'Run the weekly scripts and refresh StockFix data.', section: 'admin', restricted: true}
   ]},
   {id: 'sales', label: 'Sales dashboard', icon: 'bars', tone: 'blue', status: 'adminOnly', badgeTone: 'blue', dot: 'blue', cardBlurb: true, home: 'sales', blurb: 'Review current-month Geo Rep orders by region, rep, store and product.', tools: [

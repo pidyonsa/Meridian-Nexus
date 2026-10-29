@@ -1,6 +1,6 @@
 'use strict';
 // StockFix weekly reporting API, read-only from SharePoint (source.cjs), mounted by both the Nexus portal and
-// nexus.meridiangroup.co.za. Replaces the link to the StockFix app's dashboard; reps keep capturing in the StockFix app.
+// nexus.meridiangroup.co.za. Replaces the link to the StockFix app's dashboard.
 //   GET /api/stockfix          ?week=YYYY-MM-DD&client=&banner=&region=
 //                              published weeks, filter options, Overview, Leaderboard and Action Impact for the week
 //   GET /api/stockfix/rows     same query + classification=&status=<actioned|pending|escalated>&q=&page=

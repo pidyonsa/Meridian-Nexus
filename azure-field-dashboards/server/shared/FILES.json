@@ -37,15 +37,15 @@
   },
   {
     "file": "stockfix/source.cjs",
-    "sha256": "2b7d21d7989840ba8c20aeff39a1423c21e0e0a43886a11a9879ee4dad1e1b59"
+    "sha256": "7e8ce463a3bc92d9df7a77c08272bc0ad36e0e14e09623684d71b224eebe1b6c"
   },
   {
     "file": "stockfix/report.cjs",
-    "sha256": "d6d05919aa783e85e423a6064808414be64640e9deb72996a2a4e93b20817389"
+    "sha256": "8c57089a4cbf328a5e76a5b89628c703a738739a4194ac0adc5b39bf24d1a150"
   },
   {
     "file": "stockfix/routes.cjs",
-    "sha256": "ef74097f80c49ec0b61f75b74bff12ec41592e2de8d710f8050d6ed6b8b8ec46"
+    "sha256": "9c85dab3d272e24a302c8b90cf1461397a72705568fd1c4264013f948c0786ed"
   },
   {
     "file": "google/token.cjs",
@@ -141,7 +141,7 @@
   },
   {
     "file": "permissions/catalogue.cjs",
-    "sha256": "d842cd5064f159e2c10e1d090fe5bbbcc70d5b8f275792dfafcd6eade344f729"
+    "sha256": "032b4e1ffca03eff0eda8ba034c61b4103fc8c793b1de3a19c5e06f3541bd3b1"
   },
   {
     "file": "permissions/store.cjs",

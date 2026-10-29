@@ -3,8 +3,7 @@ import {api} from '../api.js';
 
 // StockFix (/stockfix): the weekly StockFix reporting that used to open the StockFix app, read from the files the
 // StockFix backend publishes to SharePoint. Overview, Leaderboard, Action impact and Store detail for one week ending,
-// filtered by client, banner and region. Reps keep capturing their store tasks in the StockFix app.
-const FIELD_APP = 'https://stock-fix.replit.app/';
+// filtered by client, banner and region.
 const VIEWS = [['overview', 'Overview'], ['leaderboard', 'Leaderboard'], ['impact', 'Action impact'], ['detail', 'Store detail']];
 const FILTERS = [['client', 'Client', 'clients', 'All clients'], ['banner', 'Banner', 'banners', 'All banners'], ['region', 'Region', 'regions', 'All regions']];
 const STATUSES = [['', 'All statuses'], ['actioned', 'Actioned'], ['pending', 'Pending'], ['escalated', 'Escalated']];
@@ -27,14 +26,13 @@ export async function renderStockFix(main, context) {
 
   const weekSel = h('select', {'aria-label': 'Week ending'});
   const refresh = h('button.button', {type: 'button', onclick: () => load()}, icon('refresh'), 'Refresh');
-  const fieldApp = h('a.button.ghost', {href: FIELD_APP, target: '_blank', rel: 'noopener'}, icon('external'), 'StockFix app');
   const filterBar = h('section.toolbar.sales-filters', {'aria-label': 'StockFix filters'});
   const tabs = h('nav.view-tabs', {'aria-label': 'StockFix views'});
   const body = h('div.sf-body');
   main.replaceChildren(
     h('header.page-head', {},
       h('div', {}, h('p.eyebrow', {}, 'Weekly store actions'), h('h1', {}, 'StockFix'), h('p.lede.compact', {}, 'Store tasks raised from client stock on hand, what reps actioned, and whether stock and sales recovered.')),
-      h('div.head-actions', {}, h('label.field', {}, h('span', {}, 'Week ending'), weekSel), refresh, fieldApp)),
+      h('div.head-actions', {}, h('label.field', {}, h('span', {}, 'Week ending'), weekSel), refresh)),
     h('section.panel.sales-filter-panel', {}, filterBar), tabs, body);
   weekSel.addEventListener('change', () => { state.week = weekSel.value; state.rows.page = 1; load(); });
 
