@@ -2,7 +2,8 @@
 // StockFix Adoption (the StockFix app's /adoption/ page, which Nexus used to link to), inside Nexus. The figures come
 // from the StockFix app's own API (stock-fix.replit.app: /api/live-dashboard, /api/adoption-snapshot,
 // /api/admin/adoption-weeks, /api/admin/adoption-trend), read server-side; the calculations below repeat that page's
-// (cpillay2404/Stockfix client/public/adoption/index.html, model() and renderVals(), read 29 October 2026) so the
+// (the page served at stock-fix.replit.app/adoption/, model() and renderVals(), read 29 October 2026; newer than the
+// copy in cpillay2404/Stockfix, which counts the role cards differently) so the
 // numbers match it: adoption = resources with work this week who captured at least once, Reps and Merchandisers
 // separately; store coverage = stores with a capture; dormant = resources with work but no capture.
 //   GET /api/stockfix/adoption   ?week=YYYY-MM-DD&client=&region=&manager=&banner=&rtype=
@@ -25,9 +26,6 @@ const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 const pct = (a, b) => (b ? (a / b) * 100 : 0);
 const pick = (o, keys) => { for (const k of keys) if (o?.[k] != null && o[k] !== '') return String(o[k]); return ''; };
 const REGION_KEYS = ['region', 'regionName', 'Region'], MANAGER_KEYS = ['manager', 'managerName', 'managerFullName', 'reportsTo', 'Manager'], BANNER_KEYS = ['banner', 'bannerName', 'Banner'];
-// The page's shared "Rep-like field role" test (Field Marketers, Team Leaders, Activation and Growth Specialists count as Reps).
-const isRepLike = t => /REP|FIELDMARKETER|TEAM LEADER|ACTIVATION|GROWTH SPECIALIST/.test(String(t || '').toUpperCase());
-const isMerch = t => String(t || '').toLowerCase().includes('merch');
 const titleCase = v => String(v).toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase());
 const uniq = list => [...new Set(list.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
@@ -85,50 +83,76 @@ function adoptionModel({data, ref = data, trend = null, filters = {}}) {
   const stores = (Array.isArray(d.byStore) ? d.byStore : []).map(x => ({store: String(x.store ?? '—'), completed: num(x.completed), open: num(x.open)}))
     .filter(x => !scopedStores || scopedStores.size === 0 || scopedStores.has(x.store));
 
-  const role = match => { const cohort = reps.filter(r => match(r.resourceType)); const active = cohort.filter(r => r.completed > 0).length; return {active, total: cohort.length, pct: pct(active, cohort.length)}; };
+  const refReps = Array.isArray(ref?.byRep) ? ref.byRep : [];
   const fine = Boolean(filters.region || filters.manager || filters.rtype || filters.banner);
+  // Cards: without a region, manager, type or banner filter, the StockFix app's own adoptionByRole totals; with one,
+  // the resources above, the role matched loosely by name.
+  const roles = Array.isArray(d.adoptionByRole) ? d.adoptionByRole : [];
+  const role = want => {
+    const match = v => { const t = String(v || '').toLowerCase(); return t === want || t.includes(want); };
+    const e = !fine && (roles.find(x => match(x.role)) || roles.find(x => match(x.resourceType)));
+    if (e) return {active: num(e.activePeople), total: num(e.totalPeople), pct: num(e.adoptionPct)};
+    const cohort = reps.filter(r => match(r.resourceType)), active = cohort.filter(r => r.completed > 0).length;
+    return {active, total: cohort.length, pct: pct(active, cohort.length)};
+  };
   const completed = fine ? reps.reduce((s, r) => s + r.completed, 0) : num(d.totals?.completed);
   const open = fine ? reps.reduce((s, r) => s + r.open, 0) : num(d.totals?.open);
   const touched = stores.filter(x => x.completed > 0).length;
 
-  // Regions: captures from the StockFix app's byRegion (its adoption % too), people counted from the resources above.
+  // Regions: the StockFix app's byRegion (captures, people, adoption and its Reps/Merchandisers split) unless a
+  // resource type is chosen; then captures from the resources above, and the role split counted from them.
   const regionAgg = new Map();
   const ensure = k => {
     const key = String(k).trim().toUpperCase();
     if (!key || UNKNOWN.test(key)) return null;
-    if (!regionAgg.has(key)) regionAgg.set(key, {label: titleCase(k), completed: 0, open: 0, adoptionPct: null, reps: [0, 0], merch: [0, 0]});
+    if (!regionAgg.has(key)) regionAgg.set(key, {label: titleCase(k), completed: 0, open: 0, totalPeople: null, activePeople: null, adoptionPct: null, repsPct: null, merchPct: null, reps: [0, 0], merch: [0, 0]});
     return regionAgg.get(key);
   };
-  for (const x of Array.isArray(d.byRegion) ? d.byRegion : []) {
-    const k = pick(x, REGION_KEYS) || String(x.name ?? x.label ?? '');
-    if (filters.region && k !== filters.region) continue;
-    const e = ensure(k);
-    if (!e) continue;
-    e.completed += num(x.completed); e.open += num(x.open);
-    if (x.adoptionPct != null) e.adoptionPct = num(x.adoptionPct);
+  const addRole = (e, name, active, total) => { const t = String(name || '').toLowerCase(), slot = t.includes('merch') ? e.merch : t.includes('rep') ? e.reps : null; if (slot) { slot[0] += num(active); slot[1] += num(total); } };
+  const apiRegions = !filters.rtype && Array.isArray(d.byRegion) ? d.byRegion : null;
+  if (apiRegions) {
+    for (const x of apiRegions) {
+      const k = pick(x, REGION_KEYS) || String(x.name ?? x.label ?? '');
+      if (filters.region && k !== filters.region) continue;
+      const e = ensure(k);
+      if (!e) continue;
+      e.completed += num(x.completed); e.open += num(x.open);
+      if (x.totalPeople != null) e.totalPeople = (e.totalPeople || 0) + num(x.totalPeople);
+      if (x.activePeople != null) e.activePeople = (e.activePeople || 0) + num(x.activePeople);
+      if (x.adoptionPct != null) e.adoptionPct = num(x.adoptionPct);
+      for (const [slot, r] of [['reps', x.reps], ['merch', x.merchandisers || x.merch]]) {
+        if (!r) continue;
+        if (r.adoptionPct != null) e[`${slot}Pct`] = num(r.adoptionPct);
+        e[slot][0] += num(r.activePeople); e[slot][1] += num(r.totalPeople);
+      }
+      const nested = x.byRole || x.roles || x.adoptionByRole;
+      if (Array.isArray(nested)) for (const r of nested) addRole(e, r.role || r.resourceType, r.activePeople, r.totalPeople);
+    }
+  } else {
+    for (const k of uniq(refReps.map(r => pick(r, REGION_KEYS)))) if (!filters.region || k === filters.region) ensure(k);
+    let fromReps = false;
+    for (const r of reps) { if (!r.region) continue; fromReps = true; const e = ensure(r.region); if (e) { e.completed += r.completed; e.open += r.open; } }
+    if (!fromReps) for (const r of recent) { const k = pick(r, REGION_KEYS), e = k ? ensure(k) : null; if (e) e.completed += 1; }
   }
-  for (const r of reps) {
-    if (!r.region) continue;
-    const e = ensure(r.region);
-    const slot = !e ? null : isMerch(r.resourceType) ? e.merch : isRepLike(r.resourceType) ? e.reps : null;
-    if (!slot) continue;
-    slot[1] += 1; if (r.completed > 0) slot[0] += 1;
+  if (![...regionAgg.values()].some(e => e.reps[1] || e.merch[1] || e.repsPct != null || e.merchPct != null)) {
+    for (const r of reps) { if (!r.region) continue; const e = ensure(r.region); if (e) addRole(e, r.resourceType, r.completed > 0 ? 1 : 0, 1); }
   }
-  const people = e => ({active: e.reps[0] + e.merch[0], total: e.reps[1] + e.merch[1]});
+  const share = (a, b) => (b ? pct(a, b) : null);
   const regionCaptures = [...regionAgg.values()].reduce((t, e) => t + e.completed, 0);
-  const regions = [...regionAgg.values()].map(e => ({label: e.label, completed: e.completed, open: e.open, people: people(e),
-    repsPct: e.reps[1] ? pct(e.reps[0], e.reps[1]) : null, merchPct: e.merch[1] ? pct(e.merch[0], e.merch[1]) : null,
-    adoptionPct: e.adoptionPct != null ? e.adoptionPct : regionCaptures ? pct(e.completed, regionCaptures) : null}))
+  const regions = [...regionAgg.values()].map(e => ({label: e.label, completed: e.completed, open: e.open, people: e.totalPeople != null ? {active: e.activePeople || 0, total: e.totalPeople} : null,
+    repsPct: e.repsPct ?? share(e.reps[0], e.reps[1]), merchPct: e.merchPct ?? share(e.merch[0], e.merch[1]),
+    adoptionPct: e.adoptionPct ?? (regionCaptures ? pct(e.completed, regionCaptures) : null)}))
     .sort((a, b) => b.completed - a.completed || a.label.localeCompare(b.label)).slice(0, 20);
   const divisionAgg = new Map();
   for (const [key, e] of regionAgg) {
     const label = DIVISION_BY_REGION[key] || 'Unmapped';
-    if (!divisionAgg.has(label)) divisionAgg.set(label, {label, completed: 0, open: 0, reps: [0, 0], merch: [0, 0]});
+    if (!divisionAgg.has(label)) divisionAgg.set(label, {label, completed: 0, open: 0, totalPeople: 0, activePeople: 0, reps: [0, 0], merch: [0, 0]});
     const v = divisionAgg.get(label);
-    v.completed += e.completed; v.open += e.open; v.reps[0] += e.reps[0]; v.reps[1] += e.reps[1]; v.merch[0] += e.merch[0]; v.merch[1] += e.merch[1];
+    v.completed += e.completed; v.open += e.open; v.totalPeople += e.totalPeople || 0; v.activePeople += e.activePeople || 0;
+    v.reps[0] += e.reps[0]; v.reps[1] += e.reps[1]; v.merch[0] += e.merch[0]; v.merch[1] += e.merch[1];
   }
-  const divisions = DIVISIONS.filter(l => divisionAgg.has(l)).map(l => { const v = divisionAgg.get(l), p = people(v); return {label: l, completed: v.completed, open: v.open, people: p,
-    repsPct: v.reps[1] ? pct(v.reps[0], v.reps[1]) : null, merchPct: v.merch[1] ? pct(v.merch[0], v.merch[1]) : null, adoptionPct: p.total ? pct(p.active, p.total) : null}; });
+  const divisions = DIVISIONS.filter(l => divisionAgg.has(l)).map(l => { const v = divisionAgg.get(l); return {label: l, completed: v.completed, open: v.open, people: {active: v.activePeople, total: v.totalPeople},
+    repsPct: share(v.reps[0], v.reps[1]), merchPct: share(v.merch[0], v.merch[1]), adoptionPct: share(v.activePeople, v.totalPeople)}; });
 
   const managers = (Array.isArray(d.byManager) ? d.byManager : []).filter(e => e.manager && e.manager !== 'Unknown').map(e => ({
     manager: String(e.manager), reps: {active: num(e.reps?.activePeople), total: num(e.reps?.totalPeople)}, merch: {active: num(e.merchandisers?.activePeople), total: num(e.merchandisers?.totalPeople)},
@@ -140,13 +164,12 @@ function adoptionModel({data, ref = data, trend = null, filters = {}}) {
     if (!byType.has(r.resourceType)) byType.set(r.resourceType, {label: r.resourceType, total: 0, active: 0, captures: 0});
     const e = byType.get(r.resourceType); e.total++; e.captures += r.completed; if (r.completed > 0) e.active++;
   }
-  const refReps = Array.isArray(ref?.byRep) ? ref.byRep : [];
   const trendRows = (Array.isArray(trend?.trend) ? trend.trend : []).filter(r => WEEK.test(String(r.week))).map(r => ({week: r.week, repPct: r.repPct == null ? null : num(r.repPct), merchPct: r.merchPct == null ? null : num(r.merchPct)}));
   return {
     week: d.week || null,
     filters: {clients: uniq((Array.isArray(ref?.byClient) ? ref.byClient : []).map(c => text(c.client))), regions: uniq(refReps.map(r => pick(r, REGION_KEYS))),
       managers: uniq(refReps.map(r => pick(r, MANAGER_KEYS))), banners: uniq(refReps.map(r => pick(r, BANNER_KEYS))), types: uniq(refReps.map(r => String(r.resourceType || 'Unspecified')))},
-    kpis: {reps: role(t => isRepLike(t) && !String(t).toLowerCase().includes('merchandiser')), merchandisers: role(t => String(t).toLowerCase().includes('merchandiser')),
+    kpis: {reps: role('rep'), merchandisers: role('merchandiser'),
       coverage: {touched, total: stores.length, pct: pct(touched, stores.length)}, dormant: reps.filter(r => r.completed === 0).length, completed, open},
     mix: {heavyAt: HEAVY_AT, habitual: reps.filter(r => r.completed >= HEAVY_AT).length, trialling: reps.filter(r => r.completed > 0 && r.completed < HEAVY_AT).length, dormant: reps.filter(r => r.completed === 0).length},
     trend: {rows: trendRows, overall: trend?.overall ? {repPct: trend.overall.repPct == null ? null : num(trend.overall.repPct), merchPct: trend.overall.merchPct == null ? null : num(trend.overall.merchPct)} : null},
@@ -178,4 +201,4 @@ function adoptionRoutes({source, allow}) {
   };
 }
 
-module.exports = {adoptionRoutes, adoptionModel, stockfixAppSource, cleanFilters, isRepLike, BASE};
+module.exports = {adoptionRoutes, adoptionModel, stockfixAppSource, cleanFilters, BASE};

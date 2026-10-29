@@ -45,8 +45,8 @@ export async function renderAdoption(body, {state, signal, remember}) {
 
   const k = d.kpis;
   const kpis = h('section.stat-grid.sf-kpis', {'aria-label': 'Adoption key figures'},
-    tile('Rep adoption', p1(k.reps.total ? k.reps.pct : null), k.reps.total ? `${of(k.reps.active, k.reps.total)} reps with work this week active` : 'no reps in scope', 'orange'),
-    tile('Merchandiser adoption', p1(k.merchandisers.total ? k.merchandisers.pct : null), k.merchandisers.total ? `${of(k.merchandisers.active, k.merchandisers.total)} merchandisers with work this week active` : 'no merchandisers in scope', 'orange'),
+    tile('Rep adoption', p1(k.reps.total ? k.reps.pct : null), k.reps.total ? `${of(k.reps.active, k.reps.total)} Reps active` : 'no reps in scope', 'orange'),
+    tile('Merchandiser adoption', p1(k.merchandisers.total ? k.merchandisers.pct : null), k.merchandisers.total ? `${of(k.merchandisers.active, k.merchandisers.total)} Merchandisers active` : 'no merchandisers in scope', 'orange'),
     tile('Store coverage', p1(k.coverage.total ? k.coverage.pct : null), k.coverage.total ? `${of(k.coverage.touched, k.coverage.total)} stores touched` : 'no stores in scope'),
     tile('Dormant resources', formatNumber(k.dormant), 'no captures this cycle'),
     tile('Captures logged', formatNumber(k.completed), `${formatNumber(k.open)} open · ${p1(k.completed + k.open ? (k.completed / (k.completed + k.open)) * 100 : 0)} of scope`));
@@ -89,9 +89,7 @@ function trendPanel(d) {
     rows.map((r, i) => svg('text', {class: 'sf-axis', x: x(i), y: AXIS + 34, 'text-anchor': 'middle'}, weekLabel(r.week, true))),
     svg('path', {class: 'sf-line merch', d: line('merchPct')}), svg('path', {class: 'sf-line rep', d: line('repPct')}),
     points('merchPct', 'merch', 18), points('repPct', 'rep', -10));
-  const o = d.trend.overall;
-  const legend = h('div.legend.sf-legend', {}, h('span', {}, h('i.swatch.sf-rep'), 'Reps', h('b.sf-orange', {}, pp(change('repPct')))), h('span', {}, h('i.swatch.sf-merch'), 'Merchandisers', h('b.sf-blue', {}, pp(change('merchPct')))),
-    o ? h('span.muted', {}, `Average weekly rate ${d.live ? 'since the start' : 'for the selected week'}: Reps ${p1(o.repPct)} · Merchandisers ${p1(o.merchPct)}`) : null);
+  const legend = h('div.legend.sf-legend', {}, h('span', {}, h('i.swatch.sf-rep'), 'Reps', h('b.sf-orange', {}, pp(change('repPct')))), h('span', {}, h('i.swatch.sf-merch'), 'Merchandisers', h('b.sf-blue', {}, pp(change('merchPct')))));
   return h('section.panel.wide.sf-trend-panel', {}, h('div.panel-head', {}, h('div', {}, h('p.eyebrow', {}, 'Trend'), h('h2', {}, 'Adoption trend'),
     h('p.muted.sf-sub', {}, `Week ending ${weekLabel(rows[0].week)} — week ending ${weekLabel(rows.at(-1).week)} · current filters`))), h('div.sf-chart', {}, chart), legend);
 }
@@ -99,10 +97,10 @@ function trendPanel(d) {
 function regionPanel(d) {
   return panel('Coverage', 'Adoption by region', sortable([
     {label: 'Region', key: 'label'}, {label: 'Captured', key: 'completed', num: true, render: r => formatNumber(r.completed)}, {label: 'Open', key: 'open', num: true, render: r => formatNumber(r.open)},
-    {label: 'People active', key: 'active', num: true, render: r => (r.people.total ? of(r.people.active, r.people.total) : '—')},
+    {label: 'People active', key: 'active', num: true, render: r => (r.people ? of(r.people.active, r.people.total) : '—')},
     {label: 'Reps', key: 'repsPct', num: true, render: r => p1(r.repsPct)}, {label: 'Merch', key: 'merchPct', num: true, render: r => p1(r.merchPct)},
     {label: 'Adoption', key: 'adoptionPct', num: true, render: r => h(`strong${r.adoptionPct >= 50 ? '.sf-orange' : ''}`, {}, p1(r.adoptionPct))}
-  ], d.regions.map(r => ({...r, active: r.people.active})), {initial: {key: 'completed', dir: -1}}), null, true);
+  ], d.regions.map(r => ({...r, active: r.people ? r.people.active : -1})), {initial: {key: 'completed', dir: -1}}), null, true);
 }
 
 function managerPanel(d, state, setFilter, redraw) {

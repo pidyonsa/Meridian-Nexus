@@ -238,7 +238,7 @@
     },
     {
       "path": "app/views/stockfix-adoption.js",
-      "sha256": "a0639736294aed97febf7b2f3feec58ad28af04b911cff5b97ec30eb17508293",
+      "sha256": "5965435200af71b73234ceca5066a65e346a3131fd6b43e37a7b2ee2e68f70c5",
       "adapter": "nexus-workspace"
     },
     {
