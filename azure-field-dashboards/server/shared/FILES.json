@@ -48,6 +48,10 @@
     "sha256": "9c85dab3d272e24a302c8b90cf1461397a72705568fd1c4264013f948c0786ed"
   },
   {
+    "file": "stockfix/adoption.cjs",
+    "sha256": "3293d6b51c629815de2679e4df20d24ee37a191daf66fd060eddd4e9820a5e4c"
+  },
+  {
     "file": "google/token.cjs",
     "sha256": "e1a91cb87c1e1fff08b16f6a41d5e9ced32037c8cc9601cf34620faebd546f01"
   },

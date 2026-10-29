@@ -78,9 +78,9 @@ test('every Meridian account sees Syndicated Attendance and Franchise Orders; th
   assert.equal((await get('/api/import', staff, 'POST')).status, 403);
 });
 
-const nexusHost = async (t, functionsFetch, salesStore = null, permissionStore = null, stockfixSource = undefined) => {
+const nexusHost = async (t, functionsFetch, salesStore = null, permissionStore = null, stockfixSource = undefined, stockfixAppSource = null) => {
   const reportProvider = {kind: 'test', request: async () => ({status: 200, data: {rows: []}})};
-  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch, salesStore, permissionStore, stockfixSource}).listen(0, '127.0.0.1');
+  const server = createApp({enabled: () => true, requireLogin: () => true, reportProvider, functionsFetch, salesStore, permissionStore, stockfixSource, stockfixAppSource}).listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
   return (route, init = {}) => fetch(`http://127.0.0.1:${server.address().port}${route}`, {redirect: 'manual', ...init});
@@ -210,6 +210,20 @@ test('StockFix reporting: every Meridian account (not blocked people); unavailab
   // Without a source (no SharePoint link on the site) the API says so.
   const bare = await nexusHost(t);
   assert.equal((await bare('/api/stockfix', {headers: as(['Nexus.Admin'])})).status, 503);
+});
+
+test('StockFix Adoption: every Meridian account, from the StockFix app; blocked people and signed-out callers refused', async t => {
+  const {memoryPermissionStore} = require('../server/shared/permissions/store.cjs');
+  const app = {weeks: async () => ({weeks: [{weekEnding: '2026-10-21', live: true}]}), trend: async () => ({trend: [], overall: null}),
+    live: async () => ({week: '2026-10-21', totals: {completed: 1, open: 1}, byRep: [{rep: 'R', resourceType: 'SYNDICATED REP', completed: 1, open: 1, region: 'Gauteng'}], byStore: [{store: 'S', completed: 1, open: 0}], byRegion: [], byManager: [], byClient: [], recent: []}),
+    snapshot: async () => null};
+  const store = memoryPermissionStore({permissions: [{email: 'blocked@meridiangroup.co.za', disabled: true}]});
+  const get = await nexusHost(t, undefined, null, store, null, app);
+  const d = await (await get('/api/stockfix/adoption', {headers: as([])})).json();
+  assert.equal(d.live, true); assert.equal(d.kpis.reps.active, 1); assert.equal(d.kpis.coverage.touched, 1);
+  assert.equal((await get('/api/stockfix/adoption', {headers: {}})).status, 401);
+  const blocked = {'x-ms-client-principal': principal(MERIDIAN_TENANT, 'aad', []), 'x-ms-client-principal-name': 'blocked@meridiangroup.co.za'};
+  assert.equal((await get('/api/stockfix/adoption', {headers: blocked})).status, 403);
 });
 
 test('Report automation: Nexus.Admin only; unavailable until the Google link is configured', async t => {

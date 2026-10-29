@@ -59,7 +59,7 @@ function signedInUser(req) {
   } catch { return null; }
 }
 
-function createApp({gapStore = null, salesStore = null, stockfixSource, permissionStore = null, googleServices = {}, fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
+function createApp({gapStore = null, salesStore = null, stockfixSource, stockfixAppSource = null, permissionStore = null, googleServices = {}, fetchImpl = fetch, functionsFetch = fetch, portalDir, now = Date.now, enabled = () => process.env.PUBLIC_DASHBOARDS_ENABLED === 'true', requireLogin = () => process.env.REQUIRE_MS_LOGIN === 'true', timeoutMs = 60000, retryDelayMs = 1000, reportProvider = null, publicDir = path.join(__dirname, '../public')} = {}) {
   const app = express();
   const limits = new Map();
   const pending = new Map();
@@ -147,6 +147,9 @@ function createApp({gapStore = null, salesStore = null, stockfixSource, permissi
   const stockfix = stockfixSource !== undefined ? stockfixSource
     : require('./shared/stockfix/source.cjs').sharePointStockFixSource({graph: require('./shared/azure/graph.cjs').graphClient({vault: require('./shared/azure/keyvault.cjs').keyVault()})});
   require('./shared/stockfix/routes.cjs').stockfixRoutes({source: stockfix, allow: req => has(req, 'stockfix')})(app);
+  // StockFix Adoption: the StockFix app's own adoption figures (stock-fix.replit.app API), read server-side.
+  const adoptionLib = require('./shared/stockfix/adoption.cjs');
+  adoptionLib.adoptionRoutes({source: stockfixAppSource || adoptionLib.stockfixAppSource(), allow: req => has(req, 'stockfix')})(app);
   // Report automation, Resources, ETLs, extraction profiles, Geo attendance and the SharePoint inventory (shared code),
   // each behind its own permission. Firebase-era Firestore and Storage through the keyless Google link when the site
   // has GOOGLE_* settings; otherwise their APIs answer 503.

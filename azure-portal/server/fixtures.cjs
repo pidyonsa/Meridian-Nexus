@@ -68,4 +68,37 @@ function stockfixSample() {
   return {weeks: weeks.map(week => ({week, rowCount: rows[week].length})), summary, leaderboard, impact, rows, updatedAt: iso(240)};
 }
 
-module.exports = {previewRepo, stockfixSample};
+// The StockFix app's adoption API for the preview (server/stockfix/adoption.cjs): invented resources and stores
+// across ten weeks, the newest one live.
+function stockfixAppSample() {
+  const weeks = Array.from({length: 10}, (_, i) => new Date(Date.UTC(2026, 7, 19 + 7 * i)).toISOString().slice(0, 10));
+  const regions = [['Gauteng', 'Manager North'], ['Mpumalanga', 'Manager North'], ['Free State', 'Manager Central'], ['Western Cape', 'Manager South'], ['KwaZulu Natal', 'Manager South']];
+  const types = ['SYNDICATED REP', 'SYNDICATED MERCHANDISER', 'SYNDICATED MERCHANDISER', 'SYNDICATED MERCHANDISER', 'TEAM LEADER'];
+  const week = (w, q = {}) => {
+    const byRep = [];
+    regions.forEach(([region, manager], r) => types.forEach((resourceType, t) => { for (let k = 0; k < 4; k++) {
+      const completed = (w * 3 + r * 5 + t * 7 + k * 11) % 9 < 3 + Math.min(w, 4) ? (r + t + k + w) % 12 : 0;
+      byRep.push({rep: `${region} ${resourceType.toLowerCase().includes('merch') ? 'Merchandiser' : 'Rep'} ${t * 4 + k + 1}`, completed, open: 6 - (completed % 6), resourceType, region, manager, banner: k % 2 ? 'Banner Two' : 'Banner One', client: t % 2 ? 'Example Drinks' : 'Sample Foods'});
+    } }));
+    const reps = byRep.filter(r => (!q.region || r.region.toUpperCase() === q.region.toUpperCase()) && (!q.client || r.client === q.client));
+    const byStore = Array.from({length: 40}, (_, s) => ({store: `Sample Store ${String(s + 1).padStart(2, '0')}`, completed: (s * 7 + w) % 5 ? (s + w) % 9 : 0, open: (s + w) % 4}));
+    const byRegion = regions.map(([region]) => { const mine = reps.filter(r => r.region === region), active = mine.filter(r => r.completed > 0).length; return {region, completed: mine.reduce((s, r) => s + r.completed, 0), open: mine.reduce((s, r) => s + r.open, 0), totalPeople: mine.length, activePeople: active, adoptionPct: mine.length ? Math.round(active / mine.length * 1000) / 10 : 0}; });
+    const byManager = [...new Set(reps.map(r => r.manager))].map(manager => {
+      const mine = reps.filter(r => r.manager === manager), role = m => { const c = mine.filter(r => m(r.resourceType)); return {totalPeople: c.length, activePeople: c.filter(r => r.completed > 0).length}; };
+      const active = mine.filter(r => r.completed > 0).length;
+      return {manager, totalPeople: mine.length, activePeople: active, adoptionPct: Math.round(active / mine.length * 1000) / 10, reps: role(t => !t.includes('MERCH')), merchandisers: role(t => t.includes('MERCH'))};
+    });
+    return {week: weeks[w], totals: {completed: reps.reduce((s, r) => s + r.completed, 0), open: reps.reduce((s, r) => s + r.open, 0)}, byRep: reps, byStore, byRegion, byManager,
+      byClient: [{client: 'Sample Foods'}, {client: 'Example Drinks'}], recent: []};
+  };
+  const parse = qs => Object.fromEntries(new URLSearchParams(qs || ''));
+  const stats = w => { const reps = week(w).byRep, rate = m => { const c = reps.filter(r => m(r.resourceType)); return Math.round(c.filter(r => r.completed > 0).length / c.length * 1000) / 10; }; return {week: weeks[w], repPct: rate(t => !t.includes('MERCH')), merchPct: rate(t => t.includes('MERCH'))}; };
+  return {
+    weeks: async () => ({weeks: weeks.map((weekEnding, i) => ({weekEnding, live: i === weeks.length - 1})).reverse()}),
+    live: async qs => week(weeks.length - 1, parse(qs)),
+    snapshot: async (w, qs) => (weeks.includes(w) ? week(weeks.indexOf(w), parse(qs)) : null),
+    trend: async () => { const trend = weeks.map((_, i) => stats(i)); return {trend, overall: {repPct: trend.reduce((s, r) => s + r.repPct, 0) / trend.length, merchPct: trend.reduce((s, r) => s + r.merchPct, 0) / trend.length}}; }
+  };
+}
+
+module.exports = {previewRepo, stockfixSample, stockfixAppSample};

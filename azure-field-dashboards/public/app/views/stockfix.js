@@ -1,10 +1,12 @@
 import {h, icon, formatNumber, sizeBars, sortable} from '../ui.js';
 import {api} from '../api.js';
+import {renderAdoption} from './stockfix-adoption.js';
 
-// StockFix (/stockfix): the weekly StockFix reporting that used to open the StockFix app, read from the files the
-// StockFix backend publishes to SharePoint. Overview, Leaderboard, Action impact and Store detail for one week ending,
-// filtered by client, banner and region.
-const VIEWS = [['overview', 'Overview'], ['leaderboard', 'Leaderboard'], ['impact', 'Action impact'], ['detail', 'Store detail']];
+// StockFix (/stockfix): Adoption (the StockFix app's Adoption page, the default view) and the weekly StockFix
+// reporting read from the files the StockFix backend publishes to SharePoint: Overview, Leaderboard, Action impact
+// and Store detail for one week ending, filtered by client, banner and region.
+const VIEWS = [['adoption', 'Adoption'], ['overview', 'Overview'], ['leaderboard', 'Leaderboard'], ['impact', 'Action impact'], ['detail', 'Store detail']];
+const ADOPTION_FILTERS = ['client', 'region', 'manager', 'banner', 'rtype'];
 const FILTERS = [['client', 'Client', 'clients', 'All clients'], ['banner', 'Banner', 'banners', 'All banners'], ['region', 'Region', 'regions', 'All regions']];
 const STATUSES = [['', 'All statuses'], ['actioned', 'Actioned'], ['pending', 'Pending'], ['escalated', 'Escalated']];
 const weekLabel = (iso, style = 'medium') => new Intl.DateTimeFormat('en-ZA', style === 'short' ? {day: 'numeric', month: 'short', timeZone: 'UTC'} : {day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'}).format(new Date(`${iso}T00:00:00Z`));
@@ -14,31 +16,39 @@ const numCell = v => (v == null ? '' : formatNumber(v, Number.isInteger(v) ? 0 :
 
 export async function renderStockFix(main, context) {
   const params = new URLSearchParams(location.search);
+  const view = VIEWS.some(([v]) => v === params.get('view')) ? params.get('view') : 'adoption';
+  const asked = /^\d{4}-\d{2}-\d{2}$/.test(params.get('week') || '') ? params.get('week') : '';
+  // The address carries the open view's week and filters only: Adoption's (StockFix app weeks) or the reporting views'.
   const state = {
-    view: VIEWS.some(([v]) => v === params.get('view')) ? params.get('view') : 'overview',
-    week: /^\d{4}-\d{2}-\d{2}$/.test(params.get('week') || '') ? params.get('week') : '',
-    filters: Object.fromEntries(FILTERS.map(([k]) => [k, params.get(k) || '']).filter(([, v]) => v)),
-    rows: {classification: params.get('classification') || '', status: params.get('status') || '', q: params.get('q') || '', page: 1}
+    view,
+    week: view === 'adoption' ? '' : asked,
+    filters: view === 'adoption' ? {} : Object.fromEntries(FILTERS.map(([k]) => [k, params.get(k) || '']).filter(([, v]) => v)),
+    rows: {classification: params.get('classification') || '', status: params.get('status') || '', q: params.get('q') || '', page: 1},
+    adoption: {week: view === 'adoption' ? asked : '', filters: view === 'adoption' ? Object.fromEntries(ADOPTION_FILTERS.map(k => [k, params.get(k) || '']).filter(([, v]) => v)) : {}, seg: 'active', storeQuery: '', managerQuery: ''}
   };
   let data = null;
   const query = (extra = {}) => new URLSearchParams(Object.entries({week: state.week, ...state.filters, ...extra}).filter(([, v]) => v)).toString();
   const rowQuery = (extra = {}) => query({classification: state.rows.classification, status: state.rows.status, q: state.rows.q, ...extra});
 
   const weekSel = h('select', {'aria-label': 'Week ending'});
+  const weekField = h('label.field', {}, h('span', {}, 'Week ending'), weekSel);
   const refresh = h('button.button', {type: 'button', onclick: () => load()}, icon('refresh'), 'Refresh');
   const filterBar = h('section.toolbar.sales-filters', {'aria-label': 'StockFix filters'});
+  const filterPanel = h('section.panel.sales-filter-panel', {}, filterBar);
   const tabs = h('nav.view-tabs', {'aria-label': 'StockFix views'});
   const body = h('div.sf-body');
   main.replaceChildren(
     h('header.page-head', {},
-      h('div', {}, h('p.eyebrow', {}, 'Weekly store actions'), h('h1', {}, 'StockFix'), h('p.lede.compact', {}, 'Store tasks raised from client stock on hand, what reps actioned, and whether stock and sales recovered.')),
-      h('div.head-actions', {}, h('label.field', {}, h('span', {}, 'Week ending'), weekSel), refresh)),
-    h('section.panel.sales-filter-panel', {}, filterBar), tabs, body);
+      h('div', {}, h('p.eyebrow', {}, 'Weekly store actions'), h('h1', {}, 'StockFix'), h('p.lede.compact', {}, 'Who is using StockFix, the store tasks it raises from client stock on hand, what reps actioned, and whether stock and sales recovered.')),
+      h('div.head-actions', {}, weekField, refresh)),
+    filterPanel, tabs, body);
   weekSel.addEventListener('change', () => { state.week = weekSel.value; state.rows.page = 1; load(); });
 
   // The address keeps the view, week and filters, so a view can be bookmarked or shared.
   function remember() {
-    const q = state.view === 'detail' ? rowQuery({view: state.view}) : query({view: state.view === 'overview' ? '' : state.view});
+    const a = state.adoption;
+    const q = state.view === 'adoption' ? new URLSearchParams(Object.entries({week: a.week, ...a.filters}).filter(([, v]) => v)).toString()
+      : state.view === 'detail' ? rowQuery({view: state.view}) : query({view: state.view});
     history.replaceState(null, '', `/stockfix${q ? `?${q}` : ''}`);
   }
   const loading = () => h('div.page-loading', {role: 'status'}, h('span.spinner'), 'Loading…');
@@ -46,6 +56,11 @@ export async function renderStockFix(main, context) {
 
   async function load() {
     remember();
+    drawTabs();
+    // Adoption has its own weeks and filters (inside the view); the reporting views share the ones above.
+    const adoption = state.view === 'adoption';
+    weekField.hidden = adoption; filterPanel.hidden = adoption;
+    if (adoption) return renderAdoption(body, {state: state.adoption, signal: context.signal, remember});
     body.replaceChildren(loading());
     try {
       data = await api(`/stockfix?${query()}`, {signal: context.signal});
@@ -73,7 +88,11 @@ export async function renderStockFix(main, context) {
       h('button.button.ghost', {type: 'button', disabled: !Object.keys(state.filters).length, onclick: () => { state.filters = {}; state.rows.page = 1; load(); }}, 'Clear filters'));
   }
   function drawTabs() {
-    tabs.replaceChildren(...VIEWS.map(([v, label]) => h('button', {type: 'button', class: state.view === v ? 'on' : '', 'aria-current': state.view === v ? 'page' : null, onclick: () => { state.view = v; drawTabs(); remember(); draw(); }}, label)));
+    tabs.replaceChildren(...VIEWS.map(([v, label]) => h('button', {type: 'button', class: state.view === v ? 'on' : '', 'aria-current': state.view === v ? 'page' : null, onclick: () => {
+      const reload = v === 'adoption' || state.view === 'adoption' || !data;
+      state.view = v;
+      if (reload) load(); else { drawTabs(); remember(); draw(); }
+    }}, label)));
   }
 
   async function draw() {

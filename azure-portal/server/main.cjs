@@ -101,6 +101,9 @@ if (require.main === module) {
   const stockfixSource = sharePointStockFixSource({graph: graphClient({vault: require('./azure/keyvault.cjs').keyVault()})})
     || (require('./auth.cjs').previewAllowed() ? memoryStockFixSource(require('./fixtures.cjs').stockfixSample()) : null);
   const stockfix = require('./stockfix/routes.cjs').stockfixRoutes({source: stockfixSource, allow: req => Boolean(req.user?.admin)});
+  // StockFix Adoption: the StockFix app's adoption figures (invented sample answers in a local preview).
+  const {adoptionRoutes, stockfixAppSource} = require('./stockfix/adoption.cjs');
+  const adoption = adoptionRoutes({source: require('./auth.cjs').previewAllowed() ? require('./fixtures.cjs').stockfixAppSample() : stockfixAppSource(), allow: req => Boolean(req.user?.admin)});
   // Report automation, Resources and ETLs: Nexus admins; Firebase-era Firestore and Storage through the keyless link.
   const google = require('./google/services.cjs').googleServices();
   const asAdmin = req => Boolean(req.user?.admin), userOf = req => ({email: req.user.email, name: req.user.name});
@@ -109,5 +112,5 @@ if (require.main === module) {
   const etls = require('./etl/routes.cjs').etlRoutes({service: google.etls, allow: asAdmin, userOf});
   const profiles = require('./profiles/routes.cjs').profileRoutes({service: google.profiles, allow: asAdmin, userOf});
   const attendanceAdmin = require('./attendance/routes.cjs').attendanceAdminRoutes({geo: google.geo, exclusions: google.exclusions, inventory: google.inventory, allow: asAdmin, userOf});
-  createApp({api: [adminRoutes(repo), gaps, sales, stockfix, automation, resources, etls, profiles, attendanceAdmin], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
+  createApp({api: [adminRoutes(repo), gaps, sales, adoption, stockfix, automation, resources, etls, profiles, attendanceAdmin], profileFor: profileFrom(repo)}).listen(port, () => console.log(`Nexus portal on http://localhost:${port}${repo.sample ? ' (sample data)' : ''}`));
 }

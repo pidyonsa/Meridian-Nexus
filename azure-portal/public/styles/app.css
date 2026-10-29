@@ -468,6 +468,32 @@ p.empty.panel { padding: 22px; }
 .sf-detail .table td:nth-child(11) { min-width: 160px; }
 .sf-feedback { display: inline-block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 @media (max-width: 560px) { .sf-row-filters .field, .sf-row-filters .sf-search { min-width: 100%; } }
+/* StockFix › Adoption (views/stockfix-adoption.js): Reps in orange, Merchandisers in blue, as in the StockFix app */
+.sf-orange { color: var(--orange-2); } .sf-blue { color: #9dc4ec; }
+.sf-sub { margin: 4px 0 0; font-size: 12.5px; }
+.sf-trend-panel { margin-bottom: 18px; }
+.sf-kpis { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-bottom: 18px; }
+.sf-chart { padding: 6px 16px 0; }
+.sf-chart svg { display: block; width: 100%; height: auto; }
+.sf-grid-line { stroke: rgba(157, 196, 236, .14); stroke-width: 1; }
+.sf-axis { fill: var(--muted); font-size: 11px; }
+.sf-line { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.sf-line.rep { stroke: var(--orange-2); } .sf-line.merch { stroke: #6fb2ff; }
+.sf-dot.rep { fill: var(--orange-2); } .sf-dot.merch { fill: #6fb2ff; }
+.sf-val { font-size: 11px; font-weight: 600; } .sf-val.rep { fill: var(--orange-2); } .sf-val.merch { fill: #9dc4ec; }
+.sf-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.sf-legend b { margin-left: 4px; font-weight: 600; }
+.legend .swatch.sf-rep { border-radius: 50%; background: var(--orange-2); } .legend .swatch.sf-merch { border-radius: 50%; background: #6fb2ff; }
+.sf-link { padding: 0; border: 0; background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.sf-link:hover, .sf-link:focus-visible { color: var(--orange-2); text-decoration: underline; outline: none; }
+.sf-person { display: inline-flex; align-items: center; }
+.sf-usage { display: inline-block; flex: none; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; }
+.sf-usage.habitual, .hbar-fill.sf-habitual { background: var(--orange); }
+.sf-usage.trialling, .hbar-fill.sf-trialling { background: #6fb2ff; }
+.sf-usage.dormant, .hbar-fill.sf-dormant { background: #3d5f85; }
+.sf-seg { padding: 12px 20px 4px; }
+.sf-foot { margin: 0; padding: 10px 20px 14px; font-size: 12px; }
+@media (max-width: 560px) { .sf-val { display: none; } .sf-chart { padding: 4px 6px 0; } }
 
 /* Report automation (views/automation.js) */
 .view-tabs.numbered .tab-num { margin-right: 8px; color: var(--orange-2); font-size: 11.5px; font-weight: 600; letter-spacing: .08em; }
